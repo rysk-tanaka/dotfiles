@@ -1,0 +1,82 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette
+{
+  "assistant": {
+    "default_model": {
+      "provider": "zed.dev",
+      "model": "claude-3-5-sonnet-latest"
+    },
+    "version": "2"
+  },
+  "vim_mode": true,
+  "ui_font_size": 16,
+  "buffer_font_size": 19,
+  "buffer_font_family": "Bizin Gothic Discord NF",
+  "theme": {
+    "mode": "system",
+    "light": "One Light",
+    "dark": "Ayu Dark"
+  },
+  "terminal": {
+    "copy_on_select": true
+  },
+  "lsp": {
+    "pyright": {
+      "settings": {
+        "python.analysis": {
+          //"diagnosticMode": "workspace",
+          //"typeCheckingMode": "strict"
+        },
+        "python": {
+          "pythonPath": "./.venv/bin/python"
+        }
+      }
+    },
+    "ruff": {
+      "initialization_options": {
+        "settings": {
+          "lineLength": 100,
+          "lint": {
+            "extendSelect": ["B", "C", "E", "F", "W", "B9"],
+            "ignore": [
+              "E203",
+              "E266",
+              "E501",
+              "F403",
+              "F401",
+              "E722",
+              "F811",
+              "E731",
+              "F821"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "languages": {
+    "Python": {
+      "format_on_save": "on",
+      "formatter": [
+        {
+          "code_actions": {
+            "source.organizeImports.ruff": true,
+            "source.fixAll.ruff": true
+          }
+        },
+        {
+          "language_server": {
+            "name": "ruff"
+          }
+        }
+      ],
+      "language_servers": ["pyright", "ruff"]
+    }
+  }
+}

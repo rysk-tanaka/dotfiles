@@ -1,0 +1,42 @@
+# Core settings
+[core]
+    editor = vim
+    pager = delta
+    quotepath = false
+    ignorecase = false
+
+# Diff & Merge settings
+[diff]
+    colorMoved = default
+
+[delta]
+    navigate = true    # use n and N to move between diff sections
+    light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
+
+[interactive]
+    diffFilter = delta --color-only
+
+[merge]
+    conflictStyle = zdiff3
+
+# Commit signing settings
+[gpg]
+    format = ssh
+
+[commit]
+    gpgsign = true
+
+# Git behavior settings
+[rebase]
+    autostash = true
+
+[init]
+    defaultBranch = main
+
+# URL handling
+[url "ssh://git@github.com/"]
+    insteadOf = https://github.com/
+
+# Personal settings (kept separately)
+[include]
+    path = ~/.gitconfig.local

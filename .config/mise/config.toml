@@ -1,0 +1,12 @@
+[tools]
+1password-cli = "latest"
+awscli = "latest"  # requires rosetta 2
+delta = "latest"
+eza = "latest"
+go = "latest"
+jq = "latest"
+node = "latest"
+"npm:opencommit" = "latest"
+ripgrep = "latest"
+terraform = "latest"
+uv = "latest"
