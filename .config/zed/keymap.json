@@ -17,5 +17,15 @@
     "bindings": {
       // "j k": ["workspace::SendKeystrokes", "escape"]
     }
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "cmd-up": "pane::SplitUp",
+      "cmd-down": "pane::SplitDown",
+      "cmd-left": "pane::SplitLeft",
+      "cmd-right": "pane::SplitRight",
+      "cmd-backspace": "pane::CloseActiveItem"
+    }
   }
 ]
