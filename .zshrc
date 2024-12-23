@@ -24,11 +24,11 @@ if type mise &>/dev/null; then
 fi
 
 # python
-alias python="/usr/bin/python3"
-alias pip="/usr/bin/pip3"
+# alias python="/usr/bin/python3"
+# alias pip="/usr/bin/pip3"
 
 # pbcopy
-alias pbcopy="ghead -c -1 | pbcopy"
+# alias pbcopy="ghead -c -1 | pbcopy"
 
 # ls
 alias ls="ls -G"
