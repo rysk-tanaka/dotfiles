@@ -1,3 +1,6 @@
+# enable comment on command line mode
+setopt interactivecomments
+
 # zsh-syntax-highlighting
 autoload -Uz colors && colors
 
