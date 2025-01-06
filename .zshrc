@@ -45,7 +45,9 @@ alias diff="delta"
 # rg
 alias rg="rg --hidden --no-ignore-vcs --ignore-case"
 
+# coreutils
+alias cp="gcp"
+
 # gnu utils
 # alias sed="gsed"
-# alias cp="gcp"
 # alias grep="ggrep --exclude-dir={venv,node_modules,dist}"
