@@ -23,6 +23,11 @@ if type mise &>/dev/null; then
   eval "$(mise activate --shims)"
 fi
 
+# starship
+if type starship &>/dev/null; then
+  eval "$(starship init zsh)"
+fi
+
 # python
 # alias python="/usr/bin/python3"
 # alias pip="/usr/bin/pip3"

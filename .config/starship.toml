@@ -1,0 +1,22 @@
+# Starship configuration
+# https://starship.rs/ja-JP/config
+
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Inserts a blank line between shell prompts
+add_newline = true
+
+[username]
+style_user = 'bold blue'
+format = '[$user]($style) '
+show_always = true
+
+[character]
+success_symbol = '[\$](bold green)'
+error_symbol = '[\$](bold red)'
+
+[aws]
+format = 'on [$symbol($profile )(\($region\) )]($style)'
+style = 'bold blue'
+force_display = true
