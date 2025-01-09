@@ -4,10 +4,12 @@ MacOS用の初期セットアップを行います。
 
 ## 管理対象ファイル
 
+- `~/.config/ghostty/config` - Ghosttyの設定
 - `~/.config/git/ignore` - Gitのグローバル除外設定
 - `~/.config/mise/config.toml` - miseの設定
 - `~/.config/zed/keymap.json` - Zedエディタのキーマップ設定
 - `~/.config/zed/settings.json` - Zedエディタの一般設定
+- `~/.config/starship.toml` - Starshipの設定
 - `~/.gitconfig` - Gitの設定
 - `~/.vimrc` - Vimの設定
 - `~/.zshrc` - Zshの設定
