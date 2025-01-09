@@ -50,6 +50,10 @@ alias diff="delta"
 # rg
 alias rg="rg --hidden --no-ignore-vcs --ignore-case"
 
+# ruff
+alias ruffc="ruff check"
+alias rufff="ruff format"
+
 # coreutils
 alias cp="gcp"
 
