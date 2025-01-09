@@ -1,0 +1,17 @@
+# Action Reference - Keybindings
+# https://ghostty.org/docs/config/reference
+
+theme = "Ayu Mirage"
+
+font-family = "Bizin Gothic Discord NF"
+font-size = 20
+
+keybind = "cmd+enter=new_split:auto"
+keybind = "cmd+right=goto_split:right"
+keybind = "cmd+left=goto_split:left"
+keybind = "cmd+backspace=close_surface"
+
+quick-terminal-position = "top"
+quick-terminal-screen = "main"
+quick-terminal-animation-duration = 0.3
+keybind = "global:cmd+shift+t=toggle_quick_terminal"
