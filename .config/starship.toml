@@ -7,6 +7,9 @@
 # Inserts a blank line between shell prompts
 add_newline = true
 
+# Right prompt
+right_format = """$cmd_duration"""
+
 [username]
 style_user = 'bold blue'
 format = '[$user]($style): '
@@ -15,6 +18,10 @@ show_always = true
 [character]
 success_symbol = '[\$](bold green)'
 error_symbol = '[\$](bold red)'
+
+[cmd_duration]
+show_milliseconds = true
+show_notifications = true
 
 [aws]
 format = 'on [$symbol($profile )(\($region\) )]($style)'
