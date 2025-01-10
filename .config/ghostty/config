@@ -6,6 +6,10 @@ theme = "Ayu Mirage"
 font-family = "Bizin Gothic Discord NF"
 font-size = 20
 
+copy-on-select = true
+clipboard-trim-trailing-spaces = true
+clipboard-paste-protection = true
+
 keybind = "cmd+enter=new_split:auto"
 keybind = "cmd+right=goto_split:right"
 keybind = "cmd+left=goto_split:left"
