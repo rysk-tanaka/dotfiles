@@ -54,6 +54,9 @@ alias rg="rg --hidden --no-ignore-vcs --ignore-case"
 alias ruffc="ruff check"
 alias rufff="ruff format"
 
+# mise
+alias mr="mise run"
+
 # coreutils
 alias cp="gcp"
 
