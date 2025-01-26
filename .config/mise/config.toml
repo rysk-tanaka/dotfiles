@@ -13,3 +13,6 @@ ripgrep = "latest"
 starship = "latest"
 terraform = "latest"
 uv = "latest"
+
+[tasks.lint]
+run = "ruff format && ruff check && mypy ."
