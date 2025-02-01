@@ -1,6 +1,7 @@
 [tools]
 1password-cli = "latest"
 awscli = "latest"                  # requires rosetta 2
+aws-vault = "latest"
 delta = "latest"
 eza = "latest"
 go = "latest"
