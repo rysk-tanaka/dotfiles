@@ -6,7 +6,8 @@ theme = "Ayu Mirage"
 font-family = "Bizin Gothic Discord NF"
 font-size = 20
 
-copy-on-select = "clipboard"  # Changed from true to "clipboard" since v1.1.0
+# Changed from true to "clipboard" since v1.1.0
+copy-on-select = "clipboard"
 clipboard-trim-trailing-spaces = true
 clipboard-paste-protection = true
 
