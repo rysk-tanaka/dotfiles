@@ -28,6 +28,11 @@ if type starship &>/dev/null; then
   eval "$(starship init zsh)"
 fi
 
+# code
+if type code &>/dev/null; then
+  [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+fi
+
 # python
 # alias python="/usr/bin/python3"
 # alias pip="/usr/bin/pip3"
