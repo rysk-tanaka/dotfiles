@@ -33,6 +33,11 @@ if type code &>/dev/null; then
   [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
 fi
 
+# code-insiders
+if type code-insiders &>/dev/null; then
+  [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code-insiders --locate-shell-integration-path zsh)"
+fi
+
 # python
 # alias python="/usr/bin/python3"
 # alias pip="/usr/bin/pip3"
