@@ -35,6 +35,7 @@ fi
 
 # code-insiders
 if type code-insiders &>/dev/null; then
+  alias code="code-insiders"
   [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code-insiders --locate-shell-integration-path zsh)"
 fi
 
