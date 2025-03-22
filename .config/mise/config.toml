@@ -16,5 +16,15 @@ starship = "latest"
 terraform = "latest"
 uv = "latest"
 
+[env]
+DOTFILES_PATH = "/Users/rysk/Repositories/rysk/dotfiles"
+
 [tasks.lint]
 run = "ruff format && ruff check && mypy ."
+
+[tasks.setup-links]
+run = """
+mkdir -p .github/workflows
+ln -sf ${DOTFILES_PATH}/.github/workflows/pull_request_template.md .github/workflows/pull_request_template.md
+ln -sf ${DOTFILES_PATH}/.clinerules .clinerules
+"""
