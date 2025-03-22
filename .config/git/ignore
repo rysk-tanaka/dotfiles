@@ -1,6 +1,7 @@
-aws-exports.js
 .clinerules
 .github/workflows/pull_request_template.md
 .mise.local.toml
 .memo.local.md
 .obsidian
+aws-exports.js
+CLAUDE.md
