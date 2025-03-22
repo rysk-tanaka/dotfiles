@@ -1,12 +1,13 @@
 [tools]
 1password-cli = "latest"
-awscli = "latest"                  # requires rosetta 2
+awscli = "latest"                          # requires rosetta 2
 aws-vault = "latest"
 delta = "latest"
 eza = "latest"
 go = "latest"
 jq = "latest"
 node = "lts"
+"npm:@anthropic-ai/claude-code" = "latest"
 "npm:markdownlint-cli2" = "latest"
 "npm:opencommit" = "latest"
 pnpm = "latest"
