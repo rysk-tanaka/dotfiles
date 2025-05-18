@@ -4,6 +4,7 @@
 .memo.local.md
 .obsidian
 .vscode
+.DS_Store
 aws-exports.js
 memory-bank
 CLAUDE.md
