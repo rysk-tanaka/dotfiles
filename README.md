@@ -10,6 +10,8 @@ MacOS用の初期セットアップを行います。
 ├── .zprofile                         # Zsh環境変数など
 ├── .vimrc                            # Vim設定
 ├── .gitconfig                        # Git設定
+├── .claude/                          # Claude Code設定
+│   └── CLAUDE.md                     # グローバル設定
 ├── .config/                          # 各種アプリケーション設定
 │   ├── zed/                          # Zedエディタ
 │   │   ├── keymap.json               # キーマップ設定
@@ -52,6 +54,7 @@ MacOS用の初期セットアップを行います。
     ディレクトリの作成
 
     ```bash
+    mkdir -p ~/.claude
     mkdir -p ~/.config/ghostty
     mkdir -p ~/.config/git
     mkdir -p ~/.config/mise
@@ -61,6 +64,7 @@ MacOS用の初期セットアップを行います。
     設定ファイルのリンク
 
     ```bash
+    ln -sf ~/Repositories/rysk/dotfiles/.claude/CLAUDE.md ~/.claude/CLAUDE.md
     ln -sf ~/Repositories/rysk/dotfiles/.config/ghostty/config ~/.config/ghostty/config
     ln -sf ~/Repositories/rysk/dotfiles/.config/git/ignore ~/.config/git/ignore
     ln -sf ~/Repositories/rysk/dotfiles/.config/mise/config.toml ~/.config/mise/config.toml
