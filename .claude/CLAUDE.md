@@ -17,6 +17,8 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - Clean, readable code with meaningful variable names
 - Follow project-specific conventions when available
 - Prioritize maintainability and clarity
+- Always end files with a trailing newline (空行を末尾に追加)
+  - 理由: POSIX標準への準拠、diffの見やすさ向上、多くのエディタ・ツールとの互換性確保
 
 ### Common Development Tools
 
