@@ -33,7 +33,7 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - Git commit messages in English
 - Follow Conventional Commits when specified
 - Single-line commit messages preferred
-- Pull request templates: Check `.github/pull_request_template.md`
+- Pull request templates: Check `.github/workflows/pull_request_template.md`
 
 ### Important Instructions
 - Do what has been asked; nothing more, nothing less
