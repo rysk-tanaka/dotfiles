@@ -13,9 +13,16 @@ MacOS用の初期セットアップを行います。
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── settings.json                 # グローバル設定（現在未使用）
-│   └── commands/                     # カスタムコマンド
-│       ├── pr.md                     # PRコマンド
-│       └── permalink.md              # パーマリンクコマンド
+│   ├── commands/                     # カスタムコマンド
+│   │   ├── pr.md                     # PRコマンド
+│   │   ├── permalink.md              # パーマリンクコマンド
+│   │   ├── claude-check.md           # プロセス状況確認
+│   │   ├── claude-monitor.md         # プロセス監視
+│   │   └── claude-clean.md           # プロセスクリーンアップ
+│   └── scripts/                      # スクリプトファイル
+│       ├── claude-check.sh           # プロセス状況確認スクリプト
+│       ├── claude-monitor.sh         # プロセス監視スクリプト
+│       └── claude-clean.sh           # プロセスクリーンアップスクリプト
 ├── .config/                          # 各種アプリケーション設定
 │   ├── zed/                          # Zedエディタ
 │   │   ├── keymap.json               # キーマップ設定
@@ -158,8 +165,16 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 
 以下のカスタムコマンドが利用可能です：
 
+#### 開発用コマンド
+
 - `/pr` - GitHubにプルリクエストを作成
 - `/permalink` - 指定ファイルのGitHubパーマリンクを生成
+
+#### プロセス管理コマンド
+
+- `/claude-monitor` - プロセス監視と自動クリーンアップ（セッション開始時の日常使用）
+- `/claude-check` - プロセス状況の詳細確認（問題調査時）
+- `/claude-clean` - 不要プロセスの手動クリーンアップ（問題発生時）
 
 設定変更は `claude config` コマンドを使用してください。
 
