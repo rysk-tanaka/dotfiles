@@ -1,22 +1,28 @@
 name: Claude Code Review
 
 on:
+  # 1. PRタイトルに[review]が含まれる場合
   pull_request:
     types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+  
+  # 2. PRコメントで@claude-reviewをメンション
+  issue_comment:
+    types: [created]
+  
+  # 3. 手動実行
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR番号を指定してレビューを実行'
+        required: true
+        type: string
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    if: |
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[review]')) ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '@claude-review')) ||
+      (github.event_name == 'workflow_dispatch')
     
     runs-on: ubuntu-latest
     permissions:
