@@ -40,8 +40,8 @@ fi
 # fi
 
 # python
-# alias python="/usr/bin/python3"
-# alias pip="/usr/bin/pip3"
+alias python="mise exec python@3.12.8 -- python"
+alias pip="mise exec python@3.12.8 -- pip"
 
 # pbcopy
 # alias pbcopy="ghead -c -1 | pbcopy"

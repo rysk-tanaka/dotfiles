@@ -122,3 +122,21 @@ mise run lint
 1. `ruff format` - Pythonコードを自動フォーマット
 2. `ruff check` - コードスタイルとエラーチェック
 3. `mypy .` - 静的型チェック
+
+## Python環境の管理
+
+このプロジェクトでは以下のツールでPython環境を管理しています
+
+- mise: グローバルなPython環境（Python 3.12.8）
+- uv: プロジェクト固有の仮想環境
+
+### 使い分け
+
+- システム全体で使用するツール → miseでインストール
+- プロジェクト固有の依存関係 → uvで仮想環境を作成
+
+```bash
+# プロジェクトで仮想環境を作成
+uv venv
+source .venv/bin/activate
+```
