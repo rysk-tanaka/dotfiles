@@ -102,20 +102,25 @@ monitor_claude_processes() {
         if [ "$process_count" -gt 8 ]; then
             # プロセス数をチェックしてからhead -n の値を計算
             terminate_count=$((process_count - 3))
-            if [ "$terminate_count" -gt 0 ]; then
+            # 境界条件の適切な処理
+            if [ "$terminate_count" -gt 0 ] && [ "$terminate_count" -le "$process_count" ]; then
                 old_pids=$(echo "$claude_pids" | head -n "$terminate_count")
-                for pid in $old_pids; do
-                    if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
-                        echo "古いプロセス PID:$pid を終了"
-                        if kill "$pid" 2>/dev/null; then
-                            sleep 0.2
-                            # 正常終了しない場合は強制終了
-                            if kill -0 "$pid" 2>/dev/null; then
-                                kill -9 "$pid" 2>/dev/null
+                if [ -n "$old_pids" ]; then
+                    for pid in $old_pids; do
+                        if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
+                            echo "古いプロセス PID:$pid を終了"
+                            if kill "$pid" 2>/dev/null; then
+                                sleep 0.2
+                                # 正常終了しない場合は強制終了
+                                if kill -0 "$pid" 2>/dev/null; then
+                                    kill -9 "$pid" 2>/dev/null
+                                fi
                             fi
                         fi
-                    fi
-                done
+                    done
+                fi
+            else
+                echo "⚠️ 終了対象プロセス数が無効です (terminate_count: $terminate_count, process_count: $process_count)"
             fi
         fi
 
@@ -136,6 +141,17 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -i|--interval)
+      if [ -z "$2" ]; then
+        error_exit "--interval オプションには値が必要です"
+      fi
+      # 数値検証
+      if ! [[ "$2" =~ ^[0-9]+$ ]]; then
+        error_exit "--interval の値は正の整数である必要があります: $2"
+      fi
+      # 正の値チェック
+      if [ "$2" -eq 0 ]; then
+        error_exit "--interval の値は0より大きい必要があります: $2"
+      fi
       INTERVAL="$2"
       shift 2
       ;;
