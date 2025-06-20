@@ -77,9 +77,17 @@ for pid in $claude_pids; do
         # プロセスの開始時間を取得（エポック秒）
         start_time=$(ps -o lstart= -p "$pid" 2>/dev/null)
         if [ -n "$start_time" ]; then
-            # 開始時間をエポック秒に変換
-            start_epoch=$(date -d "$start_time" +%s 2>/dev/null)
-            if [ $? -eq 0 ] && [ "$start_epoch" -lt "$twenty_four_hours_ago" ]; then
+            # 開始時間をエポック秒に変換（macOS/BSD対応）
+            start_epoch=""
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                # macOS (BSD date) の場合
+                start_epoch=$(date -j -f "%a %b %d %H:%M:%S %Y" "$start_time" +%s 2>/dev/null)
+            else
+                # Linux (GNU date) の場合
+                start_epoch=$(date -d "$start_time" +%s 2>/dev/null)
+            fi
+            
+            if [ -n "$start_epoch" ] && [ "$start_epoch" -lt "$twenty_four_hours_ago" ]; then
                 echo "24時間以上前のプロセス PID:$pid (開始時間: $start_time) を終了中..."
                 
                 # 段階的終了処理
