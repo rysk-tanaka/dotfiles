@@ -4,77 +4,125 @@
 # Claude Codeプロセスを定期的に監視し、異常を検出したら自動でクリーンアップを実行します。
 # 日常的な使用で、セッション開始時に実行することを推奨します。
 
+set -euo pipefail
+
 echo "=== Claude Code プロセス監視開始 ==="
+
+# Claude Codeプロセスをより精密に取得
+get_claude_processes() {
+    # より具体的なパターンでClaude Codeプロセスを特定
+    pgrep -f "(claude.*code|claude_code)" 2>/dev/null || true
+}
+
+# エラーハンドリング関数
+error_exit() {
+    echo "エラー: $1" >&2
+    exit 1
+}
 
 # 監視関数
 monitor_claude_processes() {
-  # 現在のプロセス数
-  process_count=$(ps aux | grep claude | grep -v grep | wc -l)
-
-  # 高CPU使用率プロセス
-  high_cpu_count=$(ps aux | grep claude | grep -v grep | \
-    awk '$3 > 80 {print}' | wc -l)
-
-  # メモリ使用量（MB）
-  total_mem=$(ps aux | grep claude | grep -v grep | \
-    awk '{sum += $6} END {printf "%.0f", sum/1024}')
-
-  echo "$(date '+%H:%M:%S') | プロセス数: $process_count | 高CPU: $high_cpu_count | \
-メモリ: ${total_mem}MB"
-
-  # 異常検出条件
-  needs_cleanup=false
-
-  # プロセス数が10個以上
-  if [ "$process_count" -gt 10 ]; then
-    echo "⚠️  プロセス数異常: $process_count 個"
-    needs_cleanup=true
-  fi
-
-  # 高CPU使用率プロセスが存在
-  if [ "$high_cpu_count" -gt 0 ]; then
-    echo "🚨 高CPU使用率プロセス検出: $high_cpu_count 個"
-    needs_cleanup=true
-  fi
-
-  # メモリ使用量が2GB以上
-  if [ "$total_mem" -gt 2048 ]; then
-    echo "📊 高メモリ使用量: ${total_mem}MB"
-    needs_cleanup=true
-  fi
-
-  if [ "$needs_cleanup" = true ]; then
-    echo "🔧 自動クリーンアップを実行します..."
-    # クリーンアップ実行（claude-clean.mdから主要部分を抽出）
-    current_pid=$$
-    current_ppid=$(ps -o ppid= -p $current_pid | tr -d ' ')
-
-    # 高CPU使用率プロセスを強制終了
-    high_cpu_pids=$(ps aux | grep claude | grep -v grep | awk '$3 > 80 {print $2}')
-    for pid in $high_cpu_pids; do
-      if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
-        echo "高CPU使用率プロセス PID:$pid を強制終了"
-        kill -9 "$pid" 2>/dev/null
-      fi
-    done
-
-    # 多数のプロセスがある場合、古いものを終了
-    if [ "$process_count" -gt 8 ]; then
-      old_pids=$(ps aux | grep claude | grep -v grep | \
-        awk '{print $2}' | head -n -3)
-      for pid in $old_pids; do
-        if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
-          echo "古いプロセス PID:$pid を終了"
-          kill "$pid" 2>/dev/null
-          sleep 0.2
-        fi
-      done
+    # Claude Codeプロセスを取得
+    claude_pids=$(get_claude_processes)
+    
+    if [ -z "$claude_pids" ]; then
+        echo "$(date '+%H:%M:%S') | プロセス数: 0 | 高CPU: 0 | メモリ: 0MB"
+        echo "✅ Claude Codeプロセスが見つかりません"
+        return 0
     fi
 
-    echo "✅ クリーンアップ完了"
-  else
-    echo "✅ プロセス状態正常"
-  fi
+    # プロセス情報を一度だけ取得（パフォーマンス最適化）
+    claude_processes=$(ps -o pid,ppid,pcpu,pmem,vsz,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
+    
+    if [ -z "$claude_processes" ]; then
+        echo "$(date '+%H:%M:%S') | プロセス数: 0 | 高CPU: 0 | メモリ: 0MB"
+        echo "✅ Claude Codeプロセス情報の取得に失敗"
+        return 0
+    fi
+
+    # 統計計算
+    process_count=$(echo "$claude_processes" | wc -l)
+    high_cpu_count=$(echo "$claude_processes" | awk '$3 > 80' | wc -l)
+    total_mem=$(echo "$claude_processes" | awk '{sum += $5} END {printf "%.0f", sum/1024}')
+
+    # メモリが計算できない場合の対処
+    if [ -z "$total_mem" ] || [ "$total_mem" = "" ]; then
+        total_mem=0
+    fi
+
+    echo "$(date '+%H:%M:%S') | プロセス数: $process_count | 高CPU: $high_cpu_count | メモリ: ${total_mem}MB"
+
+    # 異常検出条件
+    needs_cleanup=false
+
+    # プロセス数が10個以上
+    if [ "$process_count" -gt 10 ]; then
+        echo "⚠️  プロセス数異常: $process_count 個"
+        needs_cleanup=true
+    fi
+
+    # 高CPU使用率プロセスが存在
+    if [ "$high_cpu_count" -gt 0 ]; then
+        echo "🚨 高CPU使用率プロセス検出: $high_cpu_count 個"
+        needs_cleanup=true
+    fi
+
+    # メモリ使用量が2GB以上
+    if [ "$total_mem" -gt 2048 ]; then
+        echo "📊 高メモリ使用量: ${total_mem}MB"
+        needs_cleanup=true
+    fi
+
+    if [ "$needs_cleanup" = true ]; then
+        echo "🔧 自動クリーンアップを実行します..."
+        
+        # 現在のプロセス保護
+        current_pid=$$
+        current_ppid=$(ps -o ppid= -p $current_pid 2>/dev/null | tr -d ' ')
+        
+        if [ -z "$current_ppid" ]; then
+            echo "⚠️ 親プロセスIDの取得に失敗、クリーンアップをスキップします"
+            return 1
+        fi
+
+        # 高CPU使用率プロセスを強制終了
+        high_cpu_pids=$(echo "$claude_processes" | awk '$3 > 80 {print $1}')
+        for pid in $high_cpu_pids; do
+            if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
+                echo "高CPU使用率プロセス PID:$pid を強制終了"
+                if kill -9 "$pid" 2>/dev/null; then
+                    echo "✅ PID:$pid を強制終了しました"
+                else
+                    echo "⚠️ PID:$pid の終了に失敗しました"
+                fi
+            fi
+        done
+
+        # 多数のプロセスがある場合、古いものを終了
+        if [ "$process_count" -gt 8 ]; then
+            # プロセス数をチェックしてからhead -n の値を計算
+            terminate_count=$((process_count - 3))
+            if [ "$terminate_count" -gt 0 ]; then
+                old_pids=$(echo "$claude_pids" | head -n "$terminate_count")
+                for pid in $old_pids; do
+                    if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
+                        echo "古いプロセス PID:$pid を終了"
+                        if kill "$pid" 2>/dev/null; then
+                            sleep 0.2
+                            # 正常終了しない場合は強制終了
+                            if kill -0 "$pid" 2>/dev/null; then
+                                kill -9 "$pid" 2>/dev/null
+                            fi
+                        fi
+                    fi
+                done
+            fi
+        fi
+
+        echo "✅ クリーンアップ完了"
+    else
+        echo "✅ プロセス状態正常"
+    fi
 }
 
 # オプション解析
