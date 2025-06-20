@@ -41,6 +41,14 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - ALWAYS prefer editing existing files over creating new ones
 - NEVER proactively create documentation files (*.md) unless explicitly requested
 
+## Claude Code Settings Management
+
+### Configuration File Locations
+- **Global instructions**: `~/.claude/CLAUDE.md` (managed via symlink from this repository)
+- **Other settings**: `~/.claude.json` (internally managed by Claude Code)
+
+Note: Due to current implementation differences, Claude Code settings cannot be managed via symlinks like other configuration files. Use `claude config` commands for settings management.
+
 ## Project-Specific Settings
 
 For project-specific settings, check the local CLAUDE.md file in the project repository.
