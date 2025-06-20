@@ -48,7 +48,8 @@ fi
 echo "Total Memory: ${total_mem} MB"
 
 echo -e "\n=== プロセス数 ==="
-process_count=$(echo "$claude_processes" | wc -l)
+# より堅牢なプロセス数カウント（空行を除外）
+process_count=$(echo "$claude_processes" | grep -c '^[[:space:]]*[0-9]' || echo "0")
 echo "Total Processes: $process_count"
 
 if [ "$process_count" -gt 5 ]; then

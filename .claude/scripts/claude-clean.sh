@@ -122,7 +122,8 @@ if [ -n "$remaining_pids" ]; then
     remaining_info=$(ps -o pid,ppid,pcpu,etime,cmd -p $remaining_pids 2>/dev/null | grep -v PID || true)
     if [ -n "$remaining_info" ]; then
         echo "$remaining_info"
-        remaining_count=$(echo "$remaining_pids" | wc -w)
+        # より堅牢なプロセス数カウント（空文字列とスペースを適切に処理）
+        remaining_count=$(echo "$remaining_pids" | grep -o '[0-9]\+' | wc -l)
         echo -e "\n残存プロセス数: $remaining_count"
     fi
 else

@@ -40,9 +40,9 @@ monitor_claude_processes() {
         return 0
     fi
 
-    # 統計計算
-    process_count=$(echo "$claude_processes" | wc -l)
-    high_cpu_count=$(echo "$claude_processes" | awk '$3 > 80' | wc -l)
+    # 統計計算（より堅牢なカウント手法）
+    process_count=$(echo "$claude_processes" | grep -c '^[[:space:]]*[0-9]' || echo "0")
+    high_cpu_count=$(echo "$claude_processes" | awk '$3 > 80' | grep -c '^[[:space:]]*[0-9]' || echo "0")
     total_mem=$(echo "$claude_processes" | awk '{sum += $5} END {printf "%.0f", sum/1024}')
 
     # メモリが計算できない場合の対処
