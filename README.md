@@ -12,7 +12,10 @@ MacOS用の初期セットアップを行います。
 ├── .gitconfig                        # Git設定
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
-│   └── settings.json                 # グローバル設定（現在未使用）
+│   ├── settings.json                 # グローバル設定（現在未使用）
+│   └── commands/                     # カスタムコマンド
+│       ├── pr.md                     # PRコマンド
+│       └── permalink.md              # パーマリンクコマンド
 ├── .config/                          # 各種アプリケーション設定
 │   ├── zed/                          # Zedエディタ
 │   │   ├── keymap.json               # キーマップ設定
@@ -67,6 +70,7 @@ MacOS用の初期セットアップを行います。
     ```bash
     ln -sf ~/Repositories/rysk/dotfiles/.claude/settings.json ~/.claude/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.claude/CLAUDE.md ~/.claude/CLAUDE.md
+    ln -sf ~/Repositories/rysk/dotfiles/.claude/commands ~/.claude/commands
     ln -sf ~/Repositories/rysk/dotfiles/.config/ghostty/config ~/.config/ghostty/config
     ln -sf ~/Repositories/rysk/dotfiles/.config/git/ignore ~/.config/git/ignore
     ln -sf ~/Repositories/rysk/dotfiles/.config/mise/config.toml ~/.config/mise/config.toml
@@ -148,6 +152,14 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 
 - グローバル指示: `~/.claude/CLAUDE.md` （シンボリックリンクで管理）
 - グローバル設定: `~/.claude.json` （Claude Code内部管理のためシンボリックリンク不可）
+- カスタムコマンド: `~/.claude/commands/` （シンボリックリンクで管理）
+
+### カスタムコマンド
+
+以下のカスタムコマンドが利用可能です：
+
+- `/pr` - GitHubにプルリクエストを作成
+- `/permalink` - 指定ファイルのGitHubパーマリンクを生成
 
 設定変更は `claude config` コマンドを使用してください。
 
