@@ -11,7 +11,8 @@ MacOS用の初期セットアップを行います。
 ├── .vimrc                            # Vim設定
 ├── .gitconfig                        # Git設定
 ├── .claude/                          # Claude Code設定
-│   └── CLAUDE.md                     # グローバル設定
+│   ├── CLAUDE.md                     # グローバル指示
+│   └── settings.json                 # グローバル設定（現在未使用）
 ├── .config/                          # 各種アプリケーション設定
 │   ├── zed/                          # Zedエディタ
 │   │   ├── keymap.json               # キーマップ設定
@@ -140,3 +141,14 @@ mise run lint
 uv venv
 source .venv/bin/activate
 ```
+
+## Claude Code設定について
+
+Claude Codeの設定ファイルは現在、他の設定ファイルとは異なる管理方法となっています
+
+- グローバル指示: `~/.claude/CLAUDE.md` （シンボリックリンクで管理）
+- グローバル設定: `~/.claude.json` （Claude Code内部管理のためシンボリックリンク不可）
+
+設定変更は `claude config` コマンドを使用してください。
+
+将来的にClaude Code側で設定ファイルの仕様が統一されれば、他の設定ファイル同様にシンボリックリンクでの管理が可能になる予定です。
