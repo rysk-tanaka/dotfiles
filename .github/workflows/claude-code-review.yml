@@ -1,0 +1,80 @@
+name: Claude Code Review
+
+on:
+  # 1. PRタイトルに[review]が含まれる場合
+  pull_request:
+    types: [opened, synchronize]
+
+  # 2. PRコメントで@claude-reviewをメンション
+  issue_comment:
+    types: [created]
+
+  # 3. 手動実行
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR番号を指定してレビューを実行"
+        required: true
+        type: string
+
+jobs:
+  claude-review:
+    if: |
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[review]')) ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '@claude-review')) ||
+      (github.event_name == 'workflow_dispatch')
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code Review
+        id: claude-review
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
+          # model: "claude-opus-4-20250514"
+
+          # Direct prompt for automated review (no @claude mention needed)
+          direct_prompt: |
+            このプルリクエストを日本語でレビューしてください。以下の観点からフィードバックを提供してください：
+            - コード品質とベストプラクティス
+            - 潜在的なバグや問題
+            - パフォーマンスの考慮事項
+            - セキュリティ上の懸念
+
+            建設的で役立つフィードバックを心がけてください。
+            回答の末尾に使用したトークン数とコストを記載してください。
+
+          # Optional: Customize review based on file types
+          # direct_prompt: |
+          #   Review this PR focusing on:
+          #   - For TypeScript files: Type safety and proper interface usage
+          #   - For API endpoints: Security, input validation, and error handling
+          #   - For React components: Performance, accessibility, and best practices
+          #   - For tests: Coverage, edge cases, and test quality
+
+          # Optional: Different prompts for different authors
+          # direct_prompt: |
+          #   ${{ github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' &&
+          #   'Welcome! Please review this PR from a first-time contributor. Be encouraging and provide detailed explanations for any suggestions.' ||
+          #   'Please provide a thorough code review focusing on our coding standards and best practices.' }}
+
+          # Optional: Add specific tools for running tests or linting
+          # allowed_tools: "Bash(npm run test),Bash(npm run lint),Bash(npm run typecheck)"
+
+          # Optional: Skip review for certain conditions
+          # if: |
+          #   !contains(github.event.pull_request.title, '[skip-review]') &&
+          #   !contains(github.event.pull_request.title, '[WIP]')
