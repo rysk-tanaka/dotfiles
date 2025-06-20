@@ -77,21 +77,48 @@ monitor_claude_processes() {
   fi
 }
 
+# オプション解析
+WATCH_MODE=false
+INTERVAL=300  # デフォルト5分間隔
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -w|--watch)
+      WATCH_MODE=true
+      shift
+      ;;
+    -i|--interval)
+      INTERVAL="$2"
+      shift 2
+      ;;
+    -h|--help)
+      echo "Usage: $0 [-w|--watch] [-i|--interval SECONDS] [-h|--help]"
+      echo "  -w, --watch     継続監視モード（Ctrl+Cで停止）"
+      echo "  -i, --interval  監視間隔（秒単位、デフォルト300秒）"
+      echo "  -h, --help      このヘルプを表示"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
+
 # 初回実行
 monitor_claude_processes
 
-echo -e "\n監視を継続する場合は Ctrl+C で停止してください"
-echo "バックグラウンド監視を終了します"
+# 継続監視モード
+if [ "$WATCH_MODE" = true ]; then
+  echo -e "\n継続監視モード開始（${INTERVAL}秒間隔）"
+  echo "停止するには Ctrl+C を押してください"
 
-# 簡易監視モード（5分間隔で3回チェック）
-echo -e "\n=== 5分間隔で簡易監視（3回） ==="
-for i in 1 2 3; do
-  if [ $i -gt 1 ]; then
-    echo "$(date '+%H:%M:%S') | $i/3回目のチェック..."
-    sleep 300  # 5分待機
-  fi
-  monitor_claude_processes
-  echo ""
-done
-
-echo "🎯 監視完了 - 定期的に /claude-monitor を実行することを推奨します"
+  while true; do
+    sleep "$INTERVAL"
+    echo -e "\n$(date '+%H:%M:%S') | 定期チェック"
+    monitor_claude_processes
+  done
+else
+  echo -e "\n✅ 監視完了"
+  echo "継続監視が必要な場合: bash ~/.claude/scripts/claude-monitor.sh --watch"
+fi
