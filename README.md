@@ -13,9 +13,16 @@ MacOS用の初期セットアップを行います。
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── settings.json                 # グローバル設定（現在未使用）
-│   └── commands/                     # カスタムコマンド
-│       ├── pr.md                     # PRコマンド
-│       └── permalink.md              # パーマリンクコマンド
+│   ├── commands/                     # カスタムコマンド
+│   │   ├── pr.md                     # PRコマンド
+│   │   ├── permalink.md              # パーマリンクコマンド
+│   │   ├── claude-check.md           # プロセス状況確認
+│   │   ├── claude-monitor.md         # プロセス監視
+│   │   └── claude-clean.md           # プロセスクリーンアップ
+│   └── scripts/                      # スクリプトファイル
+│       ├── claude-check.sh           # プロセス状況確認スクリプト
+│       ├── claude-monitor.sh         # プロセス監視スクリプト
+│       └── claude-clean.sh           # プロセスクリーンアップスクリプト
 ├── .config/                          # 各種アプリケーション設定
 │   ├── zed/                          # Zedエディタ
 │   │   ├── keymap.json               # キーマップ設定
