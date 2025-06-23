@@ -86,15 +86,15 @@ for pid in $claude_pids; do
                 # Linux (GNU date) の場合
                 start_epoch=$(date -d "$start_time" +%s 2>/dev/null)
             fi
-            
+
             if [ -n "$start_epoch" ] && [ "$start_epoch" -lt "$twenty_four_hours_ago" ]; then
                 echo "24時間以上前のプロセス PID:$pid (開始時間: $start_time) を終了中..."
-                
+
                 # 段階的終了処理
                 if kill "$pid" 2>/dev/null; then
                     echo "SIGTERM を送信しました"
                     sleep 2
-                    
+
                     # まだ生きているか確認
                     if kill -0 "$pid" 2>/dev/null; then
                         echo "正常終了しないため強制終了中..."

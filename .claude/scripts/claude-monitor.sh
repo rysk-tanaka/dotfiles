@@ -24,7 +24,7 @@ error_exit() {
 monitor_claude_processes() {
     # Claude Codeプロセスを取得
     claude_pids=$(get_claude_processes)
-    
+
     if [ -z "$claude_pids" ]; then
         echo "$(date '+%H:%M:%S') | プロセス数: 0 | 高CPU: 0 | メモリ: 0MB"
         echo "✅ Claude Codeプロセスが見つかりません"
@@ -33,7 +33,7 @@ monitor_claude_processes() {
 
     # プロセス情報を一度だけ取得（パフォーマンス最適化）
     claude_processes=$(ps -o pid,ppid,pcpu,pmem,vsz,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
-    
+
     if [ -z "$claude_processes" ]; then
         echo "$(date '+%H:%M:%S') | プロセス数: 0 | 高CPU: 0 | メモリ: 0MB"
         echo "✅ Claude Codeプロセス情報の取得に失敗"
@@ -75,11 +75,11 @@ monitor_claude_processes() {
 
     if [ "$needs_cleanup" = true ]; then
         echo "🔧 自動クリーンアップを実行します..."
-        
+
         # 現在のプロセス保護
         current_pid=$$
         current_ppid=$(ps -o ppid= -p $current_pid 2>/dev/null | tr -d ' ')
-        
+
         if [ -z "$current_ppid" ]; then
             echo "⚠️ 親プロセスIDの取得に失敗、クリーンアップをスキップします"
             return 1
