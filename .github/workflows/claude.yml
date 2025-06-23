@@ -13,10 +13,10 @@ on:
 jobs:
   claude:
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      (github.event_name == 'issue_comment' && (contains(github.event.comment.body, '@claude') || contains(github.event.comment.body, '@claude-opus'))) ||
+      (github.event_name == 'pull_request_review_comment' && (contains(github.event.comment.body, '@claude') || contains(github.event.comment.body, '@claude-opus'))) ||
+      (github.event_name == 'pull_request_review' && (contains(github.event.review.body, '@claude') || contains(github.event.review.body, '@claude-opus'))) ||
+      (github.event_name == 'issues' && ((contains(github.event.issue.body, '@claude') || contains(github.event.issue.body, '@claude-opus')) || (contains(github.event.issue.title, '@claude') || contains(github.event.issue.title, '@claude-opus'))))
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -35,14 +35,28 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
-          # model: "claude-opus-4-20250514"
+          # Dynamic model selection based on mention
+          model: |
+            ${{ (
+              (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-opus')) ||
+              (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude-opus')) ||
+              (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude-opus')) ||
+              (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude-opus') || contains(github.event.issue.title, '@claude-opus')))
+            ) && 'claude-opus-4-20250514' || 'claude-sonnet-4-20250514' }}
 
           # Optional: Customize the trigger phrase (default: @claude)
           # trigger_phrase: "/claude"
 
           # Optional: Trigger when specific user is assigned to an issue
           # assignee_trigger: "claude-bot"
+
+          # Add cost output to responses
+          direct_prompt: |
+            ユーザーのリクエストに日本語で対応してください。
+            回答の最後に以下の形式でコスト情報を出力してください：
+
+            ---
+            💰 コスト: 入力XXXトークン, 出力XXXトークン, $X.XX
 
           # Optional: Allow Claude to run specific commands
           # allowed_tools: "Bash(npm install),Bash(npm run build),Bash(npm run test:*),Bash(npm run lint:*)"
