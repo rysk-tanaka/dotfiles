@@ -2,6 +2,7 @@
 .clinerules
 .github/workflows/pull_request_template.md
 .markdownlint-cli2.jsonc
+.mcp.json
 .mise.local.toml
 .memo.local.md
 .obsidian

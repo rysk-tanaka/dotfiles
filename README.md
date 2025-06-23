@@ -10,6 +10,7 @@ MacOS用の初期セットアップを行います。
 ├── .zprofile                         # Zsh環境変数など
 ├── .vimrc                            # Vim設定
 ├── .gitconfig                        # Git設定
+├── .mcp.json                         # MCPサーバー設定（プロジェクトスコープ）
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── settings.json                 # グローバル設定（現在未使用）
@@ -120,6 +121,7 @@ mise run setup-links
 - .clinerules/
 - .pre-commit-config.yaml
 - .markdownlint-cli2.jsonc
+- .mcp.json
 
 ## 開発コマンド
 
@@ -164,6 +166,55 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - グローバル指示: `~/.claude/CLAUDE.md` （シンボリックリンクで管理）
 - グローバル設定: `~/.claude.json` （Claude Code内部管理のためシンボリックリンク不可）
 - カスタムコマンド: `~/.claude/commands/` （シンボリックリンクで管理）
+
+### MCP（Model Context Protocol）サーバー
+
+Claude CodeはMCPサーバーを使って外部ツールやサービスと連携できます。現在以下のMCPサーバーが設定されています：
+
+- **AWS Documentation MCP Server**: AWSドキュメントへのアクセスを提供
+  - コマンド: `uvx awslabs.aws-documentation-mcp-server@latest`
+  - スコープ: ユーザー（全プロジェクトで利用可能）
+  - 機能: AWS認証不要でドキュメントの閲覧・検索が可能
+
+#### MCPサーバー設定ファイル
+
+MCPサーバーの設定は `~/.claude.json` ファイルの `mcpServers` セクションに保存されます：
+
+```json
+{
+  "mcpServers": {
+    "aws-docs": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      }
+    }
+  }
+}
+```
+
+**注意事項**:
+
+- `~/.claude.json` はClaude Code内部で管理されるファイルのため、シンボリックリンクでの管理は推奨されません
+- プロジェクト固有のMCPサーバーは、プロジェクトルートの `.mcp.json` ファイルで設定可能
+
+#### MCP設定の管理コマンド
+
+```bash
+# MCP サーバーの一覧表示
+claude mcp list
+
+# MCP サーバーの詳細確認
+claude mcp get <server-name>
+
+# MCP サーバーの追加（例）
+claude mcp add <name> uvx <package-name> -s user -e ENV_VAR=value
+
+# MCP サーバーの削除
+claude mcp remove <name> -s user
+```
 
 ### カスタムコマンド
 
