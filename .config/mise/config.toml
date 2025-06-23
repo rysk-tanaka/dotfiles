@@ -31,4 +31,5 @@ run = """
 mkdir -p .github/workflows
 ln -sf ${DOTFILES_PATH}/.github/workflows/pull_request_template.md .github/workflows/pull_request_template.md
 ln -sf ${DOTFILES_PATH}/.clinerules .clinerules
+ln -sf ${DOTFILES_PATH}/.pre-commit-config.yaml .pre-commit-config.yaml
 """

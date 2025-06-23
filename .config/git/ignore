@@ -4,6 +4,7 @@
 .mise.local.toml
 .memo.local.md
 .obsidian
+.pre-commit-config.yaml
 .vscode
 .DS_Store
 aws-exports.js
