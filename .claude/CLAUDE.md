@@ -29,6 +29,16 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - Type checking: `mypy`
 - Testing: `pytest`
 
+##### Testing with pytest
+- **テストスタイル**: 関数ベースのテストを推奨（クラスベースより）
+- **環境変数のモック**: `unittest.mock`より`monkeypatch`フィクスチャを使用
+  - `monkeypatch.setenv(key, value)`: 環境変数の設定
+  - `monkeypatch.delenv(key, raising=False)`: 環境変数の削除
+  - 自動クリーンアップによりテスト間の分離が保証される
+- **マジックナンバー**: ruff PLR2004ルールに従い、数値は意味のある定数として定義
+- **副作用の回避**: テストでは実際のAPIリクエストやファイル操作を避け、モックを使用
+- **モジュール再読み込み**: 環境変数やグローバル状態を変更した場合は`importlib.reload()`を使用
+
 #### Version Control
 - Git commit messages in English
 - Follow Conventional Commits when specified
