@@ -37,9 +37,11 @@ MacOS用の初期セットアップを行います。
 ├── .github/                          # GitHub関連
 │   └── workflows/                    # GitHub Actions
 │       └── pull_request_template.md  # PRテンプレート
-└── .clinerules/                      # コーディング規約
-    ├── 01-coding-standards.md        # コーディング標準
-    └── 02-documentation.md           # ドキュメント規約
+├── .clinerules/                      # コーディング規約
+│   ├── 01-coding-standards.md        # コーディング標準
+│   └── 02-documentation.md           # ドキュメント規約
+├── .pre-commit-config.yaml           # pre-commitフック設定
+└── .markdownlint-cli2.jsonc          # markdownlint設定
 ```
 
 ## セットアップ
@@ -116,6 +118,8 @@ mise run setup-links
 
 - .github/workflows/pull_request_template.md
 - .clinerules/
+- .pre-commit-config.yaml
+- .markdownlint-cli2.jsonc
 
 ## 開発コマンド
 
