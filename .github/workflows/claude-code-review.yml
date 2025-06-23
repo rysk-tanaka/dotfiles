@@ -69,6 +69,7 @@ jobs:
             承認 / 要修正 / コメント
 
             ---
+            🤖 モデル: [使用したモデル名]
             💰 コスト: 入力XXXトークン, 出力XXXトークン, $X.XX
 
           # Optional: Customize review based on file types

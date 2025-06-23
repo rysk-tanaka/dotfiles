@@ -53,9 +53,10 @@ jobs:
           # Add cost output to responses
           direct_prompt: |
             ユーザーのリクエストに日本語で対応してください。
-            回答の最後に以下の形式でコスト情報を出力してください：
+            回答の最後に以下の形式でモデル名とコスト情報を出力してください：
 
             ---
+            🤖 モデル: [使用したモデル名]
             💰 コスト: 入力XXXトークン, 出力XXXトークン, $X.XX
 
           # Optional: Allow Claude to run specific commands
