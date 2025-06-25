@@ -42,7 +42,10 @@ MacOS用の初期セットアップを行います。
 │   ├── 01-coding-standards.md        # コーディング標準
 │   └── 02-documentation.md           # ドキュメント規約
 ├── .pre-commit-config.yaml           # pre-commitフック設定
-└── .markdownlint-cli2.jsonc          # markdownlint設定
+├── .markdownlint-cli2.jsonc          # markdownlint設定
+└── docs/                             # ドキュメント
+    ├── claude-code.md                # Claude Code設定詳細
+    └── mcp.md                        # MCP設定詳細
 ```
 
 ## セットアップ
