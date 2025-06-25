@@ -37,6 +37,8 @@ MacOS用の初期セットアップを行います。
 │       └── config.toml               # miseの設定
 ├── .github/                          # GitHub関連
 │   └── workflows/                    # GitHub Actions
+│       ├── claude-code-review.yml    # PRの自動レビュー
+│       ├── claude.yml                # @claudeメンション応答
 │       └── pull_request_template.md  # PRテンプレート
 ├── .clinerules/                      # コーディング規約
 │   ├── 01-coding-standards.md        # コーディング標準
