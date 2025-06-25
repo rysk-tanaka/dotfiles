@@ -103,9 +103,10 @@ MacOS用の初期セットアップを行います。
 
     これにより、config.toml に定義されている以下のツールがインストールされます：
 
-    - 1password-cli, awscli, aws-vault, delta, eza, go, jq, node
+    - 1password-cli, awscli, aws-vault, delta, eza, go, jq, node, rust
     - 各種ユーティリティのnpmパッケージ
     - Python 3.12、ripgrep、Starship、Terraformなど
+    - Human-In-the-Loop Discord MCPサーバー（Rustバイナリ）
 
 ### プロジェクト用セットアップ
 
@@ -122,6 +123,47 @@ mise run setup-links
 - .pre-commit-config.yaml
 - .markdownlint-cli2.jsonc
 - .mcp.json
+
+### Discord Bot設定（Human-In-the-Loop MCP用）
+
+Discord連携を利用するには、以下の手順でDiscord Botを設定してください：
+
+#### MCPサーバーのインストール
+
+```bash
+# Rustがインストールされていることを確認
+mise exec -- rustc --version
+
+# Discord MCPサーバーをインストール
+mise exec -- cargo install --git https://github.com/KOBA789/human-in-the-loop.git --config net.git-fetch-with-cli=true
+```
+
+#### Discord Botの設定
+
+1. **Discord Developer Portal**（<https://discord.com/developers/applications）でアプリケーション作成>
+
+2. **Botセクション**でボットを作成し、トークンを取得
+
+3. **Bot権限**を設定：
+   - Send Messages（メッセージ送信）
+   - Create Public Threads（パブリックスレッド作成）
+   - Read Message History（メッセージ履歴読取）
+
+4. **Discord設定**：
+   - ユーザー設定 → 詳細設定 → 開発者モードを有効化
+   - 対象チャンネルを右クリック → IDをコピー
+   - 自分のユーザー名を右クリック → IDをコピー
+
+5. **環境変数設定**：
+
+   ```bash
+   export DISCORD_TOKEN="your_bot_token_here"
+   export DISCORD_CHANNEL_ID="your_channel_id_here"
+   export DISCORD_USER_ID="your_user_id_here"
+   ```
+
+6. **使用方法**：
+   Claude Codeで `@human-in-the-loop` を使って質問すると、Discordにスレッドが作成されます
 
 ## 開発コマンド
 
@@ -176,9 +218,17 @@ Claude CodeはMCPサーバーを使って外部ツールやサービスと連携
   - スコープ: ユーザー（全プロジェクトで利用可能）
   - 機能: AWS認証不要でドキュメントの閲覧・検索が可能
 
+- **Human-In-the-Loop Discord MCP Server**: Discord経由で人間とのやり取りを提供
+  - コマンド: `/Users/rysk/.cargo/bin/human-in-the-loop`
+  - スコープ: ユーザー（全プロジェクトで利用可能）
+  - 機能: Claude CodeからDiscord経由で質問・回答のやり取りが可能
+
 #### MCPサーバー設定ファイル
 
-MCPサーバーの設定は `~/.claude.json` ファイルの `mcpServers` セクションに保存されます：
+MCPサーバーの設定は以下のファイルに保存されます。
+
+- プロジェクトスコープ: `.mcp.json` （このリポジトリ内）
+- ユーザースコープ: `~/.claude.json` （`mcpServers` セクション）
 
 ```json
 {
@@ -194,6 +244,12 @@ MCPサーバーの設定は `~/.claude.json` ファイルの `mcpServers` セク
   }
 }
 ```
+
+Human-In-the-Loop Discord MCPサーバーはローカル設定で管理されており、以下の環境変数が必要です。
+
+- `DISCORD_TOKEN`: Discord Botトークン
+- `DISCORD_CHANNEL_ID`: 対象のDiscordチャンネルID
+- `DISCORD_USER_ID`: 対象のDiscordユーザーID
 
 **注意事項**:
 
