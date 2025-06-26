@@ -16,5 +16,7 @@ GitHubにプルリクエストを作成してください。以下の手順で�
 - ブランチ名はfeature/またはfix/プレフィックスを使用
 - コミットメッセージは1行で簡潔に
 - PRテンプレートの形式に従って日本語で説明を記載
+- PR本文に「🤖 Generated with [Claude Code](https://claude.ai/code)」を追加しない
+- コミットメッセージに「Co-Authored-By: Claude <noreply@anthropic.com>」を追加しない
 
 $ARGUMENTS

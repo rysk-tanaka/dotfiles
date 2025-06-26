@@ -40,7 +40,3 @@
 # Personal settings (kept separately)
 [include]
     path = ~/.gitconfig.local
-
-# Claude Code settings
-[claude "pr"]
-    signature = false
