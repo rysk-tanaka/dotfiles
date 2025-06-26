@@ -19,6 +19,7 @@ Discord経由で人間とのやり取りを提供します。
 - コマンド: `/Users/rysk/.cargo/bin/human-in-the-loop`
 - スコープ: プロジェクト（このリポジトリでのみ利用可能）
 - 機能: Claude CodeからDiscord経由で質問・回答のやり取りが可能
+- **注意**: 現在Claude CodeではMCPプロトコルバージョンの互換性問題により利用不可（Claude Desktopでは動作確認済み）
 
 ## Discord Bot設定（Human-In-the-Loop MCP用）
 
@@ -43,12 +44,22 @@ mise exec -- cargo install --git https://github.com/KOBA789/human-in-the-loop.gi
    - Create Public Threads（パブリックスレッド作成）
    - Read Message History（メッセージ履歴読取）
 
-4. Discord設定：
+4. BotをDiscordサーバーに招待：
+   - OAuth2 → URL Generatorに移動
+   - Scopesで「bot」を選択
+   - Bot Permissionsで以下を選択：
+     - Send Messages
+     - Create Public Threads
+     - Send Messages in Threads
+     - Read Message History
+   - 生成されたURLをブラウザで開き、Botを対象サーバーに招待
+
+5. Discord設定：
    - ユーザー設定 → 詳細設定 → 開発者モードを有効化
    - 対象チャンネルを右クリック → IDをコピー
    - 自分のユーザー名を右クリック → IDをコピー
 
-5. 環境変数設定：
+6. 環境変数設定：
 
    ```bash
    export DISCORD_TOKEN="your_bot_token_here"
@@ -56,7 +67,7 @@ mise exec -- cargo install --git https://github.com/KOBA789/human-in-the-loop.gi
    export DISCORD_USER_ID="your_user_id_here"
    ```
 
-6. 使用方法：
+7. 使用方法：
    Claude Codeで `@human-in-the-loop` を使って質問すると、Discordにスレッドが作成されます
 
 ## MCPサーバー設定ファイル
@@ -89,7 +100,16 @@ Human-In-the-Loop Discord MCPサーバーはローカル設定で管理されて
 - `DISCORD_CHANNEL_ID`: 対象のDiscordチャンネルID
 - `DISCORD_USER_ID`: 対象のDiscordユーザーID
 
-## MCP設定の管理コマンド
+## Claude Desktop設定
+
+Claude DesktopでMCPサーバーを利用する場合は、以下の設定ファイルを編集します。
+
+- 設定ファイル: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- 形式: `mcpServers`セクションにサーバー設定を追加
+
+Claude Desktopを再起動すると、設定したMCPサーバーが利用可能になります。
+
+## MCP設定の管理コマンド（Claude Code）
 
 ```bash
 # MCP サーバーの一覧表示
@@ -109,3 +129,4 @@ claude mcp remove <name> -s user
 
 - `~/.claude.json` はClaude Code内部で管理されるファイルのため、シンボリックリンクでの管理は推奨されません
 - プロジェクト固有のMCPサーバーは、プロジェクトルートの `.mcp.json` ファイルで設定可能
+- Claude Desktopの設定は別途 `claude_desktop_config.json` で管理されます
