@@ -13,6 +13,12 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - 技術的な内容も日本語で説明
 - コード内のコメントは英語でも可
 
+### Markdown Formatting Guidelines
+- 箇条書き前のコロン（:）は使用しない（例: 「以下の項目:」→「以下の項目。」）
+- 箇条書き内での不必要な太字（**）強調は避ける
+- シンプルで読みやすい表記を優先する
+- 人間によるレビューやメンテナンスがしやすいよう、シンプルな構造を保つ
+
 ### Code Quality Standards
 - Clean, readable code with meaningful variable names
 - Follow project-specific conventions when available
