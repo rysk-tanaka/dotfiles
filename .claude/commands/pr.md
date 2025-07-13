@@ -4,7 +4,13 @@ GitHubにプルリクエストを作成してください。以下の手順で�
 
 1. 現在の変更状態を確認（git status -uno, git diff, git diff main...HEAD）
 2. 現在のブランチを確認し、mainブランチの場合は適切なfeature/またはfix/ブランチを作成
-3. 必要に応じてコミットを作成（単行のコミットメッセージを使用、git add は個別ファイル指定で行い -A オプションは使用しない）
+3. コミットが必要かどうかを確認：
+   - git status -uno で現在の状態を確認
+   - "nothing to commit" の場合はステップ4へスキップ
+   - git diff --cached でステージング済みの変更を確認
+   - git diff で未ステージの変更を確認
+   - 未ステージの変更がある場合のみ git add（個別ファイル指定、-A オプションは使用しない）
+   - ステージング済みの変更がある場合のみ git commit（単行メッセージ）
 4. mainブランチに誤ってコミットした場合は、git reset --soft HEAD~1 で取り消す
 5. .github/workflows/pull_request_template.md を参照してPR本文を作成
 6. ブランチをリモートにプッシュ（git push -u origin <branch-name>）
