@@ -2,6 +2,7 @@
 1password-cli = "latest"
 awscli = "latest"                          # requires rosetta 2
 aws-vault = "latest"
+bat = "latest"
 delta = "latest"
 eza = "latest"
 gh = "latest"
