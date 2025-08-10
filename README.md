@@ -13,7 +13,7 @@ MacOS用の初期セットアップを行います。
 ├── .mcp.json                         # MCPサーバー設定（プロジェクトスコープ）
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
-│   ├── settings.json                 # グローバル設定（現在未使用）
+│   ├── settings.json                 # グローバル設定
 │   ├── commands/                     # カスタムコマンド
 │   │   ├── pr.md                     # PRコマンド
 │   │   ├── permalink.md              # パーマリンクコマンド
