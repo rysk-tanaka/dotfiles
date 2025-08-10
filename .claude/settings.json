@@ -40,18 +40,29 @@
   "env": {
     "CLAUDE_CODE_ENABLE_TELEMETRY": "0"
   },
-  "hooks": [
-    {
-      "matcher": "Edit|Write",
-      "condition": "$CLAUDE_FILE_PATHS =~ \\.py$",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "if command -v mise >/dev/null 2>&1 && ([ -f .mise.toml ] || [ -f .mise.local.toml ]); then mise run lint 2>/dev/null || true; fi"
-        }
-      ]
-    }
-  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_FILE_PATHS\" =~ \\.py$ ]] && command -v mise >/dev/null 2>&1 && ([ -f .mise.toml ] || [ -f .mise.local.toml ]); then mise run lint 2>/dev/null || true; fi"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e \"display notification \\\"$(jq -r '.message' 2>/dev/null || echo 'Claude Code notification')\\\" with title \\\"Claude Code\\\" sound name \\\"Glass\\\"\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  },
   "feedbackSurveyState": {
     "lastShownTime": 1754042613598
   }
