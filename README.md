@@ -17,6 +17,7 @@ MacOS用の初期セットアップを行います。
 │   ├── commands/                     # カスタムコマンド
 │   │   ├── pr.md                     # PRコマンド
 │   │   ├── permalink.md              # パーマリンクコマンド
+│   │   ├── cloudwatch-logs.md        # CloudWatchログ取得
 │   │   ├── claude-check.md           # プロセス状況確認
 │   │   ├── claude-monitor.md         # プロセス監視
 │   │   └── claude-clean.md           # プロセスクリーンアップ
