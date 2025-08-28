@@ -22,6 +22,7 @@ rust = "latest"
 starship = "latest"
 terraform = "latest"
 uv = "latest"
+yarn = "latest"
 
 [env]
 DOTFILES_PATH = "/Users/rysk/Repositories/rysk/dotfiles"
