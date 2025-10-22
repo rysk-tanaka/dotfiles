@@ -21,6 +21,8 @@ fi
 if type mise &>/dev/null; then
   eval "$(mise activate zsh)"
   eval "$(mise activate --shims)"
+  # Load custom shell functions
+  [ -f "$HOME/.config/mise/shell-functions.sh" ] && source "$HOME/.config/mise/shell-functions.sh"
 fi
 
 # starship

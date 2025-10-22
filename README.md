@@ -35,7 +35,8 @@ MacOS用の初期セットアップを行います。
 │   ├── git/                          # Git補助設定
 │   │   └── ignore                    # グローバル除外設定
 │   └── mise/                         # ツールバージョン管理
-│       └── config.toml               # miseの設定
+│       ├── config.toml               # miseの設定
+│       └── shell-functions.sh        # カスタムシェル関数
 ├── .github/                          # GitHub関連
 │   └── workflows/                    # GitHub Actions
 │       ├── claude-code-review.yml    # PRの自動レビュー
@@ -77,7 +78,6 @@ MacOS用の初期セットアップを行います。
     mkdir -p ~/.claude
     mkdir -p ~/.config/ghostty
     mkdir -p ~/.config/git
-    mkdir -p ~/.config/mise
     mkdir -p ~/.config/zed
     ```
 
@@ -89,7 +89,7 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.claude/commands ~/.claude/commands
     ln -sf ~/Repositories/rysk/dotfiles/.config/ghostty/config ~/.config/ghostty/config
     ln -sf ~/Repositories/rysk/dotfiles/.config/git/ignore ~/.config/git/ignore
-    ln -sf ~/Repositories/rysk/dotfiles/.config/mise/config.toml ~/.config/mise/config.toml
+    ln -sf ~/Repositories/rysk/dotfiles/.config/mise ~/.config/mise
     ln -sf ~/Repositories/rysk/dotfiles/.config/zed/keymap.json ~/.config/zed/keymap.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/zed/settings.json ~/.config/zed/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/starship.toml ~/.config/starship.toml
@@ -147,6 +147,30 @@ mise run lint
 1. `ruff format` - Pythonコードを自動フォーマット
 2. `ruff check` - コードスタイルとエラーチェック
 3. `mypy .` - 静的型チェック
+
+## カスタムシェル関数
+
+`.config/mise/shell-functions.sh`に定義されたシェル関数が自動的に読み込まれます。
+
+### mdlint
+
+markdownlint-cli2のラッパーコマンド。どのサブディレクトリから実行しても、gitルートの設定ファイルが自動的に適用されます。
+
+```bash
+# サブディレクトリから実行可能
+cd path/to/deep/subdirectory
+mdlint README.md --fix
+
+# カレントディレクトリ以下すべてをチェック
+mdlint .
+```
+
+**動作**:
+
+1. gitルートを検出
+2. 実行ファイルのパスをgitルートからの相対パスに変換
+3. gitルートに移動して markdownlint-cli2 を実行
+4. gitルートの `.markdownlint-cli2.jsonc` が自動適用される
 
 ## Python環境の管理
 
