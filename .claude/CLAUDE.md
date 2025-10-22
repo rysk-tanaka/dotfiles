@@ -41,6 +41,8 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - Formatting: `ruff format` (preferred) or `black`
 - Type checking: `mypy`
 - Testing: `pytest`
+- Type hints: For dictionaries, use `dict` without type parameters (e.g., `dict` instead of `Dict[str, Any]`)
+  - Rationale: Dictionaries are typically used for flexible, general-purpose data structures
 
 ##### Testing with pytest
 - **テストスタイル**: 関数ベースのテストを推奨（クラスベースより）
