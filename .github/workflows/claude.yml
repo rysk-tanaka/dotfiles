@@ -42,7 +42,7 @@ jobs:
               (github.event_name == 'pull_request_review_comment' && (contains(github.event.comment.body, '@claude-opus ') || github.event.comment.body == '@claude-opus')) ||
               (github.event_name == 'pull_request_review' && (contains(github.event.review.body, '@claude-opus ') || github.event.review.body == '@claude-opus')) ||
               (github.event_name == 'issues' && ((contains(github.event.issue.body, '@claude-opus ') || github.event.issue.body == '@claude-opus') || (contains(github.event.issue.title, '@claude-opus ') || github.event.issue.title == '@claude-opus')))
-            ) && 'claude-opus-4-20250514' || 'claude-sonnet-4-20250514' }}
+            ) && 'claude-opus-4-20250514' || 'claude-sonnet-4-5-20250929' }}
 
           # Optional: Customize the trigger phrase (default: @claude)
           # trigger_phrase: "/claude"

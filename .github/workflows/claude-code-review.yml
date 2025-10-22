@@ -47,7 +47,7 @@ jobs:
           model: |
             ${{ (
               github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-review-opus')
-            ) && 'claude-opus-4-20250514' || 'claude-sonnet-4-20250514' }}
+            ) && 'claude-opus-4-20250514' || 'claude-sonnet-4-5-20250929' }}
 
           # Direct prompt for automated review (no @claude mention needed)
           direct_prompt: |
