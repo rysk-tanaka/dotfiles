@@ -19,6 +19,13 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - シンプルで読みやすい表記を優先する
 - 人間によるレビューやメンテナンスがしやすいよう、シンプルな構造を保つ
 
+#### Mermaid図表でのプレースホルダー表記
+- **図表内**: 波括弧 `{}` を使用しない（HTMLタグとして解釈されるか、シンタックスエラーになる）
+  - ✅ 正しい: `accel_data/uuid`, `path/to/gateway_id/uuid`
+  - ❌ 誤り: `accel_data/{uuid}`, `path/to/{gateway_id}/{uuid}`
+- **図表外の通常テキスト**: 波括弧でプレースホルダーを明示
+  - 例: `accel_data/{uuid}`, `path/to/{gateway_id}/{uuid}`
+
 ### Code Quality Standards
 - Clean, readable code with meaningful variable names
 - Follow project-specific conventions when available
