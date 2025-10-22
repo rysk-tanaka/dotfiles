@@ -3,6 +3,13 @@
 
 # markdownlint-cli2 wrapper that runs from git root
 mdlint() {
+  # Check if markdownlint-cli2 is available
+  if ! command -v markdownlint-cli2 &>/dev/null; then
+    echo "Error: markdownlint-cli2 is not installed" >&2
+    echo "Install with: mise install" >&2
+    return 1
+  fi
+
   local git_root
   git_root=$(git rev-parse --show-toplevel 2>/dev/null)
 
