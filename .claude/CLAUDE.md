@@ -64,6 +64,12 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - ALWAYS prefer editing existing files over creating new ones
 - NEVER proactively create documentation files (*.md) unless explicitly requested
 
+### File Operations Safety
+- NEVER use `rm -rf` command unless explicitly requested by the user
+- When removing symlinks, use `unlink` command instead of `rm`
+- When removing directories, prefer specific paths over wildcards
+- Always verify the target path before destructive operations
+
 ## Claude Code Settings Management
 
 ### Configuration File Locations
