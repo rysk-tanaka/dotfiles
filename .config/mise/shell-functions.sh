@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
 # Shell functions loaded by mise
 
+# Docker環境でLambdaビルドを実行する関数
+# 1Password SSH agentを有効にしつつDocker内でSSH認証を行う
+build_lambda() {
+    local backup=~/.ssh/config.backup.$$
+    cp ~/.ssh/config "$backup"
+
+    # クリーンアップを設定（エラー時も自動復元）
+    trap "mv '$backup' ~/.ssh/config" EXIT
+
+    # Docker用のSSH configに切り替え
+    cp ~/.ssh/config_docker ~/.ssh/config
+
+    # ビルドコマンド実行
+    "$@"
+}
+
 # markdownlint-cli2 wrapper that runs from git root
 mdlint() {
   # Check if markdownlint-cli2 is available
