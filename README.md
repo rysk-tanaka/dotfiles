@@ -11,6 +11,8 @@ MacOS用の初期セットアップを行います。
 ├── .vimrc                            # Vim設定
 ├── .gitconfig                        # Git設定
 ├── .mcp.json                         # MCPサーバー設定（プロジェクトスコープ）
+├── .ssh/                             # SSH設定
+│   └── config_docker.template        # Docker用SSH設定テンプレート
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── settings.json                 # グローバル設定
@@ -99,7 +101,23 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.zprofile ~/.zprofile
     ```
 
-3. 必要なツールのインストール
+3. Docker SSH設定の生成
+
+    `build_lambda`関数で使用するDocker用SSH設定を生成します：
+
+    ```bash
+    # GitHubのホストキーを登録（セキュアなホスト検証のため）
+    ssh-keyscan github.com >> ~/.ssh/known_hosts_docker
+
+    # テンプレートから生成（使用するSSHキー名に置き換える）
+    sed 's/{{SSH_KEY_FILE}}/id_ed25519/g' ~/Repositories/rysk/dotfiles/.ssh/config_docker.template > ~/.ssh/config_docker
+    ```
+
+    **注意**:
+    - `id_ed25519`の部分は、実際に使用しているSSHキーのファイル名に置き換えてください（例: `git01`, `id_rsa`など）
+    - この設定では `StrictHostKeyChecking yes` を使用しており、MITM攻撃からの保護を提供します
+
+4. 必要なツールのインストール
 
     mise を使って必要なツールをインストールします：
 
@@ -171,6 +189,41 @@ mdlint .
 2. 実行ファイルのパスをgitルートからの相対パスに変換
 3. gitルートに移動して markdownlint-cli2 を実行
 4. gitルートの `.markdownlint-cli2.jsonc` が自動適用される
+
+### build_lambda
+
+Docker環境でLambdaビルドスクリプトを実行する際に、1Password SSH agentを有効にしたままビルドできるようにするラッパーコマンド。
+
+```bash
+# 任意のLambdaビルドスクリプトを実行
+build_lambda ./lambdas/my_function/build_lambda.sh
+build_lambda ./path/to/build_lambda.sh
+```
+
+**前提条件**:
+
+- `~/.ssh/config_docker` ファイルが必要（Linux互換のSSH設定）
+- `~/.ssh/known_hosts_docker` ファイルが必要（GitHubホストキーの登録）
+
+セットアップ手順の「3. Docker SSH設定の生成」を参照してください。
+
+**動作**:
+
+1. 現在の `~/.ssh/config` をバックアップ
+2. Docker用のLinux互換SSH設定 (`~/.ssh/config_docker`) に切り替え
+3. ビルドスクリプトを実行
+4. 完了後（エラー時も）自動的に元のSSH設定に復元
+
+**なぜ必要か**:
+
+- macOS の `~/.ssh/config` には `UseKeychain` や `IdentityAgent` などのmacOS専用オプションが含まれることがある
+- これらのオプションはLinux Dockerコンテナ内では認識されずエラーになる
+- この関数により、ホストではmacOS設定を、Docker内ではLinux互換設定を使い分けられる
+
+**セキュリティ**:
+
+- Docker用SSH設定では `StrictHostKeyChecking yes` を使用し、MITM攻撃から保護
+- `known_hosts_docker` でGitHubのホストキーを事前登録することで、安全なホスト検証を実現
 
 ## Python環境の管理
 
