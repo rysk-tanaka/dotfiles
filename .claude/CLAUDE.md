@@ -37,6 +37,9 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 
 #### Python Projects
 - Virtual environment: `uv` (preferred) or `venv`
+- **Command execution**: Always use `uv run` to execute Python commands (pytest, ruff, mypy, etc.) instead of manually activating the virtual environment
+  - Rationale: `uv run` automatically manages the virtual environment, preventing errors from running commands without activation
+  - Example: `uv run pytest` instead of `source .venv/bin/activate && pytest`
 - Linting: `ruff` (preferred) or `flake8`
 - Formatting: `ruff format` (preferred) or `black`
 - Type checking: `mypy`
