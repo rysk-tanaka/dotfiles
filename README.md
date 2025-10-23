@@ -106,11 +106,16 @@ MacOS用の初期セットアップを行います。
     `build_lambda`関数で使用するDocker用SSH設定を生成します：
 
     ```bash
+    # GitHubのホストキーを登録（セキュアなホスト検証のため）
+    ssh-keyscan github.com >> ~/.ssh/known_hosts_docker
+
     # テンプレートから生成（使用するSSHキー名に置き換える）
     sed 's/{{SSH_KEY_FILE}}/id_ed25519/g' ~/Repositories/rysk/dotfiles/.ssh/config_docker.template > ~/.ssh/config_docker
     ```
 
-    **注意**: `id_ed25519`の部分は、実際に使用しているSSHキーのファイル名に置き換えてください（例: `git01`, `id_rsa`など）。
+    **注意**:
+    - `id_ed25519`の部分は、実際に使用しているSSHキーのファイル名に置き換えてください（例: `git01`, `id_rsa`など）
+    - この設定では `StrictHostKeyChecking yes` を使用しており、MITM攻撃からの保護を提供します
 
 4. 必要なツールのインストール
 
@@ -197,7 +202,10 @@ build_lambda ./path/to/build_lambda.sh
 
 **前提条件**:
 
-`~/.ssh/config_docker` ファイルが必要（Linux互換のSSH設定）。セットアップ手順の「3. Docker SSH設定の生成」を参照してください。
+- `~/.ssh/config_docker` ファイルが必要（Linux互換のSSH設定）
+- `~/.ssh/known_hosts_docker` ファイルが必要（GitHubホストキーの登録）
+
+セットアップ手順の「3. Docker SSH設定の生成」を参照してください。
 
 **動作**:
 
@@ -211,6 +219,11 @@ build_lambda ./path/to/build_lambda.sh
 - macOS の `~/.ssh/config` には `UseKeychain` や `IdentityAgent` などのmacOS専用オプションが含まれることがある
 - これらのオプションはLinux Dockerコンテナ内では認識されずエラーになる
 - この関数により、ホストではmacOS設定を、Docker内ではLinux互換設定を使い分けられる
+
+**セキュリティ**:
+
+- Docker用SSH設定では `StrictHostKeyChecking yes` を使用し、MITM攻撃から保護
+- `known_hosts_docker` でGitHubのホストキーを事前登録することで、安全なホスト検証を実現
 
 ## Python環境の管理
 
