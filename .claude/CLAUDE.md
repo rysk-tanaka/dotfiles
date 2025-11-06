@@ -49,6 +49,13 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - `__init__.py` files: Keep empty by default (only trailing newline)
   - Rationale: Modern Python doesn't require explicit exports in `__init__.py`
 
+##### Error Handling
+- **サービス層での例外処理**: カスタムエラーメッセージで例外を再ラップしない
+  - 例外はそのまま伝播させる（`except Exception: raise`）
+  - コンテキスト情報（S3キー、パラメータ名など）はhandler層でログ出力
+  - Rationale: エラーメッセージの重複を避け、スタックトレースを保持
+- **handler層の責務**: ビジネスコンテキストを含めたログ出力とエラーハンドリング
+
 ##### Testing with pytest
 - **テストスタイル**: 関数ベースのテストを推奨（クラスベースより）
 - **環境変数のモック**: `unittest.mock`より`monkeypatch`フィクスチャを使用
