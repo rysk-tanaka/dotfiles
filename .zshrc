@@ -56,6 +56,7 @@ alias ll="ls -alF"
 # eza
 alias le="eza --git -l"
 alias lt="le -snew"
+alias tree="eza --tree"
 
 # delta
 alias diff="delta"
