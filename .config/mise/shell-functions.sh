@@ -103,3 +103,35 @@ mdlint() {
     markdownlint-cli2 "$@"
   fi
 }
+
+# md-mermaid-lint wrapper with smart path resolution
+mermaidlint() {
+  # Check if md-mermaid-lint is available
+  if ! command -v md-mermaid-lint &>/dev/null; then
+    echo "Error: md-mermaid-lint is not installed" >&2
+    echo "Install with: mise install" >&2
+    return 1
+  fi
+
+  # Default to current directory if no arguments
+  if [ $# -eq 0 ]; then
+    set -- "**/*.md"
+  fi
+
+  # Convert paths to glob patterns
+  local patterns=()
+  for arg in "$@"; do
+    # Skip flags (starting with -)
+    if [[ "$arg" == -* ]]; then
+      patterns+=("$arg")
+    # If directory, append /**/*.md
+    elif [ -d "$arg" ]; then
+      patterns+=("$arg/**/*.md")
+    else
+      # File or glob pattern
+      patterns+=("$arg")
+    fi
+  done
+
+  md-mermaid-lint "${patterns[@]}"
+}

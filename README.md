@@ -191,6 +191,31 @@ mdlint .
 3. gitルートに移動して markdownlint-cli2 を実行
 4. gitルートの `.markdownlint-cli2.jsonc` が自動適用される
 
+### mermaidlint
+
+md-mermaid-lintのラッパーコマンド。Markdown内のMermaid図表の構文をチェックします。
+
+```bash
+# カレントディレクトリ配下すべてをチェック（引数なし）
+mermaidlint
+
+# docsディレクトリ配下すべてをチェック
+mermaidlint docs
+
+# 特定ファイルをチェック
+mermaidlint README.md
+
+# 複数指定
+mermaidlint docs rspress README.md
+```
+
+動作
+
+1. 引数なしの場合、カレントディレクトリ配下の全.mdファイルを検証
+2. ディレクトリを指定した場合、`**/*.md`を自動付与
+3. ファイルを指定した場合、そのファイルを検証
+4. 複数のパス・ファイルを同時指定可能
+
 ### build_lambda
 
 Docker環境でLambdaビルドスクリプトを実行する際に、1Password SSH agentを有効にしたままビルドできるようにするラッパーコマンド。
