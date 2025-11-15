@@ -29,11 +29,7 @@
       "Bash(rm -rf:*)",
       "Bash(git add .)",
       "Bash(git add -A:*)",
-      "Bash(git add --all:*)",
-      "Bash(rm -rf ~)",
-      "Bash(rm -rf .)",
-      "Bash(rm -rf /*)",
-      "Bash(rm -rf .*)"
+      "Bash(git add --all:*)"
     ]
   },
   "hooks": {
