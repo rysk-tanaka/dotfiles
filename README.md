@@ -72,7 +72,7 @@ MacOS用の初期セットアップを行います。
 
 2. シンボリックリンクの作成
 
-    設定ファイルを適切な場所にシンボリックリンクします：
+    設定ファイルを適切な場所にシンボリックリンクします。
 
     ディレクトリの作成
 
@@ -113,7 +113,8 @@ MacOS用の初期セットアップを行います。
     sed 's/{{SSH_KEY_FILE}}/id_ed25519/g' ~/Repositories/rysk/dotfiles/.ssh/config_docker.template > ~/.ssh/config_docker
     ```
 
-    **注意**:
+    注意
+
     - `id_ed25519`の部分は、実際に使用しているSSHキーのファイル名に置き換えてください（例: `git01`, `id_rsa`など）
     - この設定では `StrictHostKeyChecking yes` を使用しており、MITM攻撃からの保護を提供します
 
@@ -125,7 +126,7 @@ MacOS用の初期セットアップを行います。
     mise install
     ```
 
-    これにより、config.toml に定義されている以下のツールがインストールされます：
+    これにより、config.toml に定義されている以下のツールがインストールされます。
 
     - 1password-cli, awscli, aws-vault, delta, eza, go, jq, node, rust
     - 各種ユーティリティのnpmパッケージ
@@ -140,7 +141,7 @@ MacOS用の初期セットアップを行います。
 mise run setup-links
 ```
 
-これは以下のシンボリックリンクを作成します：
+これは以下のシンボリックリンクを作成します。
 
 - .github/workflows/pull_request_template.md
 - .clinerules/
@@ -160,7 +161,7 @@ Pythonコードのリントとフォーマットを実行します：
 mise run lint
 ```
 
-このコマンドは以下の処理を順番に実行します：
+このコマンドは以下の処理を順番に実行します。
 
 1. `ruff format` - Pythonコードを自動フォーマット
 2. `ruff check` - コードスタイルとエラーチェック
@@ -183,7 +184,7 @@ mdlint README.md --fix
 mdlint .
 ```
 
-**動作**:
+動作
 
 1. gitルートを検出
 2. 実行ファイルのパスをgitルートからの相対パスに変換
@@ -200,27 +201,27 @@ build_lambda ./lambdas/my_function/build_lambda.sh
 build_lambda ./path/to/build_lambda.sh
 ```
 
-**前提条件**:
+前提条件
 
 - `~/.ssh/config_docker` ファイルが必要（Linux互換のSSH設定）
 - `~/.ssh/known_hosts_docker` ファイルが必要（GitHubホストキーの登録）
 
 セットアップ手順の「3. Docker SSH設定の生成」を参照してください。
 
-**動作**:
+動作
 
 1. 現在の `~/.ssh/config` をバックアップ
 2. Docker用のLinux互換SSH設定 (`~/.ssh/config_docker`) に切り替え
 3. ビルドスクリプトを実行
 4. 完了後（エラー時も）自動的に元のSSH設定に復元
 
-**なぜ必要か**:
+なぜ必要か
 
 - macOS の `~/.ssh/config` には `UseKeychain` や `IdentityAgent` などのmacOS専用オプションが含まれることがある
 - これらのオプションはLinux Dockerコンテナ内では認識されずエラーになる
 - この関数により、ホストではmacOS設定を、Docker内ではLinux互換設定を使い分けられる
 
-**セキュリティ**:
+セキュリティ
 
 - Docker用SSH設定では `StrictHostKeyChecking yes` を使用し、MITM攻撃から保護
 - `known_hosts_docker` でGitHubのホストキーを事前登録することで、安全なホスト検証を実現

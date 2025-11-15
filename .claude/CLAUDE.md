@@ -15,7 +15,7 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 
 ### Markdown Formatting Guidelines
 - 箇条書き前のコロン（:）は使用しない（例: 「以下の項目:」→「以下の項目。」）
-- 箇条書き内での不必要な太字（**）強調は避ける
+- 太字（**）は使用しない
 - シンプルで読みやすい表記を優先する
 - 人間によるレビューやメンテナンスがしやすいよう、シンプルな構造を保つ
 
