@@ -33,17 +33,13 @@ aws logs filter-log-events \
 ### 2. 時間範囲を指定して取得
 
 ```bash
-# 過去1時間のログを取得
-aws logs filter-log-events \
-  --log-group-name "$LOG_GROUP_NAME" \
-  --start-time $(date -u -v-1H +%s000) \
-  --end-time $(date -u +%s000)
+# 過去1時間のログを取得（macOS）
+START_TIME=$(python3 -c "import time; print(int((time.time() - 3600) * 1000))")
+END_TIME=$(python3 -c "import time; print(int(time.time() * 1000))")
+aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --start-time $START_TIME --end-time $END_TIME
 
 # 特定期間を指定（Unix timestamp in milliseconds）
-aws logs filter-log-events \
-  --log-group-name "$LOG_GROUP_NAME" \
-  --start-time 1704067200000 \
-  --end-time 1704153600000
+aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --start-time 1704067200000 --end-time 1704153600000
 ```
 
 ### 3. フィルターパターンで検索
@@ -113,38 +109,23 @@ aws logs filter-log-events \
 ### 7. インターリーブオプション（複数ストリームの統合）
 
 ```bash
-# 複数のログストリームを時系列で統合表示
-aws logs filter-log-events \
-  --log-group-name "$LOG_GROUP_NAME" \
-  --interleaved \
-  --start-time $(date -u -v-30M +%s000)
+# 複数のログストリームを時系列で統合表示（過去30分）
+START_TIME=$(python3 -c "import time; print(int((time.time() - 1800) * 1000))")
+aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --interleaved --start-time $START_TIME
 ```
 
 ## 便利なワンライナー
 
 ```bash
 # 最新のエラーログを10件取得して整形
-aws logs filter-log-events \
-  --log-group-name "$LOG_GROUP_NAME" \
-  --filter-pattern "ERROR" \
-  --max-items 10 \
-  --output json | jq -r '.events[] | "\(.timestamp | . / 1000 | strftime("%Y-%m-%d %H:%M:%S")): \(.message)"'
+aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --filter-pattern ERROR --max-items 10 --output json | jq -r '.events[] | "\(.timestamp / 1000 | strftime("%Y-%m-%d %H:%M:%S")): \(.message)"'
 
-# リアルタイムに近いログ監視（30秒ごとに更新）
-while true; do \
-  aws logs filter-log-events \
-    --log-group-name "$LOG_GROUP_NAME" \
-    --start-time $(date -u -v-1M +%s000) \
-    --output text; \
-  sleep 30; \
-done
+# 最新30件のログを取得（時間指定なし）
+aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --max-items 30 --output json | jq -r '.events[] | .message'
 
 # 特定のリクエストIDを追跡
-REQUEST_ID="abc-123-def-456" && \
-aws logs filter-log-events \
-  --log-group-name "$LOG_GROUP_NAME" \
-  --filter-pattern "\"$REQUEST_ID\"" \
-  --output json | jq '.events[] | .message'
+REQUEST_ID="abc-123-def-456"
+aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --filter-pattern "\"$REQUEST_ID\"" --output json | jq '.events[] | .message'
 ```
 
 ## 関数ベースの便利コマンド
@@ -156,33 +137,31 @@ aws logs filter-log-events \
 cwlogs() {
   local group_name="${1:-$LOG_GROUP_NAME}"
   local filter_pattern="$2"
-  local hours_ago="${3:-1}"
+  local max_items="${3:-50}"
 
   if [ -z "$group_name" ]; then
-    echo "Usage: cwlogs <log-group-name> [filter-pattern] [hours-ago]"
+    echo "Usage: cwlogs <log-group-name> [filter-pattern] [max-items]"
     return 1
   fi
-
-  local start_time=$(date -u -v-${hours_ago}H +%s000)
 
   if [ -n "$filter_pattern" ]; then
     aws logs filter-log-events \
       --log-group-name "$group_name" \
       --filter-pattern "$filter_pattern" \
-      --start-time "$start_time" \
-      --output json | jq -r '.events[] | "\(.timestamp | . / 1000 | strftime("%Y-%m-%d %H:%M:%S")): \(.message)"'
+      --max-items "$max_items" \
+      --output json | jq -r '.events[] | "\(.timestamp / 1000 | strftime("%Y-%m-%d %H:%M:%S")): \(.message)"'
   else
     aws logs filter-log-events \
       --log-group-name "$group_name" \
-      --start-time "$start_time" \
-      --output json | jq -r '.events[] | "\(.timestamp | . / 1000 | strftime("%Y-%m-%d %H:%M:%S")): \(.message)"'
+      --max-items "$max_items" \
+      --output json | jq -r '.events[] | "\(.timestamp / 1000 | strftime("%Y-%m-%d %H:%M:%S")): \(.message)"'
   fi
 }
 
 # 使用例
 # cwlogs /aws/lambda/my-function
 # cwlogs /aws/lambda/my-function ERROR
-# cwlogs /aws/lambda/my-function ERROR 24
+# cwlogs /aws/lambda/my-function ERROR 100
 ```
 
 ## パラメータ説明
@@ -218,17 +197,16 @@ aws logs filter-log-events \
   --max-items 5 \
   --output table
 
-# エラーがないか確認
-aws logs filter-log-events \
-  --log-group-name "$TEST_LOG_GROUP" \
-  --filter-pattern "ERROR" \
-  --start-time $(date -u -v-24H +%s000) \
-  --output json | jq '.events | length'
+# エラーがないか確認（最新100件）
+aws logs filter-log-events --log-group-name "$TEST_LOG_GROUP" --filter-pattern ERROR --max-items 100 --output json | jq '.events | length'
 ```
 
 ## 注意事項
 
 - 時刻はUTCで指定（Unix timestamp in milliseconds）
+- **macOSでの時間計算**: `date`コマンドの構文がLinuxと異なるため、Python3を使用した時間計算を推奨
+  - 例: `START_TIME=$(python3 -c "import time; print(int((time.time() - 3600) * 1000))")`
+- **推奨アプローチ**: 時間範囲指定の代わりに`--max-items`で最新N件を取得する方が簡潔
 - フィルターパターンは大文字小文字を区別
 - 1回の結果は最大1MBまたは10,000イベント
 - ページネーションが必要な場合は`--starting-token`を使用
