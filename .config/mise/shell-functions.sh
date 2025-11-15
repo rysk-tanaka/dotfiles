@@ -120,7 +120,6 @@ mermaidlint() {
 
   # Convert paths to glob patterns
   local patterns=()
-  local has_non_flag=0
   for arg in "$@"; do
     # Skip flags (starting with -)
     if [[ "$arg" == -* ]]; then
@@ -128,11 +127,9 @@ mermaidlint() {
     # If directory, append /**/*.md
     elif [ -d "$arg" ]; then
       patterns+=("$arg/**/*.md")
-      has_non_flag=1
     else
       # File or glob pattern
       patterns+=("$arg")
-      has_non_flag=1
     fi
   done
 
