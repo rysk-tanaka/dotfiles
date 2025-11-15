@@ -51,6 +51,12 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - Testing: `pytest`
 - Type hints: For dictionaries, use `dict` without type parameters (e.g., `dict` instead of `Dict[str, Any]`)
   - Rationale: Dictionaries are typically used for flexible, general-purpose data structures
+  - Union types: Use pipe operator (`X | Y`) instead of `Optional[X]` or `Union[X, Y]`
+    - Example: `str | None` instead of `Optional[str]`
+    - Rationale: PEP 604 syntax is more concise and readable (available since Python 3.10)
+  - Python 3.14+: Do NOT use `from __future__ import annotations`
+    - Rationale: PEP 649 makes deferred evaluation the default behavior
+    - Only needed for Python 3.9 and earlier
 - `__init__.py` files: Keep empty by default (only trailing newline)
   - Rationale: Modern Python doesn't require explicit exports in `__init__.py`
 
@@ -70,8 +76,28 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
   - `monkeypatch.delenv(key, raising=False)`: 環境変数の削除
   - 自動クリーンアップによりテスト間の分離が保証される
 - **マジックナンバー**: ruff PLR2004ルールに従い、数値は意味のある定数として定義
+  - Example: `MAX_TIME_DIFF_SECONDS = 60` instead of hardcoded `60`
+  - Constants should use UPPER_SNAKE_CASE naming convention
 - **副作用の回避**: テストでは実際のAPIリクエストやファイル操作を避け、モックを使用
 - **モジュール再読み込み**: 環境変数やグローバル状態を変更した場合は`importlib.reload()`を使用
+
+##### Pydantic V2 (when applicable)
+
+- Field validation: Use `Field()` with constraints (e.g., `ge=0`, `le=100`)
+  - Example: `Field(..., ge=0, le=16777215, description="RGB color value")`
+- Serialization: Use `@field_serializer` decorator instead of deprecated `json_encoders`
+  - Example:
+
+    ```python
+    @field_serializer("timestamp")
+    def serialize_timestamp(self, value: datetime) -> str:
+        return value.isoformat()
+    ```
+
+  - Rationale: `json_encoders` is deprecated in Pydantic V2
+- datetime handling: Use `datetime.now(UTC)` instead of deprecated `datetime.utcnow()`
+  - Example: `Field(default_factory=lambda: datetime.now(UTC))`
+  - Rationale: `datetime.utcnow()` is deprecated in Python 3.12+
 
 #### Version Control
 
