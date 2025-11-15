@@ -9,17 +9,20 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 ## General Development Preferences
 
 ### Communication Style
+
 - 簡潔で明確な説明を心がける
 - 技術的な内容も日本語で説明
 - コード内のコメントは英語でも可
 
 ### Markdown Formatting Guidelines
+
 - 箇条書き前のコロン（:）は使用しない（例: 「以下の項目:」→「以下の項目。」）
 - 太字（**）は使用しない
 - シンプルで読みやすい表記を優先する
 - 人間によるレビューやメンテナンスがしやすいよう、シンプルな構造を保つ
 
 #### Mermaid図表でのプレースホルダー表記
+
 - **図表内**: 波括弧 `{}` を使用しない（HTMLタグとして解釈されるか、シンタックスエラーになる）
   - ✅ 正しい: `accel_data/uuid`, `path/to/gateway_id/uuid`
   - ❌ 誤り: `accel_data/{uuid}`, `path/to/{gateway_id}/{uuid}`
@@ -27,6 +30,7 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
   - 例: `accel_data/{uuid}`, `path/to/{gateway_id}/{uuid}`
 
 ### Code Quality Standards
+
 - Clean, readable code with meaningful variable names
 - Follow project-specific conventions when available
 - Prioritize maintainability and clarity
@@ -36,6 +40,7 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 ### Common Development Tools
 
 #### Python Projects
+
 - Virtual environment: `uv` (preferred) or `venv`
 - **Command execution**: Always use `uv run` to execute Python commands (pytest, ruff, mypy, etc.) instead of manually activating the virtual environment
   - Rationale: `uv run` automatically manages the virtual environment, preventing errors from running commands without activation
@@ -50,6 +55,7 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
   - Rationale: Modern Python doesn't require explicit exports in `__init__.py`
 
 ##### Error Handling
+
 - **サービス層での例外処理**: カスタムエラーメッセージで例外を再ラップしない
   - 例外はそのまま伝播させる（`except Exception: raise`）
   - コンテキスト情報（S3キー、パラメータ名など）はhandler層でログ出力
@@ -57,6 +63,7 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - **handler層の責務**: ビジネスコンテキストを含めたログ出力とエラーハンドリング
 
 ##### Testing with pytest
+
 - **テストスタイル**: 関数ベースのテストを推奨（クラスベースより）
 - **環境変数のモック**: `unittest.mock`より`monkeypatch`フィクスチャを使用
   - `monkeypatch.setenv(key, value)`: 環境変数の設定
@@ -67,18 +74,21 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - **モジュール再読み込み**: 環境変数やグローバル状態を変更した場合は`importlib.reload()`を使用
 
 #### Version Control
+
 - Git commit messages in English
 - Follow Conventional Commits when specified
 - Single-line commit messages preferred
 - Pull request templates: Check `.github/workflows/pull_request_template.md`
 
 ### Important Instructions
+
 - Do what has been asked; nothing more, nothing less
 - NEVER create files unless absolutely necessary
 - ALWAYS prefer editing existing files over creating new ones
 - NEVER proactively create documentation files (*.md) unless explicitly requested
 
 ### File Operations Safety
+
 - NEVER use `rm -rf` command unless explicitly requested by the user
 - When removing symlinks, use `unlink` command instead of `rm`
 - When removing directories, prefer specific paths over wildcards
@@ -87,6 +97,7 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 ## Claude Code Settings Management
 
 ### Configuration File Locations
+
 - **Global instructions**: `~/.claude/CLAUDE.md` (managed via symlink from this repository)
 - **Other settings**: `~/.claude.json` (internally managed by Claude Code)
 
