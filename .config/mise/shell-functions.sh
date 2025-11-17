@@ -136,3 +136,85 @@ mermaidlint() {
   md-mermaid-lint "${patterns[@]}"
   return $?
 }
+
+# Claude Code teleport wrapper for SSH Host Alias environments
+# Temporarily converts git remote URL to standard format for teleport compatibility
+teleport() {
+  if [ -z "$1" ]; then
+    echo "Usage: teleport <session-id>" >&2
+    echo "Example: teleport session_xxxxx" >&2
+    return 1
+  fi
+
+  local session_id="$1"
+
+  # Check if we're in a git repository
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "Error: Not in a git repository" >&2
+    return 1
+  fi
+
+  # Get current origin URL
+  local original_url
+  if ! original_url=$(git remote get-url origin 2>/dev/null); then
+    echo "Error: No origin remote found" >&2
+    return 1
+  fi
+
+  echo "📌 Original URL: $original_url"
+
+  # Check if URL is in SSH format (git@...)
+  if ! echo "$original_url" | grep -qE '^git@'; then
+    echo "ℹ️  Not an SSH URL format, running teleport directly"
+    claude --teleport "$session_id"
+    return $?
+  fi
+
+  # Convert SSH Host Alias to standard format
+  # e.g., github.com-rysk-tanaka -> github.com
+  local standard_url
+  standard_url=$(echo "$original_url" | sed -E 's/github\.com-[^:]+:/github.com:/')
+
+  # Check if conversion is needed
+  if [ "$original_url" = "$standard_url" ]; then
+    echo "ℹ️  URL is already in standard format"
+    claude --teleport "$session_id"
+    return $?
+  fi
+
+  echo "🔄 Temporary URL: $standard_url"
+
+  # Setup cleanup handler
+  local cleanup_done=0
+  cleanup() {
+    if [ $cleanup_done -eq 0 ]; then
+      echo "↩️  Restoring original URL"
+      git remote set-url origin "$original_url"
+      cleanup_done=1
+    fi
+  }
+  trap cleanup EXIT INT TERM
+
+  # Temporarily change URL
+  if ! git remote set-url origin "$standard_url"; then
+    echo "Error: Failed to change remote URL" >&2
+    return 1
+  fi
+
+  # Run claude teleport
+  echo "🚀 Running claude --teleport $session_id"
+  claude --teleport "$session_id"
+  local exit_code=$?
+
+  # Restore original URL
+  trap - EXIT INT TERM
+  cleanup
+
+  if [ $exit_code -eq 0 ]; then
+    echo "✅ Done!"
+  else
+    echo "❌ Teleport failed with exit code $exit_code" >&2
+  fi
+
+  return $exit_code
+}
