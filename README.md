@@ -251,6 +251,32 @@ build_lambda ./path/to/build_lambda.sh
 - Docker用SSH設定では `StrictHostKeyChecking yes` を使用し、MITM攻撃から保護
 - `known_hosts_docker` でGitHubのホストキーを事前登録することで、安全なホスト検証を実現
 
+### teleport
+
+SSH Host Alias環境でClaude Code teleportを実行するためのラッパーコマンド。リモートURLを一時的に標準形式に変換し、完了後に元に戻します。
+
+```bash
+# Claude Code teleportを実行
+teleport session_xxxxx
+```
+
+背景
+
+SSH configでカスタムホスト名（`github.com-{custom-host}`など）を使用している場合、`claude --teleport`がリポジトリを認識できません。
+
+動作
+
+1. 現在のorigin URLを保存
+2. SSH Host Aliasを標準形式（`github.com`）に変換
+3. `claude --teleport`を実行
+4. 完了後（エラー時も）自動的に元のURLに復元
+
+注意点
+
+- 実際のSSH接続は引き続きSSH configの設定（SSH Host Alias）を使用
+- URLの変換は一時的で、通常のgit操作には影響なし
+- gitリポジトリ内でのみ実行可能
+
 ## Python環境の管理
 
 このプロジェクトでは以下のツールでPython環境を管理しています
