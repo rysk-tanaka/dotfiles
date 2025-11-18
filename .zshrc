@@ -41,9 +41,10 @@ fi
 #   [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code-insiders --locate-shell-integration-path zsh)"
 # fi
 
-# python
+# mise exec aliases (version-specific commands)
 alias python="mise exec python@3.12.8 -- python"
 alias pip="mise exec python@3.12.8 -- pip"
+alias terraform="mise exec -- terraform"
 
 # pbcopy
 # alias pbcopy="ghead -c -1 | pbcopy"
