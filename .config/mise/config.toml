@@ -4,6 +4,7 @@ awscli = "latest"                          # requires rosetta 2
 aws-vault = "latest"
 bat = "latest"
 delta = "latest"
+duckdb = "latest"
 eza = "latest"
 gh = "latest"
 go = "latest"
