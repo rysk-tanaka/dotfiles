@@ -10,12 +10,9 @@
   "features": {
     "edit_prediction_provider": "zed"
   },
-  "assistant": {
-    "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-3-5-sonnet-latest"
-    },
-    "version": "2"
+  "agent": {
+    "always_allow_tool_actions": true,
+    "model_parameters": []
   },
   "vim_mode": true,
   "ui_font_size": 16,
@@ -68,10 +65,10 @@
       "format_on_save": "on",
       "formatter": [
         {
-          "code_actions": {
-            "source.organizeImports.ruff": true,
-            "source.fixAll.ruff": true
-          }
+          "code_action": "source.organizeImports.ruff"
+        },
+        {
+          "code_action": "source.fixAll.ruff"
         },
         {
           "language_server": {
