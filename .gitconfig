@@ -40,3 +40,7 @@
 # Personal settings (kept separately)
 [include]
     path = ~/.gitconfig.local
+[gtr "editor"]
+	default = zed
+[gtr "ai"]
+	default = claude

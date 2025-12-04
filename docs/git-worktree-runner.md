@@ -31,10 +31,26 @@ git gtr config set gtr.editor.default zed
 
 # デフォルトAIツールの設定
 git gtr config set gtr.ai.default claude
+
+# グローバルに設定する場合
+git gtr config set --global gtr.editor.default zed
 ```
 
 対応エディタ: cursor, vscode, zed など
 対応AIツール: claude, aider, codex, continue など
+
+### 設定の確認
+
+```bash
+# 全てのgtr設定を表示（リポジトリスコープ）
+git config --local --get-regexp '^gtr\.'
+
+# 全てのgtr設定を表示（グローバルスコープ）
+git config --global --get-regexp '^gtr\.'
+
+# 特定の値を取得
+git config --get gtr.editor.default
+```
 
 ## 基本コマンド
 
