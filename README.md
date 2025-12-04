@@ -51,6 +51,7 @@ MacOS用の初期セットアップを行います。
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
 └── docs/                             # ドキュメント
     ├── claude-code.md                # Claude Code設定詳細
+    ├── git-worktree-runner.md        # git-worktree-runner導入ガイド
     └── mcp.md                        # MCP設定詳細
 ```
 
@@ -298,4 +299,5 @@ source .venv/bin/activate
 ## 関連ドキュメント
 
 - [Claude Code設定](./docs/claude-code.md) - Claude Code固有の設定とカスタムコマンド
+- [git-worktree-runner](./docs/git-worktree-runner.md) - git worktree操作ツールの導入と使い方
 - [MCP設定](./docs/mcp.md) - MCPサーバーの設定
