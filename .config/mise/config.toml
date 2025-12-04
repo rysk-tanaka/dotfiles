@@ -1,4 +1,5 @@
 [tools]
+# Standard tools
 1password-cli = "latest"
 awscli = "latest"                          # requires rosetta 2
 aws-vault = "latest"
@@ -11,14 +12,6 @@ go = "latest"
 jq = "latest"
 node = "lts"
 pandoc = "latest"
-"npm:@anthropic-ai/claude-code" = "latest"
-"npm:cc-sdd" = "latest"
-"npm:ccusage" = "latest"
-"npm:claude-code-templates" = "latest"
-"npm:markdownlint-cli2" = "latest"
-"npm:md-mermaid-lint" = "latest"
-"npm:opencommit" = "latest"
-"npm:pyright" = "latest"
 pnpm = "latest"
 pre-commit = "latest"
 python = "3.12.8"
@@ -28,6 +21,19 @@ starship = "latest"
 terraform = "latest"
 uv = "latest"
 yarn = "latest"
+
+# aqua: tools
+"aqua:google/osv-scanner" = "latest"
+
+# npm: tools
+"npm:@anthropic-ai/claude-code" = "latest"
+"npm:cc-sdd" = "latest"
+"npm:ccusage" = "latest"
+"npm:claude-code-templates" = "latest"
+"npm:markdownlint-cli2" = "latest"
+"npm:md-mermaid-lint" = "latest"
+"npm:opencommit" = "latest"
+"npm:pyright" = "latest"
 
 [env]
 DOTFILES_PATH = "/Users/rysk/Repositories/rysk/dotfiles"
