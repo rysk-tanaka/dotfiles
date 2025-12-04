@@ -134,6 +134,16 @@ MacOS用の初期セットアップを行います。
     - Python 3.12、ripgrep、Starship、Terraformなど
     - Human-In-the-Loop Discord MCPサーバー（Rustバイナリ）
 
+5. git-worktree-runnerのインストール（オプション）
+
+    複数のAIエージェントが異なるブランチで並行作業する場合に便利なツールです。
+
+    ```bash
+    git clone https://github.com/coderabbitai/git-worktree-runner.git ~/Repositories/external/git-worktree-runner
+    ```
+
+    詳細は [git-worktree-runner](./docs/git-worktree-runner.md) を参照してください。
+
 ### プロジェクト用セットアップ
 
 各プロジェクトリポジトリ内で以下のコマンドを実行すると、コーディング規約とGitHub設定をリンクします：

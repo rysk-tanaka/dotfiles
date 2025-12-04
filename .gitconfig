@@ -41,6 +41,6 @@
 [include]
     path = ~/.gitconfig.local
 [gtr "editor"]
-	default = zed
+    default = zed
 [gtr "ai"]
-	default = claude
+    default = claude
