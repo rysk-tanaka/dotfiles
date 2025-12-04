@@ -25,6 +25,12 @@ if type mise &>/dev/null; then
   [ -f "$HOME/.config/mise/shell-functions.sh" ] && source "$HOME/.config/mise/shell-functions.sh"
 fi
 
+# git-worktree-runner
+GTR_PATH="$HOME/Repositories/external/git-worktree-runner"
+if [ -d "$GTR_PATH" ]; then
+  export PATH="$GTR_PATH/bin:$PATH"
+fi
+
 # starship
 if type starship &>/dev/null; then
   eval "$(starship init zsh)"

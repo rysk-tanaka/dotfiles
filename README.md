@@ -51,6 +51,7 @@ MacOS用の初期セットアップを行います。
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
 └── docs/                             # ドキュメント
     ├── claude-code.md                # Claude Code設定詳細
+    ├── git-worktree-runner.md        # git-worktree-runner導入ガイド
     └── mcp.md                        # MCP設定詳細
 ```
 
@@ -132,6 +133,16 @@ MacOS用の初期セットアップを行います。
     - 各種ユーティリティのnpmパッケージ
     - Python 3.12、ripgrep、Starship、Terraformなど
     - Human-In-the-Loop Discord MCPサーバー（Rustバイナリ）
+
+5. git-worktree-runnerのインストール（オプション）
+
+    複数のAIエージェントが異なるブランチで並行作業する場合に便利なツールです。
+
+    ```bash
+    git clone https://github.com/coderabbitai/git-worktree-runner.git ~/Repositories/external/git-worktree-runner
+    ```
+
+    詳細は [git-worktree-runner](./docs/git-worktree-runner.md) を参照してください。
 
 ### プロジェクト用セットアップ
 
@@ -298,4 +309,5 @@ source .venv/bin/activate
 ## 関連ドキュメント
 
 - [Claude Code設定](./docs/claude-code.md) - Claude Code固有の設定とカスタムコマンド
+- [git-worktree-runner](./docs/git-worktree-runner.md) - git worktree操作ツールの導入と使い方
 - [MCP設定](./docs/mcp.md) - MCPサーバーの設定
