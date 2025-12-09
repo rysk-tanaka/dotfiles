@@ -27,6 +27,7 @@ yarn = "latest"
 
 # npm: tools
 "npm:@anthropic-ai/claude-code" = "latest"
+"npm:aws-cdk" = "latest"
 "npm:cc-sdd" = "latest"
 "npm:ccusage" = "latest"
 "npm:claude-code-templates" = "latest"
