@@ -25,6 +25,9 @@ yarn = "latest"
 # aqua: tools
 "aqua:google/osv-scanner" = "latest"
 
+# cargo: tools
+"cargo:treemd" = "latest"
+
 # npm: tools
 "npm:@anthropic-ai/claude-code" = "latest"
 "npm:aws-cdk" = "latest"
