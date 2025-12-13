@@ -3,9 +3,7 @@
     "aws-docs": {
       "type": "stdio",
       "command": "uvx",
-      "args": [
-        "awslabs.aws-documentation-mcp-server@latest"
-      ],
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
       "env": {
         "FASTMCP_LOG_LEVEL": "ERROR"
       }
@@ -13,9 +11,7 @@
     "aws-api": {
       "type": "stdio",
       "command": "uvx",
-      "args": [
-        "awslabs.aws-api-mcp-server@latest"
-      ],
+      "args": ["awslabs.aws-api-mcp-server@latest"],
       "env": {
         "FASTMCP_LOG_LEVEL": "ERROR",
         "READ_OPERATIONS_ONLY": "true"
