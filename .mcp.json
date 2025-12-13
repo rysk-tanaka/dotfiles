@@ -16,6 +16,12 @@
         "FASTMCP_LOG_LEVEL": "ERROR",
         "READ_OPERATIONS_ONLY": "true"
       }
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "pnpm",
+      "args": ["dlx", "@playwright/mcp@latest"],
+      "env": {}
     }
   }
 }

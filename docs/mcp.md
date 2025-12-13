@@ -22,6 +22,16 @@ AWS CLIコマンドの実行を提供します。
 - 設定: `READ_OPERATIONS_ONLY=true`（読み取り専用モード）
 - 前提条件: AWS認証情報の設定（AWS CLI/SDKの設定に従う）
 
+### Playwright MCP Server
+
+ブラウザ自動化機能を提供します。
+
+- コマンド: `pnpm dlx @playwright/mcp@latest`
+- スコープ: プロジェクト
+- 機能: Webページのナビゲーション、フォーム入力、クリック、スナップショット取得
+- 前提条件: なし（初回実行時にChromiumが自動インストール）
+- 用途: UI動作確認、デバッグ、E2Eテスト作成支援
+
 ### Human-In-the-Loop Discord MCP Server
 
 Discord経由で人間とのやり取りを提供します。
@@ -108,6 +118,12 @@ MCPサーバーの設定は以下のファイルに保存されます。
         "FASTMCP_LOG_LEVEL": "ERROR",
         "READ_OPERATIONS_ONLY": "true"
       }
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "pnpm",
+      "args": ["dlx", "@playwright/mcp@latest"],
+      "env": {}
     }
   }
 }
