@@ -9,7 +9,7 @@ Claude CodeはMCPサーバーを使って外部ツールやサービスと連携
 AWSドキュメントへのアクセスを提供します。
 
 - コマンド: `uvx awslabs.aws-documentation-mcp-server@latest`
-- スコープ: プロジェクト（このリポジトリでのみ利用可能）
+- スコープ: プロジェクト
 - 機能: AWS認証不要でドキュメントの閲覧・検索が可能
 
 ### AWS API MCP Server
@@ -17,7 +17,7 @@ AWSドキュメントへのアクセスを提供します。
 AWS CLIコマンドの実行を提供します。
 
 - コマンド: `uvx awslabs.aws-api-mcp-server@latest`
-- スコープ: プロジェクト（このリポジトリでのみ利用可能）
+- スコープ: プロジェクト
 - 機能: 自然言語からAWS CLIコマンドを生成・実行
 - 設定: `READ_OPERATIONS_ONLY=true`（読み取り専用モード）
 - 前提条件: AWS認証情報の設定（AWS CLI/SDKの設定に従う）
@@ -27,7 +27,7 @@ AWS CLIコマンドの実行を提供します。
 Discord経由で人間とのやり取りを提供します。
 
 - コマンド: `/Users/rysk/.cargo/bin/human-in-the-loop`
-- スコープ: プロジェクト（このリポジトリでのみ利用可能）
+- スコープ: プロジェクト
 - 機能: Claude CodeからDiscord経由で質問・回答のやり取りが可能
 - **注意**: 現在Claude CodeではMCPプロトコルバージョンの互換性問題により利用不可（Claude Desktopでは動作確認済み）
 
