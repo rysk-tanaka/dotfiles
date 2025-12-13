@@ -29,7 +29,7 @@ yarn = "latest"
 "cargo:treemd" = "latest"
 
 # npm: tools
-"npm:@anthropic-ai/claude-code" = "2.0.68" # 2.0.69 has a bug
+"npm:@anthropic-ai/claude-code" = "2.0.67" # 2.0.68 has a bug
 "npm:aws-cdk" = "latest"
 "npm:cc-sdd" = "latest"
 "npm:ccusage" = "latest"
