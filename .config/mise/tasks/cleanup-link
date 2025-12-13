@@ -30,6 +30,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 while IFS= read -r repo; do
+  [ -d "$repo" ] || continue
   if [ -L "$repo/$TARGET" ]; then
     unlink "$repo/$TARGET"
     echo "Removed: $repo/$TARGET"
