@@ -1,5 +1,4 @@
 .claude
-.clinerules
 .github/workflows/pull_request_template.md
 .markdownlint-cli2.jsonc
 .mcp.json

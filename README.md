@@ -44,9 +44,6 @@ MacOS用の初期セットアップを行います。
 │       ├── claude-code-review.yml    # PRの自動レビュー
 │       ├── claude.yml                # @claudeメンション応答
 │       └── pull_request_template.md  # PRテンプレート
-├── .clinerules/                      # コーディング規約
-│   ├── 01-coding-standards.md        # コーディング標準
-│   └── 02-documentation.md           # ドキュメント規約
 ├── .pre-commit-config.yaml           # pre-commitフック設定
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
 └── docs/                             # ドキュメント
@@ -155,7 +152,6 @@ mise run setup-links
 これは以下のシンボリックリンクを作成します。
 
 - .github/workflows/pull_request_template.md
-- .clinerules/
 - .pre-commit-config.yaml
 - .markdownlint-cli2.jsonc
 - .mcp.json
