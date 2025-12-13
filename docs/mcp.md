@@ -12,6 +12,16 @@ AWSドキュメントへのアクセスを提供します。
 - スコープ: プロジェクト（このリポジトリでのみ利用可能）
 - 機能: AWS認証不要でドキュメントの閲覧・検索が可能
 
+### AWS API MCP Server
+
+AWS CLIコマンドの実行を提供します。
+
+- コマンド: `uvx awslabs.aws-api-mcp-server@latest`
+- スコープ: プロジェクト（このリポジトリでのみ利用可能）
+- 機能: 自然言語からAWS CLIコマンドを生成・実行
+- 設定: `READ_OPERATIONS_ONLY=true`（読み取り専用モード）
+- 前提条件: AWS認証情報の設定（AWS CLI/SDKの設定に従う）
+
 ### Human-In-the-Loop Discord MCP Server
 
 Discord経由で人間とのやり取りを提供します。
@@ -88,6 +98,15 @@ MCPサーバーの設定は以下のファイルに保存されます。
       "args": ["awslabs.aws-documentation-mcp-server@latest"],
       "env": {
         "FASTMCP_LOG_LEVEL": "ERROR"
+      }
+    },
+    "aws-api": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["awslabs.aws-api-mcp-server@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR",
+        "READ_OPERATIONS_ONLY": "true"
       }
     }
   }
