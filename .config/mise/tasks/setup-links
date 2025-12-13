@@ -3,23 +3,19 @@
 #MISE dir="{{cwd}}"
 
 REGISTRY_DIR="${HOME}/.config/mise/linked-repos"
-DOTFILES_PATH="/Users/rysk/Repositories/rysk/dotfiles"
+DOTFILES_PATH="${DOTFILES_PATH:-/Users/rysk/Repositories/rysk/dotfiles}"
 
 mkdir -p "$REGISTRY_DIR"
 mkdir -p .github/workflows
 
 ln -sf "${DOTFILES_PATH}/.github/workflows/pull_request_template.md" .github/workflows/pull_request_template.md
-echo "$PWD" >> "$REGISTRY_DIR/pull_request_template.txt"
+grep -qxF "$PWD" "$REGISTRY_DIR/pull_request_template.txt" 2>/dev/null || echo "$PWD" >> "$REGISTRY_DIR/pull_request_template.txt"
 
 ln -sf "${DOTFILES_PATH}/.pre-commit-config.yaml" .pre-commit-config.yaml
-echo "$PWD" >> "$REGISTRY_DIR/pre-commit-config.txt"
+grep -qxF "$PWD" "$REGISTRY_DIR/pre-commit-config.txt" 2>/dev/null || echo "$PWD" >> "$REGISTRY_DIR/pre-commit-config.txt"
 
 ln -sf "${DOTFILES_PATH}/.markdownlint-cli2.jsonc" .markdownlint-cli2.jsonc
-echo "$PWD" >> "$REGISTRY_DIR/markdownlint.txt"
+grep -qxF "$PWD" "$REGISTRY_DIR/markdownlint.txt" 2>/dev/null || echo "$PWD" >> "$REGISTRY_DIR/markdownlint.txt"
 
 ln -sf "${DOTFILES_PATH}/.mcp.json" .mcp.json
-echo "$PWD" >> "$REGISTRY_DIR/mcp.txt"
-
-for f in "$REGISTRY_DIR"/*.txt; do
-  sort -u "$f" -o "$f"
-done
+grep -qxF "$PWD" "$REGISTRY_DIR/mcp.txt" 2>/dev/null || echo "$PWD" >> "$REGISTRY_DIR/mcp.txt"
