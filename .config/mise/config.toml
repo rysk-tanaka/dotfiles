@@ -47,9 +47,69 @@ run = "ruff format && ruff check && mypy ."
 
 [tasks.setup-links]
 run = """
+REGISTRY_DIR="${HOME}/.config/mise/linked-repos"
+mkdir -p "$REGISTRY_DIR"
 mkdir -p .github/workflows
+
 ln -sf ${DOTFILES_PATH}/.github/workflows/pull_request_template.md .github/workflows/pull_request_template.md
+echo "$PWD" >> "$REGISTRY_DIR/pull_request_template.txt"
+
 ln -sf ${DOTFILES_PATH}/.pre-commit-config.yaml .pre-commit-config.yaml
+echo "$PWD" >> "$REGISTRY_DIR/pre-commit-config.txt"
+
 ln -sf ${DOTFILES_PATH}/.markdownlint-cli2.jsonc .markdownlint-cli2.jsonc
+echo "$PWD" >> "$REGISTRY_DIR/markdownlint.txt"
+
 ln -sf ${DOTFILES_PATH}/.mcp.json .mcp.json
+echo "$PWD" >> "$REGISTRY_DIR/mcp.txt"
+
+# Remove duplicates
+for f in "$REGISTRY_DIR"/*.txt; do
+  sort -u "$f" -o "$f"
+done
+"""
+
+[tasks.cleanup-link]
+usage = 'arg "<name>" help="Link name: pull_request_template, pre-commit-config, markdownlint, mcp"'
+run = """
+LINK_NAME="${usage_name}"
+REGISTRY_DIR="${HOME}/.config/mise/linked-repos"
+
+REGISTRY_FILE="$REGISTRY_DIR/${LINK_NAME}.txt"
+if [ ! -f "$REGISTRY_FILE" ]; then
+  echo "Unknown link: $LINK_NAME"
+  echo "Available: pull_request_template, pre-commit-config, markdownlint, mcp"
+  exit 1
+fi
+
+case "$LINK_NAME" in
+  pull_request_template) TARGET=".github/workflows/pull_request_template.md" ;;
+  pre-commit-config) TARGET=".pre-commit-config.yaml" ;;
+  markdownlint) TARGET=".markdownlint-cli2.jsonc" ;;
+  mcp) TARGET=".mcp.json" ;;
+esac
+
+while IFS= read -r repo; do
+  if [ -L "$repo/$TARGET" ]; then
+    unlink "$repo/$TARGET"
+    echo "Removed: $repo/$TARGET"
+  fi
+done < "$REGISTRY_FILE"
+
+rm "$REGISTRY_FILE"
+echo "Registry cleaned: $LINK_NAME"
+"""
+
+[tasks.cleanup-links]
+run = """
+REGISTRY_DIR="${HOME}/.config/mise/linked-repos"
+
+unlink .github/workflows/pull_request_template.md 2>/dev/null && echo "Removed: pull_request_template"
+unlink .pre-commit-config.yaml 2>/dev/null && echo "Removed: pre-commit-config"
+unlink .markdownlint-cli2.jsonc 2>/dev/null && echo "Removed: markdownlint"
+unlink .mcp.json 2>/dev/null && echo "Removed: mcp"
+
+for f in "$REGISTRY_DIR"/*.txt; do
+  [ -f "$f" ] && sed -i '' "\\|^$PWD$|d" "$f"
+done
 """
