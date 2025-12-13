@@ -19,3 +19,5 @@ grep -qxF "$PWD" "$REGISTRY_DIR/markdownlint.txt" 2>/dev/null || echo "$PWD" >> 
 
 ln -sf "${DOTFILES_PATH}/.mcp.json" .mcp.json
 grep -qxF "$PWD" "$REGISTRY_DIR/mcp.txt" 2>/dev/null || echo "$PWD" >> "$REGISTRY_DIR/mcp.txt"
+
+echo "Links created and registered."

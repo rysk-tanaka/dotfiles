@@ -18,6 +18,7 @@ case "$LINK_NAME" in
   pre-commit-config) TARGET=".pre-commit-config.yaml" ;;
   markdownlint) TARGET=".markdownlint-cli2.jsonc" ;;
   mcp) TARGET=".mcp.json" ;;
+  *) echo "Unknown link name: $LINK_NAME"; exit 1 ;;
 esac
 
 COUNT=$(wc -l < "$REGISTRY_FILE" | tr -d ' ')

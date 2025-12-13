@@ -11,4 +11,6 @@ unlink .mcp.json 2>/dev/null && echo "Removed: mcp"
 
 for f in "$REGISTRY_DIR"/*.txt; do
   [ -f "$f" ] && sed -i '' "\\|^$PWD$|d" "$f"
+  [ -f "$f" ] && [ ! -s "$f" ] && rm "$f"
 done
+true
