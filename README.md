@@ -156,6 +156,12 @@ mise run setup-links
 - .markdownlint-cli2.jsonc
 - .mcp.json
 
+リンクを解除する場合は以下を実行します。
+
+```bash
+mise run cleanup-links
+```
+
 ## 開発コマンド
 
 miseで定義されているコマンドを利用できます：

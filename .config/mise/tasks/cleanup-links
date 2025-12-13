@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#MISE description="Remove all links from current repository"
+#MISE dir="{{cwd}}"
+
+REGISTRY_DIR="${HOME}/.config/mise/linked-repos"
+
+[ -L ".github/workflows/pull_request_template.md" ] && unlink ".github/workflows/pull_request_template.md" && echo "Removed: pull_request_template"
+[ -L ".pre-commit-config.yaml" ] && unlink ".pre-commit-config.yaml" && echo "Removed: pre-commit-config"
+[ -L ".markdownlint-cli2.jsonc" ] && unlink ".markdownlint-cli2.jsonc" && echo "Removed: markdownlint"
+[ -L ".mcp.json" ] && unlink ".mcp.json" && echo "Removed: mcp"
+
+for f in "$REGISTRY_DIR"/*.txt; do
+  [ -f "$f" ] && sed -i '' "\\|^$PWD$|d" "$f"
+  [ -f "$f" ] && [ ! -s "$f" ] && rm "$f"
+done
+true

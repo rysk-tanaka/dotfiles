@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#MISE description="Create symlinks for shared configs and register to registry"
+#MISE dir="{{cwd}}"
+
+REGISTRY_DIR="${HOME}/.config/mise/linked-repos"
+DOTFILES_PATH="${DOTFILES_PATH:-/Users/rysk/Repositories/rysk/dotfiles}"
+
+mkdir -p "$REGISTRY_DIR"
+mkdir -p .github/workflows
+
+ln -sf "${DOTFILES_PATH}/.github/workflows/pull_request_template.md" .github/workflows/pull_request_template.md
+grep -qxF "$PWD" "$REGISTRY_DIR/pull_request_template.txt" 2>/dev/null || echo "$PWD" >> "$REGISTRY_DIR/pull_request_template.txt"
+
+ln -sf "${DOTFILES_PATH}/.pre-commit-config.yaml" .pre-commit-config.yaml
+grep -qxF "$PWD" "$REGISTRY_DIR/pre-commit-config.txt" 2>/dev/null || echo "$PWD" >> "$REGISTRY_DIR/pre-commit-config.txt"
+
+ln -sf "${DOTFILES_PATH}/.markdownlint-cli2.jsonc" .markdownlint-cli2.jsonc
+grep -qxF "$PWD" "$REGISTRY_DIR/markdownlint.txt" 2>/dev/null || echo "$PWD" >> "$REGISTRY_DIR/markdownlint.txt"
+
+ln -sf "${DOTFILES_PATH}/.mcp.json" .mcp.json
+grep -qxF "$PWD" "$REGISTRY_DIR/mcp.txt" 2>/dev/null || echo "$PWD" >> "$REGISTRY_DIR/mcp.txt"
+
+echo "Links created and registered."

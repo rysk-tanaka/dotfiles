@@ -44,12 +44,3 @@ DOTFILES_PATH = "/Users/rysk/Repositories/rysk/dotfiles"
 
 [tasks.lint]
 run = "ruff format && ruff check && mypy ."
-
-[tasks.setup-links]
-run = """
-mkdir -p .github/workflows
-ln -sf ${DOTFILES_PATH}/.github/workflows/pull_request_template.md .github/workflows/pull_request_template.md
-ln -sf ${DOTFILES_PATH}/.pre-commit-config.yaml .pre-commit-config.yaml
-ln -sf ${DOTFILES_PATH}/.markdownlint-cli2.jsonc .markdownlint-cli2.jsonc
-ln -sf ${DOTFILES_PATH}/.mcp.json .mcp.json
-"""

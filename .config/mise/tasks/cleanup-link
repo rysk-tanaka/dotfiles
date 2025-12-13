@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#MISE description="Remove a specific link from all registered repositories"
+#MISE dir="{{cwd}}"
+#USAGE arg "<name>" help="Link name: pull_request_template, pre-commit-config, markdownlint, mcp"
+
+LINK_NAME="${usage_name}"
+REGISTRY_DIR="${HOME}/.config/mise/linked-repos"
+
+REGISTRY_FILE="$REGISTRY_DIR/${LINK_NAME}.txt"
+if [ ! -f "$REGISTRY_FILE" ]; then
+  echo "Unknown link: $LINK_NAME"
+  echo "Available: pull_request_template, pre-commit-config, markdownlint, mcp"
+  exit 1
+fi
+
+case "$LINK_NAME" in
+  pull_request_template) TARGET=".github/workflows/pull_request_template.md" ;;
+  pre-commit-config) TARGET=".pre-commit-config.yaml" ;;
+  markdownlint) TARGET=".markdownlint-cli2.jsonc" ;;
+  mcp) TARGET=".mcp.json" ;;
+  *) echo "Unknown link name: $LINK_NAME"; exit 1 ;;
+esac
+
+COUNT=$(wc -l < "$REGISTRY_FILE" | tr -d ' ')
+echo "$COUNT repositories will be affected."
+read -p "Continue? [y/N] " -r
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+  echo "Aborted."
+  exit 0
+fi
+
+while IFS= read -r repo; do
+  [ -d "$repo" ] || continue
+  if [ -L "$repo/$TARGET" ]; then
+    unlink "$repo/$TARGET"
+    echo "Removed: $repo/$TARGET"
+  fi
+done < "$REGISTRY_FILE"
+
+rm "$REGISTRY_FILE"
+echo "Registry cleaned: $LINK_NAME"
