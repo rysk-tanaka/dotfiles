@@ -5,7 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 - Lint Python code: `mise run lint` or `ruff format && ruff check && mypy .`
-- Setup project symlinks: `mise run setup-links` (creates symlinks for PR template and coding rules)
+- Setup project symlinks: `mise run setup-links` (creates symlinks and registers to tracking)
+- Remove project symlinks: `mise run cleanup-links` (removes symlinks from current repo)
+- Remove specific link globally: `mise run cleanup-link <name>` (removes from all registered repos)
 - Install tools: `mise install` (installs all tools defined in `.config/mise/config.toml`)
 
 ## Architecture Overview
@@ -56,6 +58,16 @@ When running `mise run setup-links` in other projects, the following are symlink
 - `.pre-commit-config.yaml` - Pre-commit hooks
 - `.markdownlint-cli2.jsonc` - Markdown lint config
 - `.mcp.json` - MCP server settings
+
+Symlinks are tracked in `~/.config/mise/linked-repos/` for bulk management.
+
+## mise Tasks
+
+File-based tasks are located in `.config/mise/tasks/`:
+
+- `setup-links` - Create symlinks and register to tracking
+- `cleanup-links` - Remove all symlinks from current repo
+- `cleanup-link` - Remove specific link from all registered repos (with confirmation)
 
 ## Zsh Aliases
 
