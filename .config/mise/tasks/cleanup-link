@@ -20,6 +20,14 @@ case "$LINK_NAME" in
   mcp) TARGET=".mcp.json" ;;
 esac
 
+COUNT=$(wc -l < "$REGISTRY_FILE" | tr -d ' ')
+echo "$COUNT repositories will be affected."
+read -p "Continue? [y/N] " -r
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+  echo "Aborted."
+  exit 0
+fi
+
 while IFS= read -r repo; do
   if [ -L "$repo/$TARGET" ]; then
     unlink "$repo/$TARGET"
