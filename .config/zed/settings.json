@@ -8,11 +8,11 @@
 // command palette
 {
   "features": {
-    "edit_prediction_provider": "copilot"
+    "edit_prediction_provider": "copilot",
   },
   "agent": {
     "always_allow_tool_actions": true,
-    "model_parameters": []
+    "model_parameters": [],
   },
   "vim_mode": true,
   "ui_font_size": 16,
@@ -21,10 +21,10 @@
   "theme": {
     "mode": "system",
     "light": "One Light",
-    "dark": "Ayu Dark"
+    "dark": "Ayu Dark",
   },
   "terminal": {
-    "copy_on_select": true
+    "copy_on_select": true,
   },
   "lsp": {
     "pyright": {
@@ -34,9 +34,9 @@
           //"typeCheckingMode": "strict"
         },
         "python": {
-          "pythonPath": "./.venv/bin/python"
-        }
-      }
+          "pythonPath": "./.venv/bin/python",
+        },
+      },
     },
     "ruff": {
       "initialization_options": {
@@ -53,36 +53,36 @@
               "E722",
               "F811",
               "E731",
-              "F821"
-            ]
-          }
-        }
-      }
-    }
+              "F821",
+            ],
+          },
+        },
+      },
+    },
   },
   "languages": {
     "Python": {
       "format_on_save": "on",
       "formatter": [
         {
-          "code_action": "source.organizeImports.ruff"
+          "code_action": "source.organizeImports.ruff",
         },
         {
-          "code_action": "source.fixAll.ruff"
+          "code_action": "source.fixAll.ruff",
         },
         {
           "language_server": {
-            "name": "ruff"
-          }
-        }
+            "name": "ruff",
+          },
+        },
       ],
       "language_servers": [
         // Disable basedpyright and enable Ty, and otherwise
         // use the default configuration.
         "ty",
         "!basedpyright",
-        "ruff"
-      ]
-    }
-  }
+        "ruff",
+      ],
+    },
+  },
 }
