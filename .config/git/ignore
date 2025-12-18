@@ -5,6 +5,7 @@
 .mise.local.toml
 .memo.local.md
 .obsidian
+.playwright-mcp
 .pre-commit-config.yaml
 .vscode
 .DS_Store
