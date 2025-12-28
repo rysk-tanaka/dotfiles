@@ -11,6 +11,7 @@ MacOS用の初期セットアップを行います。
 ├── .vimrc                            # Vim設定
 ├── .gitconfig                        # Git設定
 ├── .mcp.json                         # MCPサーバー設定（プロジェクトスコープ）
+├── .wakatime.cfg.template            # WakaTime設定テンプレート
 ├── .ssh/                             # SSH設定
 │   └── config_docker.template        # Docker用SSH設定テンプレート
 ├── .claude/                          # Claude Code設定
@@ -131,7 +132,21 @@ MacOS用の初期セットアップを行います。
     - Python 3.12、ripgrep、Starship、Terraformなど
     - Human-In-the-Loop Discord MCPサーバー（Rustバイナリ）
 
-5. git-worktree-runnerのインストール（オプション）
+5. WakaTime設定の生成
+
+    1PasswordからAPIキーを取得してWakaTime設定ファイルを生成します。
+
+    ```bash
+    mise run setup-wakatime
+    ```
+
+    前提条件
+
+    - 1Password CLIがインストール済み（`mise install`で自動インストール）
+    - 1Passwordの「work」vaultに「WakaTime」アイテムが登録済み
+    - `op signin`で1Passwordに認証済み
+
+6. git-worktree-runnerのインストール
 
     複数のAIエージェントが異なるブランチで並行作業する場合に便利なツールです。
 

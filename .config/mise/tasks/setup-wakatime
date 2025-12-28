@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#MISE description="Setup WakaTime configuration with 1Password"
+
+set -euo pipefail
+
+DOTFILES_PATH="${DOTFILES_PATH:-/Users/rysk/Repositories/rysk/dotfiles}"
+TEMPLATE="${DOTFILES_PATH}/.wakatime.cfg.template"
+TARGET="${HOME}/.wakatime.cfg"
+
+if ! command -v op &>/dev/null; then
+    echo "Error: 1Password CLI not installed" >&2
+    exit 1
+fi
+
+API_KEY=$(op item get WakaTime --vault work --fields credential --reveal)
+
+if [ -z "$API_KEY" ]; then
+    echo "Error: Failed to retrieve WakaTime API key from 1Password" >&2
+    exit 1
+fi
+
+sed "s/{{WAKATIME_API_KEY}}/$API_KEY/g" "$TEMPLATE" > "$TARGET"
+chmod 600 "$TARGET"
+
+echo "WakaTime configuration created at $TARGET"
