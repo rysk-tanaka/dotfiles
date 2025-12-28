@@ -146,6 +146,18 @@ MacOS用の初期セットアップを行います。
     - 1Passwordの「work」vaultに「WakaTime」アイテムが登録済み
     - `op signin`で1Passwordに認証済み
 
+    Claude Code用のWakaTimeプラグインをインストールします。
+
+    ```bash
+    # マーケットプレイスを追加
+    claude plugin marketplace add https://github.com/wakatime/claude-code-wakatime.git
+
+    # プラグインをインストール
+    claude plugin i claude-code-wakatime@wakatime
+    ```
+
+    インストール後、Claude Code内で `/plugin` を実行してプラグインの状態を確認できます。
+
 6. git-worktree-runnerのインストール
 
     複数のAIエージェントが異なるブランチで並行作業する場合に便利なツールです。
