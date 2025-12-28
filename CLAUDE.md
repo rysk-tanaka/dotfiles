@@ -9,6 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Remove project symlinks: `mise run cleanup-links` (removes symlinks from current repo)
 - Remove specific link globally: `mise run cleanup-link <name>` (removes from all registered repos)
 - Install tools: `mise install` (installs all tools defined in `.config/mise/config.toml`)
+- Setup WakaTime: `mise run setup-wakatime` (generates `~/.wakatime.cfg` from 1Password)
 
 ## Architecture Overview
 
@@ -68,6 +69,7 @@ File-based tasks are located in `.config/mise/tasks/`:
 - `setup-links` - Create symlinks and register to tracking
 - `cleanup-links` - Remove all symlinks from current repo
 - `cleanup-link` - Remove specific link from all registered repos (with confirmation)
+- `setup-wakatime` - Generate WakaTime config from 1Password
 
 ## Zsh Aliases
 
