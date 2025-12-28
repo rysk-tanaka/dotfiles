@@ -3,12 +3,18 @@
 
 set -euo pipefail
 
-DOTFILES_PATH="${DOTFILES_PATH:-/Users/rysk/Repositories/rysk/dotfiles}"
+# Resolve path relative to script location
+DOTFILES_PATH="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../.." && pwd)}"
 TEMPLATE="${DOTFILES_PATH}/.wakatime.cfg.template"
 TARGET="${HOME}/.wakatime.cfg"
 
 if ! command -v op &>/dev/null; then
     echo "Error: 1Password CLI not installed" >&2
+    exit 1
+fi
+
+if [ ! -f "$TEMPLATE" ]; then
+    echo "Error: Template file not found: $TEMPLATE" >&2
     exit 1
 fi
 
@@ -19,7 +25,8 @@ if [ -z "$API_KEY" ]; then
     exit 1
 fi
 
-sed "s/{{WAKATIME_API_KEY}}/$API_KEY/g" "$TEMPLATE" > "$TARGET"
+# Use | as separator to handle special characters in API key
+sed "s|{{WAKATIME_API_KEY}}|$API_KEY|g" "$TEMPLATE" > "$TARGET"
 chmod 600 "$TARGET"
 
 echo "WakaTime configuration created at $TARGET"
