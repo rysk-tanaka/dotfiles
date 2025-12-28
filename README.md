@@ -158,6 +158,8 @@ MacOS用の初期セットアップを行います。
 
     インストール後、Claude Code内で `/plugin` を実行してプラグインの状態を確認できます。
 
+    Zed用のWakaTimeプラグインは、Zed内の Extensions パネルから「wakatime」を検索してインストールします。
+
 6. git-worktree-runnerのインストール
 
     複数のAIエージェントが異なるブランチで並行作業する場合に便利なツールです。
