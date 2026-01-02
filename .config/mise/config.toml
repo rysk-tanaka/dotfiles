@@ -7,6 +7,7 @@ bat = "latest"
 delta = "latest"
 duckdb = "latest"
 eza = "latest"
+fzf = "latest"                              # required for zoxide interactive (cdi)
 gh = "latest"
 go = "latest"
 jq = "latest"
@@ -21,6 +22,7 @@ starship = "latest"
 terraform = "latest"
 uv = "latest"
 yarn = "latest"
+zoxide = "latest"
 
 # aqua: tools
 "aqua:google/osv-scanner" = "latest"

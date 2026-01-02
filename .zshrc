@@ -36,6 +36,11 @@ if type starship &>/dev/null; then
   eval "$(starship init zsh)"
 fi
 
+# zoxide
+if type zoxide &>/dev/null; then
+  eval "$(zoxide init zsh --cmd cd)"
+fi
+
 # code
 if type code &>/dev/null; then
   [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
