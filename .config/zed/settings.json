@@ -15,9 +15,11 @@
     "model_parameters": [],
   },
   "vim_mode": true,
+  // UI font: sidebar, tabs, menus
   "ui_font_size": 16,
-  "buffer_font_size": 19,
-  "buffer_font_family": "Bizin Gothic Discord NF",
+  // Buffer font: code editing area
+  "buffer_font_size": 18,
+  "buffer_font_family": "Maple Mono NF",
   "theme": {
     "mode": "system",
     "light": "One Light",
@@ -25,6 +27,8 @@
   },
   "terminal": {
     "copy_on_select": true,
+    "font_family": "Bizin Gothic Discord NF",
+    "font_size": 19,
   },
   "lsp": {
     "pyright": {
