@@ -25,6 +25,7 @@ yarn = "latest"
 zoxide = "latest"
 
 # aqua: tools
+"aqua:sxyazi/yazi" = "latest"
 "aqua:google/osv-scanner" = "latest"
 
 # cargo: tools
