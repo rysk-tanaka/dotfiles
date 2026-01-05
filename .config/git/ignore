@@ -1,18 +1,31 @@
+# OS
+.DS_Store
+
+# IDE/Editor
+.obsidian
+.vscode
+
+# Claude Code
 .claude
+CLAUDE.md
+
+# Project config (managed via symlinks)
 .github/workflows/pull_request_template.md
 .markdownlint-cli2.jsonc
 .mcp.json
-.mise.local.toml
-.memo.local.md
-.obsidian
-.playwright-mcp
 .pre-commit-config.yaml
-.vscode
-.DS_Store
-aws-exports.js
+
+# Local/temporary files
+.memo.local.md
+.mise.local.toml
+.playwright-mcp
+.tmp/
 memory-bank
-CLAUDE.md
+
+# Environment directories
 adev/
 dev/
 prod01/
-.tmp/
+
+# Other
+aws-exports.js
