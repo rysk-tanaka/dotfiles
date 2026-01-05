@@ -67,14 +67,44 @@ git gtr editor my-feature
 # AIツールを起動
 git gtr ai my-feature
 
-# worktree削除
-git gtr rm my-feature
+# worktree削除（ブランチも同時に削除）
+git gtr rm my-feature --delete-branch
 
 # worktree一覧
 git gtr list
 
 # worktree内でコマンド実行
 git gtr run my-feature "npm test"
+```
+
+## リモートブランチからworktree作成
+
+ローカルにないブランチをレビューする場合は `--from` オプションを使用する。
+
+```bash
+# リモートブランチを指定してworktree作成
+git gtr new review/pr-123 --from origin/feature-branch
+
+# 特定のタグやコミットから作成
+git gtr new hotfix --from v1.2.3
+```
+
+フェッチは自動実行される（`--no-fetch` で無効化可）。
+
+## PRレビューのワークフロー
+
+```bash
+# 1. レビュー対象ブランチでworktree作成
+git gtr new review/pr-123 --from origin/feature-branch
+
+# 2. エディタで開いてコードレビュー
+git gtr editor review/pr-123
+
+# 3. テスト実行
+git gtr run review/pr-123 "npm test"
+
+# 4. レビュー完了後に削除（ブランチも同時に削除）
+git gtr rm review/pr-123 --delete-branch
 ```
 
 ## 更新方法
