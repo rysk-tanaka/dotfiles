@@ -30,6 +30,8 @@ MacOS用の初期セットアップを行います。
 │       ├── claude-monitor.sh         # プロセス監視スクリプト
 │       └── claude-clean.sh           # プロセスクリーンアップスクリプト
 ├── .config/                          # 各種アプリケーション設定
+│   ├── ccmanager/                    # ccmanagerセッション管理
+│   │   └── config.json               # ccmanager設定
 │   ├── zed/                          # Zedエディタ
 │   │   ├── keymap.json               # キーマップ設定
 │   │   └── settings.json             # 一般設定
@@ -78,6 +80,7 @@ MacOS用の初期セットアップを行います。
 
     ```bash
     mkdir -p ~/.claude
+    mkdir -p ~/.config/ccmanager
     mkdir -p ~/.config/ghostty
     mkdir -p ~/.config/git
     mkdir -p ~/.config/zed
@@ -89,6 +92,7 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.claude/settings.json ~/.claude/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.claude/CLAUDE.md ~/.claude/CLAUDE.md
     ln -sf ~/Repositories/rysk/dotfiles/.claude/commands ~/.claude/commands
+    ln -sf ~/Repositories/rysk/dotfiles/.config/ccmanager/config.json ~/.config/ccmanager/config.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/ghostty/config ~/.config/ghostty/config
     ln -sf ~/Repositories/rysk/dotfiles/.config/git/ignore ~/.config/git/ignore
     ln -sf ~/Repositories/rysk/dotfiles/.config/mise ~/.config/mise

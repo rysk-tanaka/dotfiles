@@ -1,0 +1,35 @@
+{
+  "shortcuts": {
+    "returnToMenu": {
+      "ctrl": true,
+      "key": "e"
+    },
+    "cancel": {
+      "key": "escape"
+    }
+  },
+  "statusHooks": {},
+  "worktreeHooks": {},
+  "worktree": {
+    "autoDirectory": false,
+    "copySessionData": true,
+    "sortByLastSession": false
+  },
+  "command": {
+    "command": "claude"
+  },
+  "autoApproval": {
+    "enabled": false,
+    "timeout": 30
+  },
+  "commandPresets": {
+    "presets": [
+      {
+        "id": "1",
+        "name": "Main",
+        "command": "claude"
+      }
+    ],
+    "defaultPresetId": "1"
+  }
+}
