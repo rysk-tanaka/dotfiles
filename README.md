@@ -6,8 +6,9 @@ MacOS用の初期セットアップを行います。
 
 ```text
 .
-├── .zshrc                            # Zshメイン設定
-├── .zprofile                         # Zsh環境変数など
+├── .zshrc                            # Zshメイン設定（インタラクティブシェル用）
+├── .zshenv                           # Zsh環境設定（全シェルで読み込み）
+├── .zprofile                         # Zshログインシェル設定
 ├── .vimrc                            # Vim設定
 ├── .gitconfig                        # Git設定
 ├── .mcp.json                         # MCPサーバー設定（プロジェクトスコープ）
@@ -97,6 +98,7 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.gitconfig ~/.gitconfig
     ln -sf ~/Repositories/rysk/dotfiles/.vimrc ~/.vimrc
     ln -sf ~/Repositories/rysk/dotfiles/.zshrc ~/.zshrc
+    ln -sf ~/Repositories/rysk/dotfiles/.zshenv ~/.zshenv
     ln -sf ~/Repositories/rysk/dotfiles/.zprofile ~/.zprofile
     ```
 

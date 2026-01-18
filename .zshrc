@@ -36,11 +36,6 @@ if type starship &>/dev/null; then
   eval "$(starship init zsh)"
 fi
 
-# zoxide
-if type zoxide &>/dev/null; then
-  eval "$(zoxide init zsh --cmd cd)"
-fi
-
 # yazi
 function y() {
   local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
