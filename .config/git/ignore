@@ -22,10 +22,10 @@ CLAUDE.md
 .tmp/
 memory-bank
 
-# Environment directories
-adev/
-dev/
-prod01/
+# Environment directories (root only)
+/adev/
+/dev/
+/prod01/
 
 # Other
 aws-exports.js
