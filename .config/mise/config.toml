@@ -2,6 +2,7 @@
 # Standard tools
 1password-cli = "latest"
 awscli = "latest"                          # requires rosetta 2
+aws-sam-cli = "latest"
 aws-vault = "latest"
 bat = "latest"
 delta = "latest"
