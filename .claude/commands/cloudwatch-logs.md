@@ -42,10 +42,11 @@ aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --start-time $STAR
 aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --start-time 1704067200000 --end-time 1704153600000
 ```
 
-### 3. フィルターパターンで検索
+### 3. フィルターパターンで検索（プレーンテキスト）
 
 ```bash
-# ERRORログのみ取得
+# ERRORログのみ取得（プレーンテキスト形式の場合）
+# 注意: JSON形式のログには効かない場合がある（後述のセクション4参照）
 aws logs filter-log-events \
   --log-group-name "$LOG_GROUP_NAME" \
   --filter-pattern "ERROR"
@@ -65,6 +66,8 @@ aws logs filter-log-events \
 
 ### 4. JSONログのフィールド検索
 
+python-json-loggerやstructlogなどでJSON形式のログを出力している場合、フィールド名で検索する。
+
 ```bash
 # JSON形式のログから特定フィールドを検索
 aws logs filter-log-events \
@@ -75,6 +78,32 @@ aws logs filter-log-events \
 aws logs filter-log-events \
   --log-group-name "$LOG_GROUP_NAME" \
   --filter-pattern '{ $.statusCode >= 400 && $.requestId = "*" }'
+
+# errorフィールドが存在するログを検索（python-json-logger形式）
+# {"message": "...", "error": "An error occurred...", "traceback": "..."}
+aws logs filter-log-events \
+  --log-group-name "$LOG_GROUP_NAME" \
+  --filter-pattern '{ $.error = "*" }'
+
+# tracebackフィールドが存在するログを検索
+aws logs filter-log-events \
+  --log-group-name "$LOG_GROUP_NAME" \
+  --filter-pattern '{ $.traceback = "*" }'
+
+# 特定のエラータイプを検索（例: AccessDenied）
+aws logs filter-log-events \
+  --log-group-name "$LOG_GROUP_NAME" \
+  --filter-pattern "AccessDenied"
+
+# levelnameフィールドでERRORを検索（python logging形式）
+aws logs filter-log-events \
+  --log-group-name "$LOG_GROUP_NAME" \
+  --filter-pattern '{ $.levelname = "ERROR" }'
+
+# levelフィールドでerrorを検索（structlog形式）
+aws logs filter-log-events \
+  --log-group-name "$LOG_GROUP_NAME" \
+  --filter-pattern '{ $.level = "error" }'
 ```
 
 ### 5. 特定のログストリームを対象
@@ -117,15 +146,21 @@ aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --interleaved --st
 ## 便利なワンライナー
 
 ```bash
-# 最新のエラーログを10件取得して整形
+# 最新のエラーログを10件取得して整形（プレーンテキスト形式）
 aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --filter-pattern ERROR --max-items 10 --output json | jq -r '.events[] | "\(.timestamp / 1000 | strftime("%Y-%m-%d %H:%M:%S")): \(.message)"'
 
-# 最新30件のログを取得（時間指定なし）
-aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --max-items 30 --output json | jq -r '.events[] | .message'
+# 過去1時間の最新ログを取得
+START_TIME=$(python3 -c "import time; print(int((time.time() - 3600) * 1000))") && aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --start-time "$START_TIME" --max-items 30 --output json | jq -r '.events[] | .message'
 
 # 特定のリクエストIDを追跡
 REQUEST_ID="abc-123-def-456"
 aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --filter-pattern "\"$REQUEST_ID\"" --output json | jq '.events[] | .message'
+
+# JSONログのエラーを検索（errorフィールドが存在するもの）
+aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --filter-pattern '{ $.error = "*" }' --max-items 20 --output json | jq -r '.events[] | "\(.timestamp / 1000 | strftime("%Y-%m-%d %H:%M:%S")): \(.message)"'
+
+# JSONログのエラーを整形表示（error, tracebackフィールドを抽出）
+aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --filter-pattern '{ $.error = "*" }' --max-items 10 --output json | jq -r '.events[] | .message | fromjson | "[\(.timestamp // "N/A")] \(.error)\n\(.traceback // "")"'
 ```
 
 ## 関数ベースの便利コマンド
@@ -206,11 +241,25 @@ aws logs filter-log-events --log-group-name "$TEST_LOG_GROUP" --filter-pattern E
 - 時刻はUTCで指定（Unix timestamp in milliseconds）
 - **macOSでの時間計算**: `date`コマンドの構文がLinuxと異なるため、Python3を使用した時間計算を推奨
   - 例: `START_TIME=$(python3 -c "import time; print(int((time.time() - 3600) * 1000))")`
-- **推奨アプローチ**: 時間範囲指定の代わりに`--max-items`で最新N件を取得する方が簡潔
+- **重要**: `--max-items`は最も古いログから取得する。最新ログを取得するには`--start-time`と組み合わせる
 - フィルターパターンは大文字小文字を区別
 - 1回の結果は最大1MBまたは10,000イベント
 - ページネーションが必要な場合は`--starting-token`を使用
 - ログの変換を使用している場合、元のログのみが返される
 - IAM権限`logs:FilterLogEvents`が必要
+- **JSON形式ログの検索**: `ERROR`などの文字列検索はJSON形式ログでは機能しない場合がある
+  - python-json-loggerなどでJSON形式のログを出力している場合は `{ $.error = "*" }` や `{ $.levelname = "ERROR" }` を使用
+  - 特定のエラー文字列（例: `AccessDenied`）を直接検索することも有効
 
-$ARGUMENTS
+## 実行対象
+
+ロググループ: $ARGUMENTS
+
+## タスク
+
+以下を実行してください。
+
+1. 過去1時間の最新ログを取得して概要を報告
+   - `--start-time`を使用（`--max-items`のみでは古いログから取得される）
+   - 例: `START_TIME=$(python3 -c "import time; print(int((time.time() - 3600) * 1000))") && aws logs filter-log-events --log-group-name "$LOG_GROUP_NAME" --start-time "$START_TIME" --max-items 30`
+2. エラーログを `{ $.error = "*" }` または `{ $.levelname = "ERROR" }` で検索し、存在すれば報告
