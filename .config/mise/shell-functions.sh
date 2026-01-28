@@ -49,6 +49,7 @@ build_lambda() {
 }
 
 # markdownlint-cli2 wrapper that runs from git root
+# Only processes .md files, skipping non-markdown files
 mdlint() {
   # Check if markdownlint-cli2 is available
   if ! command -v markdownlint-cli2 &>/dev/null; then
@@ -70,37 +71,65 @@ mdlint() {
       if [[ "$arg" == -* ]]; then
         args+=("$arg")
       else
-        # If argument is a file/directory path
-        if [ -e "$arg" ]; then
-          # Get absolute path
+        # If argument is a directory
+        if [ -d "$arg" ]; then
+          # Directory: convert to glob pattern for .md files only
           local abs_path
           if [[ "$arg" = /* ]]; then
-            # Already absolute
             abs_path="$arg"
           else
-            # Make absolute
             abs_path="$current_dir/$arg"
           fi
 
-          # Remove git root prefix to get relative path
           local rel_path="${abs_path#$git_root/}"
-          # If path didn't change, it means it's not under git root
           if [ "$rel_path" = "$abs_path" ]; then
             rel_path="$arg"
           fi
 
-          args+=("$rel_path")
+          # Append /**/*.md to only target markdown files
+          args+=("${rel_path%/}/**/*.md")
         else
-          # Pass through glob patterns and other arguments
-          args+=("$arg")
+          # Pass through files, glob patterns and other arguments
+          if [ -f "$arg" ]; then
+            # File: convert to relative path
+            local abs_path
+            if [[ "$arg" = /* ]]; then
+              abs_path="$arg"
+            else
+              abs_path="$current_dir/$arg"
+            fi
+
+            local rel_path="${abs_path#$git_root/}"
+            if [ "$rel_path" = "$abs_path" ]; then
+              rel_path="$arg"
+            fi
+
+            args+=("$rel_path")
+          else
+            # Glob pattern or other argument
+            args+=("$arg")
+          fi
         fi
       fi
     done
 
     (cd "$git_root" && markdownlint-cli2 "${args[@]}")
   else
-    # Not in a git repository, run normally
-    markdownlint-cli2 "$@"
+    # Not in a git repository, convert directories to glob patterns
+    local args=()
+    for arg in "$@"; do
+      if [[ "$arg" == -* ]]; then
+        args+=("$arg")
+      elif [ -d "$arg" ]; then
+        # Directory: convert to glob pattern for .md files only
+        args+=("${arg%/}/**/*.md")
+      else
+        # File or glob pattern
+        args+=("$arg")
+      fi
+    done
+
+    markdownlint-cli2 "${args[@]}"
   fi
 }
 
