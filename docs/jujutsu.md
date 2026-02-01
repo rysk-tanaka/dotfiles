@@ -20,6 +20,7 @@ jj git init
 
 # colocateモード（推奨）
 # .jjと.gitを同じディレクトリに配置し、gitコマンドも併用可能
+# 理由: GitHub CLIやCIツールなどGit前提のツールとの互換性を維持できる
 jj git init --colocate
 
 # 状態確認
@@ -112,6 +113,6 @@ jj git export
 
 ## 参考リンク
 
-- [公式ドキュメント](https://docs.jj-vcs.dev/)
+- [公式ドキュメント](https://docs.jj-vcs.dev/latest/)
 - [チュートリアル](https://docs.jj-vcs.dev/latest/tutorial/)
 - [Steve Klabnik のチュートリアル](https://steveklabnik.github.io/jujutsu-tutorial/)
