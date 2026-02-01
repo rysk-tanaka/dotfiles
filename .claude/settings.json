@@ -62,7 +62,8 @@
     "command": "ccusage statusline"
   },
   "enabledPlugins": {
-    "claude-code-wakatime@wakatime": true
+    "claude-code-wakatime@wakatime": true,
+    "pr-review-toolkit@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
