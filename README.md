@@ -54,6 +54,7 @@ MacOS用の初期セットアップを行います。
     ├── ccmanager.md                  # ccmanager導入ガイド
     ├── claude-code.md                # Claude Code設定詳細
     ├── git-worktree-runner.md        # git-worktree-runner導入ガイド
+    ├── jujutsu.md                    # Jujutsu (jj) 導入ガイド
     └── mcp.md                        # MCP設定詳細
 ```
 
@@ -350,3 +351,4 @@ source .venv/bin/activate
 - [git-worktree-runner](./docs/git-worktree-runner.md) - git worktree操作ツールの導入と使い方
 - [MCP設定](./docs/mcp.md) - MCPサーバーの設定
 - [ccmanager](./docs/ccmanager.md) - AIアシスタントセッション管理ツール
+- [Jujutsu](./docs/jujutsu.md) - Jujutsu (jj) バージョン管理システム
