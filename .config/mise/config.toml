@@ -12,6 +12,7 @@ fzf = "latest"                              # required for zoxide interactive (c
 gh = "latest"
 go = "latest"
 jq = "latest"
+jujutsu = "latest"
 node = "lts"
 pandoc = "latest"
 pnpm = "latest"
