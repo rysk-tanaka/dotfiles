@@ -31,6 +31,7 @@ This is a dotfiles repository that manages macOS configuration files through sym
 - Prompt: Starship (`~/.config/starship.toml`)
 - Tool Management: mise (`~/.config/mise/config.toml`)
 - Claude Code: Global settings (`~/.claude/CLAUDE.md`, `~/.claude/settings.json`)
+- ccmanager: Session management (`~/.config/ccmanager/config.json`)
 
 ### Custom Shell Functions
 
