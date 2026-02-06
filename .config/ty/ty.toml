@@ -1,2 +1,3 @@
 [rules]
 unresolved-import = "ignore"
+unused-type-ignore-comment = "ignore"
