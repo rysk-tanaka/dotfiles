@@ -21,6 +21,21 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - シンプルで読みやすい表記を優先する
 - 人間によるレビューやメンテナンスがしやすいよう、シンプルな構造を保つ
 
+#### コードブロックの言語指定（MD040）
+
+- すべてのコードブロックに言語指定を付ける（--fix で自動修正不可）
+- 言語指定の選択基準
+  - プログラミング言語: `python`, `typescript`, `bash`, `hcl` など
+  - 設定ファイル: `json`, `yaml`, `toml`, `ini` など
+  - ディレクトリ構造: `tree`
+  - 説明テキスト、クエリパターン、擬似コード: `text`
+  - シェル出力、ログ: `text` または `console`
+
+#### テーブルスタイル（MD060）
+
+- パイプの前後にスペースを入れる（spaced スタイル）
+- セパレータ行も同様: `| --- | --- |`
+
 #### Mermaid図表でのプレースホルダー表記
 
 - **図表内**: 波括弧 `{}` を使用しない（HTMLタグとして解釈されるか、シンタックスエラーになる）
@@ -56,7 +71,7 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
     - Rationale: PEP 604 syntax is more concise and readable (available since Python 3.10)
   - Python 3.14+: Do NOT use `from __future__ import annotations`
     - Rationale: PEP 649 makes deferred evaluation the default behavior
-    - Only needed for Python 3.9 and earlier
+  - Python 3.10-3.13: Only needed for forward references (e.g., class referencing itself)
 - `__init__.py` files: Keep empty by default (only trailing newline)
   - Rationale: Modern Python doesn't require explicit exports in `__init__.py`
 
