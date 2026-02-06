@@ -1,9 +1,9 @@
 [tools]
 # Standard tools
 1password-cli = "latest"
-awscli = "latest"                          # requires rosetta 2
 aws-sam-cli = "latest"
 aws-vault = "latest"
+awscli = "latest"                          # requires rosetta 2
 bat = "latest"
 delta = "latest"
 duckdb = "latest"
@@ -27,9 +27,9 @@ yarn = "latest"
 zoxide = "latest"
 
 # aqua: tools
-"aqua:sxyazi/yazi" = "latest"
 "aqua:google/osv-scanner" = "latest"
 "aqua:j178/prek" = "latest"
+"aqua:sxyazi/yazi" = "latest"
 
 # cargo: tools
 "cargo:treemd" = "latest"
