@@ -57,7 +57,7 @@ Located in `.claude/commands/`:
 When running `mise run setup-links` in other projects, the following are symlinked:
 
 - `.github/workflows/pull_request_template.md` - PR template
-- `.pre-commit-config.yaml` - Pre-commit hooks
+- `.pre-commit-config.yaml` - Pre-commit hooks (prek/pre-commit 共用)
 - `.markdownlint-cli2.jsonc` - Markdown lint config
 - `.mcp.json` - MCP server settings
 

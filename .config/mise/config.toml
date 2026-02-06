@@ -29,6 +29,7 @@ zoxide = "latest"
 # aqua: tools
 "aqua:sxyazi/yazi" = "latest"
 "aqua:google/osv-scanner" = "latest"
+"aqua:j178/prek" = "latest"
 
 # cargo: tools
 "cargo:treemd" = "latest"
