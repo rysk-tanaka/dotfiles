@@ -16,7 +16,7 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 
 - `/pr` - GitHubにプルリクエストを作成
 - `/permalink` - 指定ファイルのGitHubパーマリンクを生成
-- `/uv-init` - uvでPythonプロジェクトを初期化（pytest, ruff, mypy付き）
+- `/uv-init` - uvでPythonプロジェクトを初期化（pyproject.toml設定自動生成、pytest, ruff, mypy付き）
 
 ### プロセス管理コマンド
 
