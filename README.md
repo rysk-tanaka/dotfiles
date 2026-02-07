@@ -158,7 +158,21 @@ MacOS用の初期セットアップを行います。
     - Python 3.12、ripgrep、Starship、Terraformなど
     - Human-In-the-Loop Discord MCPサーバー（Rustバイナリ）
 
-6. WakaTime設定の生成
+6. Homebrew未提供フォントのインストール
+
+    Bizin Gothic NF（Ghostty/Zedで使用）をGitHub Releasesからインストールします。
+
+    ```bash
+    mise run setup-fonts
+    ```
+
+    mise未インストール時は直接実行も可能です。
+
+    ```bash
+    bash .config/mise/tasks/setup-fonts
+    ```
+
+7. WakaTime設定の生成
 
     1PasswordからAPIキーを取得してWakaTime設定ファイルを生成します。
 
@@ -186,7 +200,7 @@ MacOS用の初期セットアップを行います。
 
     Zed用のWakaTimeプラグインは、Zed内の Extensions パネルから「wakatime」を検索してインストールします。
 
-7. git-worktree-runnerのインストール
+8. git-worktree-runnerのインストール
 
     複数のAIエージェントが異なるブランチで並行作業する場合に便利なツールです。
 

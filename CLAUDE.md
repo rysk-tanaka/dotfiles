@@ -12,6 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Install Homebrew packages: `brew bundle` (installs packages and fonts defined in `Brewfile`)
 - Install tools: `mise install` (installs all tools defined in `.config/mise/config.toml`)
 - Setup WakaTime: `mise run setup-wakatime` (generates `~/.wakatime.cfg` from 1Password)
+- Install fonts: `mise run setup-fonts` or `bash .config/mise/tasks/setup-fonts` (installs Bizin Gothic NF from GitHub Releases)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 
@@ -82,6 +83,7 @@ File-based tasks are located in `.config/mise/tasks/`:
 - `cleanup-links` - Remove all symlinks from current repo
 - `cleanup-link` - Remove specific link from all registered repos (with confirmation)
 - `setup-wakatime` - Generate WakaTime config from 1Password
+- `setup-fonts` - Install Bizin Gothic NF from GitHub Releases
 
 ## Zsh Aliases
 
