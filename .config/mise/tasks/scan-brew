@@ -21,62 +21,42 @@ if [ ! -f "$BREWFILE" ]; then
     exit 1
 fi
 
+TMPDIR_PATH=$(mktemp -d)
+trap 'rm -rf "$TMPDIR_PATH"' EXIT
+
 echo "Scanning..."
 echo ""
 
-# Gather data: Brewfile, installed packages, and package info (3-4 brew commands total)
-installed_formulae=$(brew leaves)
-installed_casks=$(brew list --cask 2>/dev/null || true)
-installed_info=$(brew info --json=v2 --installed 2>/dev/null || echo '{}')
-
-# Identify missing casks for batch lookup
-missing_cask_info=""
-missing_casks=$(python3 -c "
-import sys, json
-
-brewfile = sys.argv[1]
-installed_casks_text = sys.argv[2]
-
-bf_casks = set()
-with open(brewfile) as f:
-    for line in f:
-        line = line.strip()
-        if line.startswith('cask \"'):
-            name = line.split('\"')[1]
-            bf_casks.add(name)
-
-installed = set(c for c in installed_casks_text.strip().split('\n') if c)
-missing = bf_casks - installed
-if missing:
-    print('\n'.join(sorted(missing)))
-" "$BREWFILE" "$installed_casks")
-
-if [ -n "$missing_casks" ]; then
-    # Convert newline-separated list to arguments
-    missing_cask_args=()
-    while IFS= read -r c; do
-        [ -n "$c" ] && missing_cask_args+=("$c")
-    done <<< "$missing_casks"
-    if [ ${#missing_cask_args[@]} -gt 0 ]; then
-        missing_cask_info=$(brew info --json=v2 --cask "${missing_cask_args[@]}" 2>/dev/null || echo '{}')
-    fi
+# brew leaves: failure is fatal (can't diff without formula list)
+if ! installed_formulae=$(brew leaves 2>&1); then
+    echo "Error: brew leaves failed: ${installed_formulae}" >&2
+    exit 1
 fi
 
-# All logic in a single Python call: diff calculation and output
+# brew list --cask: exit 1 when no casks installed is expected
+installed_casks=$(brew list --cask 2>/dev/null || true)
+
+# brew info --installed: write to temp file (avoids ARG_MAX, prevents partial JSON concat)
+installed_info_file="${TMPDIR_PATH}/installed_info.json"
+if ! brew info --json=v2 --installed > "$installed_info_file" 2>/dev/null; then
+    echo "Warning: brew info --json=v2 --installed failed, descriptions will be unavailable" >&2
+    echo '{}' > "$installed_info_file"
+fi
+
+# All logic in a single Python call
 python3 -c "
-import json, sys
+import json, subprocess, sys
 
 brewfile_path = sys.argv[1]
 installed_formulae_text = sys.argv[2]
 installed_casks_text = sys.argv[3]
-installed_info_json = sys.argv[4]
-missing_cask_info_json = sys.argv[5]
+installed_info_file = sys.argv[4]
 
 # Parse Brewfile (preserve order)
 bf_formulae = []
 bf_casks = []
-with open(brewfile_path) as f:
-    for line in f:
+with open(brewfile_path) as bf:
+    for line in bf:
         line = line.strip()
         if line.startswith('brew \"'):
             bf_formulae.append(line.split('\"')[1])
@@ -91,38 +71,45 @@ installed_formulae_list = [l for l in installed_formulae_text.strip().split('\n'
 installed_casks_list = [l for l in installed_casks_text.strip().split('\n') if l]
 
 # short_name -> full_name mapping for formulae (e.g. 'user/tap/pkg' -> 'pkg')
-installed_formulae_short = {}
-for leaf in installed_formulae_list:
-    short = leaf.rsplit('/', 1)[-1]
-    installed_formulae_short[short] = leaf
-
+installed_formulae_short = {leaf.rsplit('/', 1)[-1]: leaf for leaf in installed_formulae_list}
 installed_casks_set = set(installed_casks_list)
 
-# Parse package info
+# Parse package info from temp file
 pkg_desc = {}
 pkg_auto = {}
 
 try:
-    data = json.loads(installed_info_json)
-    for f in data.get('formulae', []):
-        pkg_desc[f.get('name', '')] = f.get('desc') or '(no description)'
-    for c in data.get('casks', []):
-        token = c.get('token', '')
-        pkg_desc[token] = c.get('desc') or '(no description)'
-        if c.get('auto_updates'):
+    with open(installed_info_file) as info_f:
+        data = json.load(info_f)
+    for formula in data.get('formulae', []):
+        pkg_desc[formula.get('name', '')] = formula.get('desc') or '(no description)'
+    for cask in data.get('casks', []):
+        token = cask.get('token', '')
+        pkg_desc[token] = cask.get('desc') or '(no description)'
+        if cask.get('auto_updates'):
             pkg_auto[token] = 'auto_updates'
-except (json.JSONDecodeError, ValueError):
-    pass
+except json.JSONDecodeError as exc:
+    print(f'Warning: Failed to parse installed package info: {exc}', file=sys.stderr)
 
-try:
-    mdata = json.loads(missing_cask_info_json) if missing_cask_info_json else {}
-    for c in mdata.get('casks', []):
-        token = c.get('token', '')
-        pkg_desc[token] = c.get('desc') or '(no description)'
-        if c.get('auto_updates'):
-            pkg_auto[token] = 'auto_updates'
-except (json.JSONDecodeError, ValueError):
-    pass
+# Fetch info for missing casks (in Brewfile but not installed)
+missing_casks = sorted(bf_casks_set - installed_casks_set)
+if missing_casks:
+    result = subprocess.run(
+        ['brew', 'info', '--json=v2', '--cask'] + missing_casks,
+        capture_output=True, text=True,
+    )
+    if result.returncode == 0 and result.stdout.strip():
+        try:
+            mdata = json.loads(result.stdout)
+            for cask in mdata.get('casks', []):
+                token = cask.get('token', '')
+                pkg_desc[token] = cask.get('desc') or '(no description)'
+                if cask.get('auto_updates'):
+                    pkg_auto[token] = 'auto_updates'
+        except json.JSONDecodeError as exc:
+            print(f'Warning: Failed to parse missing cask info: {exc}', file=sys.stderr)
+    elif result.returncode != 0:
+        print(f'Warning: brew info --cask failed (exit {result.returncode})', file=sys.stderr)
 
 # === Installed but not in Brewfile ===
 untracked = []
@@ -132,12 +119,12 @@ for leaf in installed_formulae_list:
         desc = pkg_desc.get(short, '(no description)')
         untracked.append(f'  [formula] {short} - {desc}')
 
-for cask in installed_casks_list:
-    if cask not in bf_casks_set:
-        desc = pkg_desc.get(cask, '(no description)')
-        auto = pkg_auto.get(cask, '')
+for cask_name in installed_casks_list:
+    if cask_name not in bf_casks_set:
+        desc = pkg_desc.get(cask_name, '(no description)')
+        auto = pkg_auto.get(cask_name, '')
         suffix = f' ({auto})' if auto else ''
-        untracked.append(f'  [cask]    {cask} - {desc}{suffix}')
+        untracked.append(f'  [cask]    {cask_name} - {desc}{suffix}')
 
 print('=== Installed but not in Brewfile ===')
 if untracked:
@@ -148,18 +135,20 @@ else:
 print()
 
 # === In Brewfile but not installed ===
+# auto_updates casks may be installed outside brew management,
+# so they won't appear in 'brew list --cask' but are still present on the system.
 missing = []
-for bf in bf_formulae:
-    if bf not in installed_formulae_short:
-        missing.append(f'  brew \"{bf}\" (not installed)')
+for name in bf_formulae:
+    if name not in installed_formulae_short:
+        missing.append(f'  brew \"{name}\" (not installed)')
 
-for bf in bf_casks:
-    if bf not in installed_casks_set:
-        auto = pkg_auto.get(bf, '')
+for name in bf_casks:
+    if name not in installed_casks_set:
+        auto = pkg_auto.get(name, '')
         if auto:
-            missing.append(f'  cask \"{bf}\" (auto_updates, managed outside brew)')
+            missing.append(f'  cask \"{name}\" (auto_updates, managed outside brew)')
         else:
-            missing.append(f'  cask \"{bf}\" (not installed)')
+            missing.append(f'  cask \"{name}\" (not installed)')
 
 print('=== In Brewfile but not installed ===')
 if missing:
@@ -167,4 +156,4 @@ if missing:
         print(line)
 else:
     print('  (none)')
-" "$BREWFILE" "$installed_formulae" "$installed_casks" "$installed_info" "$missing_cask_info"
+" "$BREWFILE" "$installed_formulae" "$installed_casks" "$installed_info_file"
