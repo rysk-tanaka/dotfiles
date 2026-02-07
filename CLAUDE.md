@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- Lint Python code: `mise run lint` or `ruff format && ruff check && mypy .`
+- Lint Python code: `mise run lint` or `uvx ruff format && uvx ruff check && uvx mypy . && uvx ty check && uvx pyright`
 - Lint Markdown: `mdlint .` (shell function, auto-detects git root config)
 - Setup project symlinks: `mise run setup-links` (creates symlinks, then run `prek install` for git hooks)
 - Remove project symlinks: `mise run cleanup-links` (removes symlinks from current repo)
@@ -94,5 +94,5 @@ Key productivity aliases defined in `.zshrc`:
 ## Code Style
 
 - Shell scripts: POSIX-compliant, use shellcheck for validation
-- Python: Python 3.12 with type hints, format with ruff, type-check with mypy
+- Python: Python 3.12 with type hints, format with ruff, type-check with mypy/ty/pyright
 - Commit messages: Follow conventional commits (feat, fix, docs, chore)

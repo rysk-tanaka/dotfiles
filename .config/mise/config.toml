@@ -50,4 +50,10 @@ zoxide = "latest"
 DOTFILES_PATH = "/Users/rysk/Repositories/rysk/dotfiles"
 
 [tasks.lint]
-run = "ruff format && ruff check && mypy ."
+run = [
+  "uvx ruff format",
+  "uvx ruff check",
+  "uvx mypy .",
+  "uvx ty check",
+  "uvx pyright",
+]

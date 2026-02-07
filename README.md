@@ -222,7 +222,9 @@ mise run lint
 
 1. `ruff format` - Pythonコードを自動フォーマット
 2. `ruff check` - コードスタイルとエラーチェック
-3. `mypy .` - 静的型チェック
+3. `mypy .` - 静的型チェック（mypy）
+4. `ty check` - 静的型チェック（ty）
+5. `pyright` - 静的型チェック（pyright）
 
 ## カスタムシェル関数
 

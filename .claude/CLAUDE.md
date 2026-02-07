@@ -62,7 +62,7 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
   - Example: `uv run pytest` instead of `source .venv/bin/activate && pytest`
 - Linting: `ruff` (preferred) or `flake8`
 - Formatting: `ruff format` (preferred) or `black`
-- Type checking: `mypy`
+- Type checking: `mypy`, `ty`, `pyright`
 - Testing: `pytest`
 - Type hints: For dictionaries, use `dict` without type parameters (e.g., `dict` instead of `Dict[str, Any]`)
   - Rationale: Dictionaries are typically used for flexible, general-purpose data structures
