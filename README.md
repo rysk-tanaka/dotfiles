@@ -20,11 +20,16 @@ MacOS用の初期セットアップを行います。
 │   ├── settings.json                 # グローバル設定
 │   ├── commands/                     # カスタムコマンド
 │   │   ├── pr.md                     # PRコマンド
+│   │   ├── pr-review.md              # PRレビューコメント対応
 │   │   ├── permalink.md              # パーマリンクコマンド
-│   │   ├── cloudwatch-logs.md        # CloudWatchログ取得
+│   │   ├── uv-init.md                # Pythonプロジェクト初期化
 │   │   ├── claude-check.md           # プロセス状況確認
 │   │   ├── claude-monitor.md         # プロセス監視
 │   │   └── claude-clean.md           # プロセスクリーンアップ
+│   ├── skills/                       # カスタムスキル
+│   │   └── cloudwatch-logs/          # CloudWatchログ取得
+│   │       ├── SKILL.md              # スキル定義
+│   │       └── cloudwatch_logs.py    # Pythonスクリプト（PEP 723）
 │   └── scripts/                      # スクリプトファイル
 │       ├── claude-check.sh           # プロセス状況確認スクリプト
 │       ├── claude-monitor.sh         # プロセス監視スクリプト
@@ -94,6 +99,8 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.claude/settings.json ~/.claude/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.claude/CLAUDE.md ~/.claude/CLAUDE.md
     ln -sf ~/Repositories/rysk/dotfiles/.claude/commands ~/.claude/commands
+    ln -sf ~/Repositories/rysk/dotfiles/.claude/skills ~/.claude/skills
+    ln -sf ~/Repositories/rysk/dotfiles/.claude/scripts ~/.claude/scripts
     ln -sf ~/Repositories/rysk/dotfiles/.config/ccmanager/config.json ~/.config/ccmanager/config.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/ghostty/config ~/.config/ghostty/config
     ln -sf ~/Repositories/rysk/dotfiles/.config/git/ignore ~/.config/git/ignore

@@ -7,6 +7,8 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - グローバル指示: `~/.claude/CLAUDE.md` （シンボリックリンクで管理）
 - グローバル設定: `~/.claude.json` （Claude Code内部管理のためシンボリックリンク不可）
 - カスタムコマンド: `~/.claude/commands/` （シンボリックリンクで管理）
+- カスタムスキル: `~/.claude/skills/` （シンボリックリンクで管理）
+- スクリプト: `~/.claude/scripts/` （シンボリックリンクで管理）
 
 ## カスタムコマンド
 
@@ -15,6 +17,7 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 ### 開発用コマンド
 
 - `/pr` - GitHubにプルリクエストを作成
+- `/pr-review` - PRレビューコメントの確認と対応
 - `/permalink` - 指定ファイルのGitHubパーマリンクを生成
 - `/uv-init` - uvでPythonプロジェクトを初期化（pyproject.toml設定自動生成、pytest, ruff, mypy付き）
 
@@ -23,6 +26,12 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - `/claude-monitor` - プロセス監視と自動クリーンアップ（セッション開始時の日常使用）
 - `/claude-check` - プロセス状況の詳細確認（問題調査時）
 - `/claude-clean` - 不要プロセスの手動クリーンアップ（問題発生時）
+
+## カスタムスキル
+
+Pythonスクリプトと連携するスキルです。
+
+- `/cloudwatch-logs` - CloudWatchログの取得・検索（boto3ベースのPythonスクリプトで実装）
 
 ## 設定変更方法
 

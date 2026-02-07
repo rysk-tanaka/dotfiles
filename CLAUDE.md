@@ -5,11 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 - Lint Python code: `mise run lint` or `ruff format && ruff check && mypy .`
-- Setup project symlinks: `mise run setup-links` (creates symlinks and registers to tracking)
+- Lint Markdown: `mdlint .` (shell function, auto-detects git root config)
+- Setup project symlinks: `mise run setup-links` (creates symlinks, then run `prek install` for git hooks)
 - Remove project symlinks: `mise run cleanup-links` (removes symlinks from current repo)
 - Remove specific link globally: `mise run cleanup-link <name>` (removes from all registered repos)
 - Install tools: `mise install` (installs all tools defined in `.config/mise/config.toml`)
 - Setup WakaTime: `mise run setup-wakatime` (generates `~/.wakatime.cfg` from 1Password)
+
+Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 
 ## Architecture Overview
 
@@ -30,7 +33,7 @@ This is a dotfiles repository that manages macOS configuration files through sym
 - Editors: Vim (`~/.vimrc`), Zed (`~/.config/zed/`)
 - Prompt: Starship (`~/.config/starship.toml`)
 - Tool Management: mise (`~/.config/mise/config.toml`)
-- Claude Code: Global settings (`~/.claude/CLAUDE.md`, `~/.claude/settings.json`)
+- Claude Code: Global settings, commands, skills, scripts (all symlinked from this repo to `~/.claude/`)
 - ccmanager: Session management (`~/.config/ccmanager/config.json`)
 
 ### Custom Shell Functions
@@ -47,10 +50,16 @@ Defined in `.config/mise/shell-functions.sh` and auto-loaded via `.zshrc`:
 Located in `.claude/commands/`:
 
 - `/pr` - Create pull request
-- `/pr-review` - Review pull request
+- `/pr-review` - Review pull request comments
 - `/permalink` - Generate GitHub permalink
-- `/cloudwatch-logs` - Fetch CloudWatch logs
+- `/uv-init` - Initialize Python project with uv
 - `/claude-check`, `/claude-monitor`, `/claude-clean` - Process management
+
+### Claude Code Custom Skills
+
+Located in `.claude/skills/`. Skills use Python scripts with PEP 723 inline metadata, executed via `uv run` (no pyproject.toml needed).
+
+- `/cloudwatch-logs` - Fetch CloudWatch logs (Python script with boto3)
 
 ## Project Integration
 
