@@ -64,6 +64,7 @@ with open(brewfile_path) as bf:
             bf_casks.append(line.split('\"')[1])
 
 bf_formulae_set = set(bf_formulae)
+bf_formulae_short_set = {name.rsplit('/', 1)[-1] for name in bf_formulae}
 bf_casks_set = set(bf_casks)
 
 # Parse installed packages
@@ -115,7 +116,7 @@ if missing_casks:
 untracked = []
 for leaf in installed_formulae_list:
     short = leaf.rsplit('/', 1)[-1]
-    if short not in bf_formulae_set:
+    if short not in bf_formulae_short_set:
         desc = pkg_desc.get(short, '(no description)')
         untracked.append(f'  [formula] {short} - {desc}')
 
@@ -139,7 +140,8 @@ print()
 # so they won't appear in 'brew list --cask' but are still present on the system.
 missing = []
 for name in bf_formulae:
-    if name not in installed_formulae_short:
+    short = name.rsplit('/', 1)[-1]
+    if short not in installed_formulae_short:
         missing.append(f'  brew \"{name}\" (not installed)')
 
 for name in bf_casks:
