@@ -12,6 +12,7 @@ MacOS用の初期セットアップを行います。
 ├── .vimrc                            # Vim設定
 ├── .gitconfig                        # Git設定
 ├── .mcp.json                         # MCPサーバー設定（プロジェクトスコープ）
+├── Brewfile                          # Homebrewパッケージ定義
 ├── .wakatime.cfg.template            # WakaTime設定テンプレート
 ├── .ssh/                             # SSH設定
 │   └── config_docker.template        # Docker用SSH設定テンプレート
@@ -27,9 +28,11 @@ MacOS用の初期セットアップを行います。
 │   │   ├── claude-monitor.md         # プロセス監視
 │   │   └── claude-clean.md           # プロセスクリーンアップ
 │   ├── skills/                       # カスタムスキル
-│   │   └── cloudwatch-logs/          # CloudWatchログ取得
-│   │       ├── SKILL.md              # スキル定義
-│   │       └── cloudwatch_logs.py    # Pythonスクリプト（PEP 723）
+│   │   ├── cloudwatch-logs/          # CloudWatchログ取得
+│   │   │   ├── SKILL.md              # スキル定義
+│   │   │   └── cloudwatch_logs.py    # Pythonスクリプト（PEP 723）
+│   │   └── sync-brew/                # Brewfileアプリ追加
+│   │       └── SKILL.md              # スキル定義
 │   └── scripts/                      # スクリプトファイル
 │       ├── claude-check.sh           # プロセス状況確認スクリプト
 │       ├── claude-monitor.sh         # プロセス監視スクリプト
@@ -47,7 +50,8 @@ MacOS用の初期セットアップを行います。
 │   │   └── ignore                    # グローバル除外設定
 │   └── mise/                         # ツールバージョン管理
 │       ├── config.toml               # miseの設定
-│       └── shell-functions.sh        # カスタムシェル関数
+│       ├── shell-functions.sh        # カスタムシェル関数
+│       └── tasks/                    # miseタスク
 ├── .github/                          # GitHub関連
 │   └── workflows/                    # GitHub Actions
 │       ├── claude-code-review.yml    # PRの自動レビュー
@@ -68,6 +72,7 @@ MacOS用の初期セットアップを行います。
 ### 前提条件
 
 - macOS
+- [Homebrew](https://brew.sh/)がインストールされていること
 - [mise](https://mise.jdx.dev/)（ツールバージョン管理）がインストールされていること
 
 ### 手順
@@ -79,7 +84,15 @@ MacOS用の初期セットアップを行います。
     cd ~/Repositories/rysk/dotfiles
     ```
 
-2. シンボリックリンクの作成
+2. Homebrewパッケージのインストール
+
+    Brewfileに定義されたパッケージとフォントをインストールします。
+
+    ```bash
+    brew bundle
+    ```
+
+3. シンボリックリンクの作成
 
     設定ファイルを適切な場所にシンボリックリンクします。
 
@@ -115,7 +128,7 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.zprofile ~/.zprofile
     ```
 
-3. Docker SSH設定の生成
+4. Docker SSH設定の生成
 
     `build_lambda`関数で使用するDocker用SSH設定を生成します：
 
@@ -132,7 +145,7 @@ MacOS用の初期セットアップを行います。
     - `id_ed25519`の部分は、実際に使用しているSSHキーのファイル名に置き換えてください（例: `git01`, `id_rsa`など）
     - この設定では `StrictHostKeyChecking yes` を使用しており、MITM攻撃からの保護を提供します
 
-4. 必要なツールのインストール
+5. 必要なツールのインストール
 
     mise を使って必要なツールをインストールします：
 
@@ -147,7 +160,21 @@ MacOS用の初期セットアップを行います。
     - Python 3.12、ripgrep、Starship、Terraformなど
     - Human-In-the-Loop Discord MCPサーバー（Rustバイナリ）
 
-5. WakaTime設定の生成
+6. Homebrew未提供フォントのインストール
+
+    Bizin Gothic NF（Ghostty/Zedで使用）をGitHub Releasesからインストールします。
+
+    ```bash
+    mise run setup-fonts
+    ```
+
+    mise未インストール時は直接実行も可能です。
+
+    ```bash
+    bash .config/mise/tasks/setup-fonts
+    ```
+
+7. WakaTime設定の生成
 
     1PasswordからAPIキーを取得してWakaTime設定ファイルを生成します。
 
@@ -175,7 +202,7 @@ MacOS用の初期セットアップを行います。
 
     Zed用のWakaTimeプラグインは、Zed内の Extensions パネルから「wakatime」を検索してインストールします。
 
-6. git-worktree-runnerのインストール
+8. git-worktree-runnerのインストール
 
     複数のAIエージェントが異なるブランチで並行作業する場合に便利なツールです。
 

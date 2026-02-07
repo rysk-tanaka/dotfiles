@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+#MISE description="Install fonts from GitHub Releases (also runnable directly: bash .config/mise/tasks/setup-fonts)"
+
+set -euo pipefail
+
+if ! command -v python3 &>/dev/null; then
+    echo "Error: python3 is not installed" >&2
+    exit 1
+fi
+
+FONT_DIR="${HOME}/Library/Fonts"
+REPO="yuru7/bizin-gothic"
+ASSET_PREFIX="BizinGothicNF"
+
+echo "Fetching latest release from ${REPO}..."
+if ! API_RESPONSE=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" 2>&1); then
+    echo "Error: Failed to fetch release info from GitHub" >&2
+    echo "  ${API_RESPONSE}" >&2
+    exit 1
+fi
+TAG=$(echo "$API_RESPONSE" | python3 -c "
+import json, sys
+try:
+    data = json.load(sys.stdin)
+    if 'tag_name' in data:
+        print(data['tag_name'])
+    elif 'message' in data:
+        print(f'Error: GitHub API - {data[\"message\"]}', file=sys.stderr)
+        sys.exit(1)
+    else:
+        print('Error: Unexpected API response', file=sys.stderr)
+        sys.exit(1)
+except json.JSONDecodeError as e:
+    print(f'Error: Failed to parse API response - {e}', file=sys.stderr)
+    sys.exit(1)
+")
+
+if [ -z "$TAG" ]; then
+    echo "Error: Failed to fetch latest release tag" >&2
+    exit 1
+fi
+
+VERSION="${TAG#v}"
+ZIP_NAME="${ASSET_PREFIX}_v${VERSION}.zip"
+DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG}/${ZIP_NAME}"
+# Use Discord variant as version check sentinel (included in all release archives)
+CHECK_FONT="${FONT_DIR}/BizinGothicDiscordNF-Regular.ttf"
+
+if [ -f "$CHECK_FONT" ]; then
+    INSTALLED=$(mdls -name kMDItemVersion "$CHECK_FONT" | sed -n 's/.*"\(v[0-9][^;]*\).*/\1/p')
+    if [ -n "$INSTALLED" ] && [ "$INSTALLED" = "$TAG" ]; then
+        echo "Bizin Gothic NF ${TAG} is already installed."
+        exit 0
+    fi
+    if [ -z "$INSTALLED" ]; then
+        echo "Installed version unknown, reinstalling..."
+    else
+        echo "Updating from ${INSTALLED} to ${TAG}..."
+    fi
+fi
+
+TMPDIR_PATH=$(mktemp -d)
+trap 'rm -rf "$TMPDIR_PATH"' EXIT
+
+echo "Downloading ${ZIP_NAME}..."
+curl -fsSL -o "${TMPDIR_PATH}/${ZIP_NAME}" "$DOWNLOAD_URL"
+
+echo "Extracting..."
+unzip -qo "${TMPDIR_PATH}/${ZIP_NAME}" -d "${TMPDIR_PATH}/fonts"
+
+mkdir -p "$FONT_DIR"
+COUNT=0
+for ttf in "${TMPDIR_PATH}"/fonts/*/*.ttf; do
+    [ -f "$ttf" ] || continue
+    cp "$ttf" "$FONT_DIR/"
+    COUNT=$((COUNT + 1))
+done
+
+if [ "$COUNT" -eq 0 ]; then
+    echo "Error: No .ttf files found in ${ZIP_NAME}" >&2
+    exit 1
+fi
+
+echo "Installed ${COUNT} font files to ${FONT_DIR}"
+echo "Bizin Gothic NF ${TAG} setup complete."
