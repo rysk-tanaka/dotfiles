@@ -4,7 +4,7 @@
 set -euo pipefail
 
 # Resolve path relative to script location
-DOTFILES_PATH="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../.." && pwd)}"
+DOTFILES_PATH="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
 TEMPLATE="${DOTFILES_PATH}/.wakatime.cfg.template"
 TARGET="${HOME}/.wakatime.cfg"
 
