@@ -28,9 +28,11 @@ MacOS用の初期セットアップを行います。
 │   │   ├── claude-monitor.md         # プロセス監視
 │   │   └── claude-clean.md           # プロセスクリーンアップ
 │   ├── skills/                       # カスタムスキル
-│   │   └── cloudwatch-logs/          # CloudWatchログ取得
-│   │       ├── SKILL.md              # スキル定義
-│   │       └── cloudwatch_logs.py    # Pythonスクリプト（PEP 723）
+│   │   ├── cloudwatch-logs/          # CloudWatchログ取得
+│   │   │   ├── SKILL.md              # スキル定義
+│   │   │   └── cloudwatch_logs.py    # Pythonスクリプト（PEP 723）
+│   │   └── sync-brew/                # Brewfileアプリ追加
+│   │       └── SKILL.md              # スキル定義
 │   └── scripts/                      # スクリプトファイル
 │       ├── claude-check.sh           # プロセス状況確認スクリプト
 │       ├── claude-monitor.sh         # プロセス監視スクリプト

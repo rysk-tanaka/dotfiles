@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Install tools: `mise install` (installs all tools defined in `.config/mise/config.toml`)
 - Setup WakaTime: `mise run setup-wakatime` (generates `~/.wakatime.cfg` from 1Password)
 - Install fonts: `mise run setup-fonts` or `bash .config/mise/tasks/setup-fonts` (installs Bizin Gothic NF from GitHub Releases)
+- Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 
@@ -60,9 +61,10 @@ Located in `.claude/commands/`:
 
 ### Claude Code Custom Skills
 
-Located in `.claude/skills/`. Skills use Python scripts with PEP 723 inline metadata, executed via `uv run` (no pyproject.toml needed).
+Located in `.claude/skills/`.
 
 - `/cloudwatch-logs` - Fetch CloudWatch logs (Python script with boto3)
+- `/sync-brew` - Add apps to Brewfile with auto-categorization
 
 ## Project Integration
 
@@ -84,6 +86,7 @@ File-based tasks are located in `.config/mise/tasks/`:
 - `cleanup-link` - Remove specific link from all registered repos (with confirmation)
 - `setup-wakatime` - Generate WakaTime config from 1Password
 - `setup-fonts` - Install Bizin Gothic NF from GitHub Releases
+- `scan-brew` - Show differences between installed packages and Brewfile
 
 ## Zsh Aliases
 
