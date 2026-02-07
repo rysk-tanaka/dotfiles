@@ -9,6 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Setup project symlinks: `mise run setup-links` (creates symlinks, then run `prek install` for git hooks)
 - Remove project symlinks: `mise run cleanup-links` (removes symlinks from current repo)
 - Remove specific link globally: `mise run cleanup-link <name>` (removes from all registered repos)
+- Install Homebrew packages: `brew bundle` (installs packages and fonts defined in `Brewfile`)
 - Install tools: `mise install` (installs all tools defined in `.config/mise/config.toml`)
 - Setup WakaTime: `mise run setup-wakatime` (generates `~/.wakatime.cfg` from 1Password)
 
@@ -32,6 +33,7 @@ This is a dotfiles repository that manages macOS configuration files through sym
 - Version Control: Git (`~/.gitconfig`, `~/.config/git/ignore`)
 - Editors: Vim (`~/.vimrc`), Zed (`~/.config/zed/`)
 - Prompt: Starship (`~/.config/starship.toml`)
+- Package Management: Homebrew (`Brewfile` - CLI tools, desktop apps, fonts)
 - Tool Management: mise (`~/.config/mise/config.toml`)
 - Claude Code: Global settings, commands, skills, scripts (all symlinked from this repo to `~/.claude/`)
 - ccmanager: Session management (`~/.config/ccmanager/config.json`)
@@ -93,6 +95,6 @@ Key productivity aliases defined in `.zshrc`:
 
 ## Code Style
 
-- Shell scripts: POSIX-compliant, use shellcheck for validation
+- Shell scripts: Bash, use shellcheck for validation
 - Python: Python 3.12 with type hints, format with ruff, type-check with mypy/ty/pyright
 - Commit messages: Follow conventional commits (feat, fix, docs, chore)
