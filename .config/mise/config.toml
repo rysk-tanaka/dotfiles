@@ -51,9 +51,9 @@ DOTFILES_PATH = "/Users/rysk/Repositories/rysk/dotfiles"
 
 [tasks.lint]
 run = [
-  "uvx ruff format",
-  "uvx ruff check",
-  "uvx mypy .",
-  "uvx ty check",
-  "uvx pyright",
+  "uv run --with ruff -- ruff format",
+  "uv run --with ruff -- ruff check",
+  "uv run --with mypy -- mypy .",
+  "uv run --with ty -- ty check",
+  "uv run --with pyright -- pyright",
 ]
