@@ -63,7 +63,6 @@ with open(brewfile_path) as bf:
         elif line.startswith('cask \"'):
             bf_casks.append(line.split('\"')[1])
 
-bf_formulae_set = set(bf_formulae)
 bf_formulae_short_set = {name.rsplit('/', 1)[-1] for name in bf_formulae}
 bf_casks_set = set(bf_casks)
 
@@ -95,11 +94,15 @@ except json.JSONDecodeError as exc:
 # Fetch info for missing casks (in Brewfile but not installed)
 missing_casks = sorted(bf_casks_set - installed_casks_set)
 if missing_casks:
-    result = subprocess.run(
-        ['brew', 'info', '--json=v2', '--cask'] + missing_casks,
-        capture_output=True, text=True,
-    )
-    if result.returncode == 0 and result.stdout.strip():
+    try:
+        result = subprocess.run(
+            ['brew', 'info', '--json=v2', '--cask'] + missing_casks,
+            capture_output=True, text=True, timeout=60,
+        )
+    except subprocess.TimeoutExpired:
+        print('Warning: brew info --cask timed out', file=sys.stderr)
+        result = None
+    if result is not None and result.returncode == 0 and result.stdout.strip():
         try:
             mdata = json.loads(result.stdout)
             for cask in mdata.get('casks', []):
@@ -109,7 +112,7 @@ if missing_casks:
                     pkg_auto[token] = 'auto_updates'
         except json.JSONDecodeError as exc:
             print(f'Warning: Failed to parse missing cask info: {exc}', file=sys.stderr)
-    elif result.returncode != 0:
+    elif result is not None and result.returncode != 0:
         print(f'Warning: brew info --cask failed (exit {result.returncode})', file=sys.stderr)
 
 # === Installed but not in Brewfile ===
