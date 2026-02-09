@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- Lint Python code: `mise run lint` or `uv run --with ruff -- ruff format && uv run --with ruff -- ruff check && uv run --with mypy -- mypy . && uv run --with ty -- ty check && uv run --with pyright -- pyright`
+- Lint Python code: `mise run lint` or `mise run lint -- <paths>` (paths optional, defaults to current directory)
 - Lint Markdown: `mdlint .` (shell function, auto-detects git root config)
 - Setup project symlinks: `mise run setup-links` (creates symlinks, then run `prek install` for git hooks)
 - Remove project symlinks: `mise run cleanup-links` (removes symlinks from current repo)

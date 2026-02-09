@@ -51,10 +51,11 @@ zoxide = "latest"
 DOTFILES_PATH = "/Users/rysk/Repositories/rysk/dotfiles"
 
 [tasks.lint]
+usage = 'arg "[paths]" var=#true help="Lint target paths"'
 run = [
-  "uv run --with ruff -- ruff format",
-  "uv run --with ruff -- ruff check",
-  "uv run --with mypy -- mypy .",
-  "uv run --with ty -- ty check",
-  "uv run --with pyright -- pyright",
+  "uv run --with ruff -- ruff format ${usage_paths:-}",
+  "uv run --with ruff -- ruff check ${usage_paths:-}",
+  "uv run --with mypy -- mypy ${usage_paths:-.}",
+  "uv run --with ty -- ty check ${usage_paths:-}",
+  "uv run --with pyright -- pyright ${usage_paths:-}",
 ]

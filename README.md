@@ -239,17 +239,22 @@ miseで定義されているコマンドを利用できます：
 
 ### コード整形
 
-Pythonコードのリントとフォーマットを実行します：
+Pythonコードのリントとフォーマットを実行します。
 
 ```bash
+# 全体を対象
 mise run lint
+
+# 特定のパスに限定
+mise run lint -- src/
+mise run lint -- src/main.py utils.py
 ```
 
 このコマンドは以下の処理を順番に実行します。
 
 1. `ruff format` - Pythonコードを自動フォーマット
 2. `ruff check` - コードスタイルとエラーチェック
-3. `mypy .` - 静的型チェック（mypy）
+3. `mypy` - 静的型チェック（mypy）
 4. `ty check` - 静的型チェック（ty）
 5. `pyright` - 静的型チェック（pyright）
 
