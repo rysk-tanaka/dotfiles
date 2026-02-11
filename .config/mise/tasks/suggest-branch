@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+#MISE description="Suggest branch name from current changes or work description"
+#MISE dir="{{cwd}}"
+#USAGE arg "[base_branch]" help="Base branch to compare against (default: main)"
+
+set -euo pipefail
+
+if ! command -v claude &>/dev/null; then
+    echo "Error: claude command not found" >&2
+    exit 1
+fi
+
+SKILL_PATH="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}/.claude/skills/suggest-branch/SKILL.md"
+
+if [[ ! -f "$SKILL_PATH" ]]; then
+    echo "Error: SKILL.md not found at $SKILL_PATH" >&2
+    exit 1
+fi
+
+BASE_BRANCH="${usage_base_branch:-main}"
+
+claude -p \
+    --model haiku \
+    --allowedTools "Bash(git diff*)" "Bash(git status*)" "Bash(git log*)" "Bash(git branch*)" \
+    --append-system-prompt "$(cat "$SKILL_PATH")" \
+    "Suggest a branch name. Base branch: ${BASE_BRANCH}"

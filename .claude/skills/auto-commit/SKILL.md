@@ -1,0 +1,82 @@
+---
+name: auto-commit
+description: ステージ済みの変更からコミットメッセージを自動生成 (user)
+allowed-tools:
+  - Bash(git diff --cached*)
+  - Bash(git status*)
+  - Bash(git log*)
+---
+
+# コミットメッセージ自動生成
+
+ステージ済みの変更を分析し、Conventional Commits形式のコミットメッセージを生成する。
+
+## 手順
+
+### 1. ステージ済み変更の確認
+
+`git diff --cached --name-only` を実行し、ステージ済みのファイルがあるか確認する。
+
+- 出力が空の場合はステージ済みの変更がないため、「ステージ済みの変更がありません。先に `git add` で変更をステージしてください。」と報告して終了
+
+### 2. コミット履歴の参照
+
+`git log --oneline -10` を実行し、直近のコミットメッセージのスタイル（スコープの命名規則等）を把握する。
+
+### 3. 変更内容の分析
+
+#### 3a. 変更の概要を取得
+
+`git diff --cached --stat` を実行し、変更ファイルの一覧と行数の概要を取得する。
+
+#### 3b. 詳細な差分を取得
+
+`git diff --cached` で詳細な差分を取得する。ただし以下を考慮する。
+
+- lockファイル（`package-lock.json`, `yarn.lock`, `uv.lock`, `Gemfile.lock`, `poetry.lock`, `pnpm-lock.yaml`, `Cargo.lock`, `composer.lock` 等）は除外する
+  - `git diff --cached -- . ':!*lock*'` のように pathspec で除外
+- stat の結果で特定のファイルの変更行数が500行を超えている場合、そのファイルは stat の要約のみで判断し、詳細 diff からは除外する
+
+### 4. コミットメッセージの生成
+
+以下のルールに従ってコミットメッセージを生成する。
+
+#### 形式
+
+```text
+type(scope): description
+```
+
+#### type の選択基準
+
+- `feat` - 新機能の追加
+- `fix` - バグ修正
+- `docs` - ドキュメントのみの変更
+- `style` - コードの意味に影響しない変更（空白、フォーマット等）
+- `refactor` - バグ修正でも機能追加でもないコード変更
+- `perf` - パフォーマンス改善
+- `test` - テストの追加・修正
+- `chore` - ビルドプロセスや補助ツールの変更
+
+#### scope の決定
+
+- 直近のコミット履歴で使われているスコープを参考にする
+- 変更が単一のコンポーネント/ディレクトリに限定される場合はそれをスコープにする
+- 変更が広範囲にわたる場合はスコープを省略可
+
+#### description のルール
+
+- 英語で記述
+- 先頭は小文字
+- 末尾にピリオドを付けない
+- 命令形で記述（add, update, fix 等）
+- 簡潔に（50文字以内を目安）
+
+### 5. 結果の出力
+
+生成したコミットメッセージのみを出力する。余計な説明や装飾は付けず、メッセージ本文だけを1行で出力する。
+
+メッセージに以下は絶対に含めない。
+
+- `🤖 Generated with [Claude Code](https://claude.com/claude-code)`
+- `Co-Authored-By: Claude <noreply@anthropic.com>`
