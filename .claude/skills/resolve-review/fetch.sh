@@ -50,8 +50,8 @@ query($owner: String!, $repo: String!, $number: Int!) {
 }
 '
 
-TMPDIR=$(mktemp -d)
-trap 'rm -rf "$TMPDIR"' EXIT
+WORK_DIR=$(mktemp -d)
+trap 'rm -rf "$WORK_DIR"' EXIT
 
 RESPONSE=$(gh api graphql \
     -f query="$QUERY" \
@@ -59,13 +59,13 @@ RESPONSE=$(gh api graphql \
     -f repo="$REPO" \
     -F number="$PR_NUMBER")
 
-echo "$RESPONSE" > "$TMPDIR/response"
+echo "$RESPONSE" > "$WORK_DIR/response"
 
 # --- Transform to normalized JSON ---
 
 jq -n \
     --argjson number "$PR_NUMBER" \
-    --rawfile response "$TMPDIR/response" \
+    --rawfile response "$WORK_DIR/response" \
     '
     ($response | fromjson) as $data |
     $data.data.repository.pullRequest as $pr |

@@ -51,21 +51,21 @@ for tmpl in "${TEMPLATE_PATHS[@]}"; do
     fi
 done
 
-TMPDIR=$(mktemp -d)
-trap 'rm -rf "$TMPDIR"' EXIT
+WORK_DIR=$(mktemp -d)
+trap 'rm -rf "$WORK_DIR"' EXIT
 
-echo "$STAT" > "$TMPDIR/stat"
-echo "$LOG" > "$TMPDIR/log"
-echo "$DIFF" > "$TMPDIR/diff"
-echo "$TEMPLATE" > "$TMPDIR/template"
+echo "$STAT" > "$WORK_DIR/stat"
+echo "$LOG" > "$WORK_DIR/log"
+echo "$DIFF" > "$WORK_DIR/diff"
+echo "$TEMPLATE" > "$WORK_DIR/template"
 
 jq -n \
     --arg current_branch "$CURRENT_BRANCH" \
     --arg base_branch "$BASE_BRANCH" \
-    --rawfile stat "$TMPDIR/stat" \
-    --rawfile log "$TMPDIR/log" \
-    --rawfile diff "$TMPDIR/diff" \
-    --rawfile template "$TMPDIR/template" \
+    --rawfile stat "$WORK_DIR/stat" \
+    --rawfile log "$WORK_DIR/log" \
+    --rawfile diff "$WORK_DIR/diff" \
+    --rawfile template "$WORK_DIR/template" \
     '{
         current_branch: $current_branch,
         base_branch: $base_branch,
