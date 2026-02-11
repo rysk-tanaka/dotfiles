@@ -1,5 +1,6 @@
 # Override global gitignore (tracked in this repo)
 !.claude
+!.claudeignore
 !CLAUDE.md
 
 # Claude Code local settings

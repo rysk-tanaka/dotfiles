@@ -12,6 +12,7 @@ MacOS用の初期セットアップを行います。
 ├── .vimrc                            # Vim設定
 ├── .gitconfig                        # Git設定
 ├── .mcp.json                         # MCPサーバー設定（プロジェクトスコープ）
+├── .claudeignore                     # Claude Codeコンテキスト除外設定（プロジェクトスコープ）
 ├── Brewfile                          # Homebrewパッケージ定義
 ├── .wakatime.cfg.template            # WakaTime設定テンプレート
 ├── .ssh/                             # SSH設定
@@ -237,6 +238,7 @@ mise run setup-links
 - .pre-commit-config.yaml
 - .markdownlint-cli2.jsonc
 - .mcp.json
+- .claudeignore
 
 リンクを解除する場合は以下を実行します。
 

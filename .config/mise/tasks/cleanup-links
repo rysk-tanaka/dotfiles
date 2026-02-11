@@ -8,6 +8,7 @@ REGISTRY_DIR="${HOME}/.config/mise/linked-repos"
 [ -L ".pre-commit-config.yaml" ] && unlink ".pre-commit-config.yaml" && echo "Removed: pre-commit-config"
 [ -L ".markdownlint-cli2.jsonc" ] && unlink ".markdownlint-cli2.jsonc" && echo "Removed: markdownlint"
 [ -L ".mcp.json" ] && unlink ".mcp.json" && echo "Removed: mcp"
+[ -L ".claudeignore" ] && unlink ".claudeignore" && echo "Removed: claudeignore"
 
 for f in "$REGISTRY_DIR"/*.txt; do
   [ -f "$f" ] && sed -i '' "\\|^$PWD$|d" "$f"
