@@ -82,7 +82,7 @@ When running `mise run setup-links` in other projects, the following are symlink
 - `.pre-commit-config.yaml` - Pre-commit hooks (prek/pre-commit 共用)
 - `.markdownlint-cli2.jsonc` - Markdown lint config
 - `.mcp.json` - MCP server settings
-- `.claudeignore` - Claude Code context exclusion
+- `.claudeignore` - Claude Code context exclusion (caches, build artifacts, etc. to reduce file tree snapshot tokens)
 
 Symlinks are tracked in `~/.config/mise/linked-repos/` for bulk management.
 
