@@ -16,8 +16,6 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 
 ### 開発用コマンド
 
-- `/pr` - GitHubにプルリクエストを作成
-- `/pr-review` - PRレビューコメントの確認と対応
 - `/permalink` - 指定ファイルのGitHubパーマリンクを生成
 - `/uv-init` - uvでPythonプロジェクトを初期化（pyproject.toml設定自動生成、pytest, ruff, mypy付き）
 
@@ -33,6 +31,9 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - `/sync-brew` - Brewfileにアプリを追加（セクション自動判定、auto_updates確認）
 - `/auto-commit` - ステージ済みの変更からConventional Commits形式のコミットメッセージを自動生成してコミット
 - `/suggest-branch` - 作業内容を分析して適切なブランチ名（`feature/` or `fix/`）を提案
+- `/pr` - ブランチの変更を分析してプルリクエストを作成
+- `/resolve-review` - PRレビューコメントを取得し未解決の指摘に対応
+- `/await-ci` - CIチェックの状態確認・完了待機
 
 ## 設定変更方法
 

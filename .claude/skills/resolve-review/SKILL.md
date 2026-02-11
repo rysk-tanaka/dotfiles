@@ -4,6 +4,7 @@ description: PRレビューコメントを取得し対応が必要な項目を�
 allowed-tools:
   # ~ is not expanded in allowed-tools patterns (claude-code#14956)
   - Bash(bash /Users/rysk/.claude/skills/resolve-review/fetch.sh*)
+  - Bash(bash /Users/rysk/.claude/skills/await-ci/check.sh*)
 ---
 
 # PRレビュー指摘対応
@@ -16,14 +17,25 @@ PRのレビューコメントを取得し、未解決の指摘を分類・対応
 
 ## 手順
 
-### 1. ヘルパースクリプトの実行
+### 1. CI ステータスの確認（オプション）
+
+レビュー指摘対応の前に CI 状態を把握しておくと、CI 失敗に起因する指摘を優先対応できる。
+
+`bash /Users/rysk/.claude/skills/await-ci/check.sh $ARGUMENTS` を実行する。
+
+- status が "fail" → 失敗チェック名を記録し、後続の分類で参考にする
+- status が "pending" → CI 待機は行わず次のステップに進む
+- status が "pass" → そのまま次のステップに進む
+- エラー終了 → 無視して次のステップに進む（この手順はオプション）
+
+### 2. ヘルパースクリプトの実行
 
 `bash /Users/rysk/.claude/skills/resolve-review/fetch.sh $ARGUMENTS` を実行する。
 
 - `$ARGUMENTS` が空の場合は引数なしで実行（スクリプト側で自動検出）
 - スクリプトが非ゼロ終了した場合は、stderr のエラーメッセージをユーザーに報告して終了
 
-### 2. 出力の解析
+### 3. 出力の解析
 
 スクリプトの stdout は JSON 形式で以下のフィールドを含む。
 
@@ -42,12 +54,12 @@ PRのレビューコメントを取得し、未解決の指摘を分類・対応
     - `line` - 対象行番号
     - `diff_hunk` - 差分コンテキスト
 
-### 3. スレッドの分類
+### 4. スレッドの分類
 
 - `is_resolved == true` → 対応済み（表示をスキップ）
 - `is_resolved == false` → 要対応
 
-### 4. ユーザーへの報告
+### 5. ユーザーへの報告
 
 以下の形式で報告する。
 
@@ -60,7 +72,7 @@ PRのレビューコメントを取得し、未解決の指摘を分類・対応
   - 議論の経緯（返信コメントがある場合）
   - `is_outdated == true` の場合は「コード変更済み」と注記
 
-### 5. 対応アクションの提案
+### 6. 対応アクションの提案
 
 各未解決スレッドについて。
 
