@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Auto commit: `mise run auto-commit` or `/auto-commit` in session (generates commit message from staged changes)
 - Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name from current changes)
 - Create PR: `/pr` or `/pr <base-branch>` in session (creates pull request from branch changes)
+- Resolve review: `/resolve-review` or `/resolve-review <PR number>` in session (fetches and addresses PR review comments)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 
@@ -56,7 +57,6 @@ Defined in `.config/mise/shell-functions.sh` and auto-loaded via `.zshrc`:
 
 Located in `.claude/commands/`:
 
-- `/pr-review` - Review pull request comments
 - `/permalink` - Generate GitHub permalink
 - `/uv-init` - Initialize Python project with uv
 - `/claude-check`, `/claude-monitor`, `/claude-clean` - Process management
@@ -70,6 +70,7 @@ Located in `.claude/skills/`.
 - `/auto-commit` - Generate commit message from staged changes and commit
 - `/suggest-branch` - Suggest branch name from current changes or work description
 - `/pr` - Create pull request from branch changes
+- `/resolve-review` - Resolve PR review comments
 
 ## Project Integration
 

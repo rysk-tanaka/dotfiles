@@ -2,7 +2,7 @@
 name: pr
 description: ブランチの変更を分析してプルリクエストを作成 (user)
 allowed-tools:
-  - "Bash(bash */.claude/skills/pr/collect.sh*)"
+  - "Bash(bash ~/.claude/skills/pr/collect.sh*)"
 ---
 
 # プルリクエスト作成
