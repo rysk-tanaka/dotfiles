@@ -1,0 +1,6 @@
+# Override global gitignore (tracked in this repo)
+!.claude
+!CLAUDE.md
+
+# Claude Code local settings
+.claude/settings.local.json

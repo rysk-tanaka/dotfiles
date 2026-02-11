@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# Fetch PR review threads with resolved status via GraphQL API
+set -euo pipefail
+
+# --- PR number ---
+
+if [[ $# -ge 1 && "$1" =~ ^[0-9]+$ ]]; then
+    PR_NUMBER="$1"
+else
+    PR_NUMBER=$(gh pr view --json number -q .number 2>/dev/null || true)
+    if [[ -z "$PR_NUMBER" ]]; then
+        echo "Error: no PR found for current branch. Specify a PR number as argument." >&2
+        exit 1
+    fi
+fi
+
+# --- owner/repo ---
+
+OWNER_REPO=$(gh repo view --json owner,name -q '.owner.login + "/" + .name')
+OWNER="${OWNER_REPO%%/*}"
+REPO="${OWNER_REPO##*/}"
+
+# --- GraphQL query ---
+
+QUERY='
+query($owner: String!, $repo: String!, $number: Int!) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $number) {
+      title
+      url
+      reviewThreads(first: 100) {
+        pageInfo { hasNextPage }
+        nodes {
+          id
+          isResolved
+          isOutdated
+          comments(first: 50) {
+            pageInfo { hasNextPage }
+            nodes {
+              body
+              author { login }
+              createdAt
+              path
+              line
+              diffHunk
+            }
+          }
+        }
+      }
+    }
+  }
+}
+'
+
+WORK_DIR=$(mktemp -d)
+trap 'rm -rf "$WORK_DIR"' EXIT
+
+RESPONSE=$(gh api graphql \
+    -f query="$QUERY" \
+    -f owner="$OWNER" \
+    -f repo="$REPO" \
+    -F number="$PR_NUMBER")
+
+echo "$RESPONSE" > "$WORK_DIR/response"
+
+# --- Pagination warnings ---
+
+jq -e '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' "$WORK_DIR/response" > /dev/null 2>&1 \
+    && echo "Warning: review threads exceeded 100, some threads may be missing." >&2
+
+jq -e '[.data.repository.pullRequest.reviewThreads.nodes[].comments.pageInfo.hasNextPage] | any' "$WORK_DIR/response" > /dev/null 2>&1 \
+    && echo "Warning: some threads exceeded 50 comments, replies may be missing." >&2
+
+# --- Transform to normalized JSON ---
+
+jq -n \
+    --argjson number "$PR_NUMBER" \
+    --rawfile response "$WORK_DIR/response" \
+    '
+    ($response | fromjson) as $data |
+    $data.data.repository.pullRequest as $pr |
+    {
+        pr_number: $number,
+        title: $pr.title,
+        url: $pr.url,
+        review_threads: [
+            $pr.reviewThreads.nodes[] | {
+                id: .id,
+                is_resolved: .isResolved,
+                is_outdated: .isOutdated,
+                comments: [
+                    .comments.nodes[] | {
+                        body: .body,
+                        author: (.author.login // "ghost"),
+                        created_at: .createdAt,
+                        path: .path,
+                        line: .line,
+                        diff_hunk: .diffHunk
+                    }
+                ]
+            }
+        ]
+    }
+    '

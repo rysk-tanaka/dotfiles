@@ -20,7 +20,6 @@ MacOS用の初期セットアップを行います。
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── settings.json                 # グローバル設定
 │   ├── commands/                     # カスタムコマンド
-│   │   ├── pr-review.md              # PRレビューコメント対応
 │   │   ├── permalink.md              # パーマリンクコマンド
 │   │   ├── uv-init.md                # Pythonプロジェクト初期化
 │   │   ├── claude-check.md           # プロセス状況確認
@@ -37,6 +36,9 @@ MacOS用の初期セットアップを行います。
 │   │   ├── pr/                       # プルリクエスト作成
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   └── collect.sh            # データ収集スクリプト
+│   │   ├── resolve-review/           # PRレビュー指摘対応
+│   │   │   ├── SKILL.md              # スキル定義
+│   │   │   └── fetch.sh              # レビューデータ取得スクリプト
 │   │   └── suggest-branch/           # ブランチ名提案
 │   │       └── SKILL.md              # スキル定義
 │   └── scripts/                      # スクリプトファイル
