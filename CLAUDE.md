@@ -14,6 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Setup WakaTime: `mise run setup-wakatime` (generates `~/.wakatime.cfg` from 1Password)
 - Install fonts: `mise run setup-fonts` or `bash .config/mise/tasks/setup-fonts` (installs Bizin Gothic NF from GitHub Releases)
 - Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)
+- Auto commit: `mise run auto-commit` or `/auto-commit` in session (generates commit message from staged changes)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 
@@ -65,6 +66,7 @@ Located in `.claude/skills/`.
 
 - `/cloudwatch-logs` - Fetch CloudWatch logs (Python script with boto3)
 - `/sync-brew` - Add apps to Brewfile with auto-categorization
+- `/auto-commit` - Generate commit message from staged changes and commit
 
 ## Project Integration
 

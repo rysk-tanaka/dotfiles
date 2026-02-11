@@ -31,7 +31,9 @@ MacOS用の初期セットアップを行います。
 │   │   ├── cloudwatch-logs/          # CloudWatchログ取得
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   └── cloudwatch_logs.py    # Pythonスクリプト（PEP 723）
-│   │   └── sync-brew/                # Brewfileアプリ追加
+│   │   ├── sync-brew/                # Brewfileアプリ追加
+│   │   │   └── SKILL.md              # スキル定義
+│   │   └── auto-commit/              # コミットメッセージ自動生成
 │   │       └── SKILL.md              # スキル定義
 │   └── scripts/                      # スクリプトファイル
 │       ├── claude-check.sh           # プロセス状況確認スクリプト
