@@ -1,10 +1,11 @@
 # CLI tools
 brew "coreutils"
+brew "fastfetch"
 brew "gnu-sed"
 brew "gnupg"
-brew "telnet"
-brew "fastfetch"
 brew "mise"
+brew "telnet"
+cask "codex"
 
 # Shell plugins (required by .zshrc)
 brew "zsh-autosuggestions"
@@ -32,7 +33,6 @@ cask "zoom"
 
 # AI
 cask "claude"
-cask "codex"
 
 # Development
 cask "orbstack"
