@@ -18,7 +18,7 @@ allowed-tools:
 
 ### 1. ヘルパースクリプトの実行
 
-`bash ~/.claude/skills/pr/collect.sh <base-branch>` を実行する。
+`bash /Users/rysk/.claude/skills/pr/collect.sh <base-branch>` を実行する。
 
 - ベースブランチは `$ARGUMENTS` が指定されていればそれを使用、なければ `main` を渡す
 - スクリプトが非ゼロ終了した場合は、stderr のエラーメッセージをユーザーに報告して終了

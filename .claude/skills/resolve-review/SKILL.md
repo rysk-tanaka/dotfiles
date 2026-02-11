@@ -18,7 +18,7 @@ PRのレビューコメントを取得し、未解決の指摘を分類・対応
 
 ### 1. ヘルパースクリプトの実行
 
-`bash ~/.claude/skills/resolve-review/fetch.sh $ARGUMENTS` を実行する。
+`bash /Users/rysk/.claude/skills/resolve-review/fetch.sh $ARGUMENTS` を実行する。
 
 - `$ARGUMENTS` が空の場合は引数なしで実行（スクリプト側で自動検出）
 - スクリプトが非ゼロ終了した場合は、stderr のエラーメッセージをユーザーに報告して終了
