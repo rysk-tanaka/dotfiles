@@ -32,6 +32,7 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - `/cloudwatch-logs` - CloudWatchログの取得・検索（boto3ベースのPythonスクリプトで実装）
 - `/sync-brew` - Brewfileにアプリを追加（セクション自動判定、auto_updates確認）
 - `/auto-commit` - ステージ済みの変更からConventional Commits形式のコミットメッセージを自動生成してコミット
+- `/suggest-branch` - 作業内容を分析して適切なブランチ名（`feature/` or `fix/`）を提案
 
 ## 設定変更方法
 
