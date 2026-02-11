@@ -1,0 +1,27 @@
+# VCS
+.git/
+
+# Python
+__pycache__/
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.tox/
+.nox/
+.venv/
+htmlcov/
+
+# Node.js
+node_modules/
+
+# Terraform
+.terraform/
+
+# Build artifacts
+dist/
+build/
+
+# Claude Code
+memory-bank/
+.playwright-mcp/
