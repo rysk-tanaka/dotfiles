@@ -29,6 +29,7 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 ## カスタムスキル
 
 スキルの追加・更新時は `.claude/skills/catalog.json` も合わせて更新してください（`/skills` コマンドで参照されます）。
+シェルスクリプトを含むスキルは `.claude/settings.json` の `permissions.allow` にも実行パターンの追加が必要です（例: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`）。
 
 - `/cloudwatch-logs` - CloudWatchログの取得・検索（boto3ベースのPythonスクリプトで実装）
 - `/sync-brew` - Brewfileにアプリを追加（セクション自動判定、auto_updates確認）

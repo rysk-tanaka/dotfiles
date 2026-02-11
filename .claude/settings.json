@@ -26,7 +26,10 @@
       "Bash(git rev-parse:*)",
       "Bash(jq:*)",
       "Bash(shellcheck:*)",
-      "Bash(xxd:*)"
+      "Bash(xxd:*)",
+      "Bash(bash /Users/rysk/.claude/skills/pr/collect.sh:*)",
+      "Bash(bash /Users/rysk/.claude/skills/await-ci/check.sh:*)",
+      "Bash(bash /Users/rysk/.claude/skills/resolve-review/fetch.sh:*)"
     ],
     "deny": [
       "Bash(git add -A:*)",

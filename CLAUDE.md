@@ -65,7 +65,7 @@ Located in `.claude/commands/`:
 
 ### Claude Code Custom Skills
 
-Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/catalog.json` for the `/skills` command. When adding or updating skills, update catalog.json as well.
+Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/catalog.json` for the `/skills` command. When adding or updating skills, update catalog.json as well. Skills with shell scripts also require adding their execution patterns to `.claude/settings.json` `permissions.allow` (e.g., `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`).
 
 - `/cloudwatch-logs` - Fetch CloudWatch logs (Python script with boto3)
 - `/sync-brew` - Add apps to Brewfile with auto-categorization
