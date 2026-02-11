@@ -35,29 +35,42 @@ fi
 
 # --- Data collection ---
 
-echo "===CURRENT_BRANCH==="
-echo "$CURRENT_BRANCH"
+STAT=$(git diff "${BASE_BRANCH}...HEAD" --stat)
+LOG=$(git log "${BASE_BRANCH}..HEAD" --oneline)
+DIFF=$(git diff "${BASE_BRANCH}...HEAD" -- . ':!*lock.json' ':!*.lock' ':!*lock.yaml' ':!*lock.toml')
 
-echo "===BASE_BRANCH==="
-echo "$BASE_BRANCH"
-
-echo "===STAT==="
-git diff "${BASE_BRANCH}...HEAD" --stat
-
-echo "===LOG==="
-git log "${BASE_BRANCH}..HEAD" --oneline
-
-echo "===DIFF==="
-git diff "${BASE_BRANCH}...HEAD" -- . ':!*lock*'
-
-echo "===TEMPLATE==="
+TEMPLATE=""
 TEMPLATE_PATHS=(
     ".github/workflows/pull_request_template.md" # intentional: setup-links symlinks here
     ".github/pull_request_template.md"
 )
 for tmpl in "${TEMPLATE_PATHS[@]}"; do
     if [[ -f "$tmpl" ]]; then
-        cat "$tmpl"
+        TEMPLATE=$(cat "$tmpl")
         break
     fi
 done
+
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
+
+echo "$STAT" > "$TMPDIR/stat"
+echo "$LOG" > "$TMPDIR/log"
+echo "$DIFF" > "$TMPDIR/diff"
+echo "$TEMPLATE" > "$TMPDIR/template"
+
+jq -n \
+    --arg current_branch "$CURRENT_BRANCH" \
+    --arg base_branch "$BASE_BRANCH" \
+    --rawfile stat "$TMPDIR/stat" \
+    --rawfile log "$TMPDIR/log" \
+    --rawfile diff "$TMPDIR/diff" \
+    --rawfile template "$TMPDIR/template" \
+    '{
+        current_branch: $current_branch,
+        base_branch: $base_branch,
+        stat: $stat,
+        log: $log,
+        diff: $diff,
+        template: $template
+    }'
