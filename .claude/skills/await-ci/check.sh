@@ -107,13 +107,17 @@ exit_with_status() {
         pass)    exit 0 ;;
         fail)    exit 1 ;;
         pending) exit 2 ;;
+        *)       echo "Error: unexpected status: $status" >&2; exit 3 ;;
     esac
 }
 
 # --- One-shot mode ---
 
 if [[ "$WATCH" == false ]]; then
-    fetch_checks
+    if ! fetch_checks; then
+        echo "Error: failed to fetch CI checks for PR #$PR_NUMBER" >&2
+        exit 1
+    fi
     exit_with_status "$(normalize_output 0)"
 fi
 
