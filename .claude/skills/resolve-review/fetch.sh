@@ -29,11 +29,13 @@ query($owner: String!, $repo: String!, $number: Int!) {
       title
       url
       reviewThreads(first: 100) {
+        pageInfo { hasNextPage }
         nodes {
           id
           isResolved
           isOutdated
           comments(first: 50) {
+            pageInfo { hasNextPage }
             nodes {
               body
               author { login }
@@ -60,6 +62,14 @@ RESPONSE=$(gh api graphql \
     -F number="$PR_NUMBER")
 
 echo "$RESPONSE" > "$WORK_DIR/response"
+
+# --- Pagination warnings ---
+
+jq -e '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' "$WORK_DIR/response" > /dev/null 2>&1 \
+    && echo "Warning: review threads exceeded 100, some threads may be missing." >&2
+
+jq -e '[.data.repository.pullRequest.reviewThreads.nodes[].comments.pageInfo.hasNextPage] | any' "$WORK_DIR/response" > /dev/null 2>&1 \
+    && echo "Warning: some threads exceeded 50 comments, replies may be missing." >&2
 
 # --- Transform to normalized JSON ---
 
