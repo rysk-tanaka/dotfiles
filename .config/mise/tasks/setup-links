@@ -20,5 +20,8 @@ grep -qxF "$PWD" "$REGISTRY_DIR/markdownlint.txt" 2>/dev/null || echo "$PWD" >> 
 ln -sf "${DOTFILES_PATH}/.mcp.json" .mcp.json
 grep -qxF "$PWD" "$REGISTRY_DIR/mcp.txt" 2>/dev/null || echo "$PWD" >> "$REGISTRY_DIR/mcp.txt"
 
+ln -sf "${DOTFILES_PATH}/.claudeignore" .claudeignore
+grep -qxF "$PWD" "$REGISTRY_DIR/claudeignore.txt" 2>/dev/null || echo "$PWD" >> "$REGISTRY_DIR/claudeignore.txt"
+
 echo "Links created and registered."
 echo "Run 'prek install' to set up git hooks."
