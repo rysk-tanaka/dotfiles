@@ -1,0 +1,43 @@
+[
+  {
+    "name": "auto-commit",
+    "description": "ステージ済みの変更からコミットメッセージを自動生成",
+    "category": "Git ワークフロー"
+  },
+  {
+    "name": "await-ci",
+    "description": "CIチェックの状態確認・完了待機",
+    "category": "Git ワークフロー",
+    "example": "/await-ci 20"
+  },
+  {
+    "name": "cloudwatch-logs",
+    "description": "CloudWatchログの取得・検索（Lambda関数のログ解析、エラー調査）",
+    "category": "AWS",
+    "example": "/cloudwatch-logs /aws/lambda/my-function"
+  },
+  {
+    "name": "pr",
+    "description": "ブランチの変更を分析してプルリクエストを作成",
+    "category": "Git ワークフロー",
+    "example": "/pr develop"
+  },
+  {
+    "name": "resolve-review",
+    "description": "PRレビューコメントを取得し対応が必要な項目を確認",
+    "category": "Git ワークフロー",
+    "example": "/resolve-review 20"
+  },
+  {
+    "name": "suggest-branch",
+    "description": "作業内容を分析して適切なブランチ名を提案",
+    "category": "Git ワークフロー",
+    "example": "/suggest-branch develop"
+  },
+  {
+    "name": "sync-brew",
+    "description": "Brewfileにアプリを追加（セクション自動判定、auto_updates確認）",
+    "category": "パッケージ管理",
+    "example": "/sync-brew ripgrep bat"
+  }
+]

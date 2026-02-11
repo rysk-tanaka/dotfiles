@@ -18,6 +18,7 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 
 - `/permalink` - 指定ファイルのGitHubパーマリンクを生成
 - `/uv-init` - uvでPythonプロジェクトを初期化（pyproject.toml設定自動生成、pytest, ruff, mypy付き）
+- `/skills` - 利用可能なスキルの一覧を表示
 
 ### プロセス管理コマンド
 
@@ -26,6 +27,8 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - `/claude-clean` - 不要プロセスの手動クリーンアップ（問題発生時）
 
 ## カスタムスキル
+
+スキルの追加・更新時は `.claude/skills/catalog.json` も合わせて更新してください（`/skills` コマンドで参照されます）。
 
 - `/cloudwatch-logs` - CloudWatchログの取得・検索（boto3ベースのPythonスクリプトで実装）
 - `/sync-brew` - Brewfileにアプリを追加（セクション自動判定、auto_updates確認）

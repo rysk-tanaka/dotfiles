@@ -60,11 +60,12 @@ Located in `.claude/commands/`:
 
 - `/permalink` - Generate GitHub permalink
 - `/uv-init` - Initialize Python project with uv
+- `/skills` - List available skills
 - `/claude-check`, `/claude-monitor`, `/claude-clean` - Process management
 
 ### Claude Code Custom Skills
 
-Located in `.claude/skills/`.
+Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/catalog.json` for the `/skills` command. When adding or updating skills, update catalog.json as well.
 
 - `/cloudwatch-logs` - Fetch CloudWatch logs (Python script with boto3)
 - `/sync-brew` - Add apps to Brewfile with auto-categorization

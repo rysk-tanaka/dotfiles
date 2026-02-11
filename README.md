@@ -25,8 +25,10 @@ MacOS用の初期セットアップを行います。
 │   │   ├── uv-init.md                # Pythonプロジェクト初期化
 │   │   ├── claude-check.md           # プロセス状況確認
 │   │   ├── claude-monitor.md         # プロセス監視
-│   │   └── claude-clean.md           # プロセスクリーンアップ
+│   │   ├── claude-clean.md           # プロセスクリーンアップ
+│   │   └── skills.md                 # スキル一覧表示
 │   ├── skills/                       # カスタムスキル
+│   │   ├── catalog.json              # スキルメタデータ（/skills コマンド用）
 │   │   ├── cloudwatch-logs/          # CloudWatchログ取得
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   └── cloudwatch_logs.py    # Pythonスクリプト（PEP 723）
