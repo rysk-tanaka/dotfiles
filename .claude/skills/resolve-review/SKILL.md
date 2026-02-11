@@ -2,7 +2,8 @@
 name: resolve-review
 description: PRレビューコメントを取得し対応が必要な項目を確認 (user)
 allowed-tools:
-  - "Bash(bash ~/.claude/skills/resolve-review/fetch.sh*)"
+  # ~ is not expanded in allowed-tools patterns (claude-code#14956)
+  - Bash(bash /Users/rysk/.claude/skills/resolve-review/fetch.sh*)
 ---
 
 # PRレビュー指摘対応
