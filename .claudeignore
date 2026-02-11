@@ -4,19 +4,24 @@
 # Python
 __pycache__/
 *.egg-info/
+.eggs/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
 .tox/
 .nox/
 .venv/
+.coverage
+coverage/
 htmlcov/
 
 # Node.js
 node_modules/
+.next/
 
 # Terraform
 .terraform/
+*.tfstate*
 
 # Build artifacts
 dist/
