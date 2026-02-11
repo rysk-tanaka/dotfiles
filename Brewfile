@@ -32,6 +32,7 @@ cask "zoom"
 
 # AI
 cask "claude"
+cask "codex"
 
 # Development
 cask "orbstack"

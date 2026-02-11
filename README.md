@@ -17,6 +17,8 @@ MacOS用の初期セットアップを行います。
 ├── .wakatime.cfg.template            # WakaTime設定テンプレート
 ├── .ssh/                             # SSH設定
 │   └── config_docker.template        # Docker用SSH設定テンプレート
+├── .codex/                           # Codex CLI設定
+│   └── config.toml                   # ユーザーレベル設定（AGENTS.mdは~/.claude/CLAUDE.mdへのsymlink）
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── settings.json                 # グローバル設定
@@ -113,6 +115,7 @@ MacOS用の初期セットアップを行います。
     ディレクトリの作成
 
     ```bash
+    mkdir -p ~/.codex
     mkdir -p ~/.claude
     mkdir -p ~/.config/ccmanager
     mkdir -p ~/.config/ghostty
@@ -123,6 +126,8 @@ MacOS用の初期セットアップを行います。
     設定ファイルのリンク
 
     ```bash
+    ln -sf ~/Repositories/rysk/dotfiles/.codex/config.toml ~/.codex/config.toml
+    ln -sf ~/.claude/CLAUDE.md ~/.codex/AGENTS.md
     ln -sf ~/Repositories/rysk/dotfiles/.claude/settings.json ~/.claude/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.claude/CLAUDE.md ~/.claude/CLAUDE.md
     ln -sf ~/Repositories/rysk/dotfiles/.claude/commands ~/.claude/commands

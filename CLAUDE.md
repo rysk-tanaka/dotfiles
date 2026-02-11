@@ -43,6 +43,7 @@ This is a dotfiles repository that manages macOS configuration files through sym
 - Package Management: Homebrew (`Brewfile` - CLI tools, desktop apps, fonts)
 - Tool Management: mise (`~/.config/mise/config.toml`)
 - Claude Code: Global settings, commands, skills, scripts (all symlinked from this repo to `~/.claude/`)
+- Codex CLI: User config (`~/.codex/config.toml`), global instructions (`~/.codex/AGENTS.md` → `~/.claude/CLAUDE.md` symlink)
 - ccmanager: Session management (`~/.config/ccmanager/config.json`)
 
 ### Custom Shell Functions
