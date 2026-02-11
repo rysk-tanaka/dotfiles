@@ -47,6 +47,17 @@ query($owner: String!, $repo: String!, $number: Int!) {
           }
         }
       }
+      comments(first: 100) {
+        pageInfo { hasNextPage }
+        nodes {
+          id
+          body
+          author { login }
+          createdAt
+          isMinimized
+          url
+        }
+      }
     }
   }
 }
@@ -70,6 +81,9 @@ jq -e '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' "$WORK_D
 
 jq -e '[.data.repository.pullRequest.reviewThreads.nodes[].comments.pageInfo.hasNextPage] | any' "$WORK_DIR/response" > /dev/null 2>&1 \
     && echo "Warning: some threads exceeded 50 comments, replies may be missing." >&2
+
+jq -e '.data.repository.pullRequest.comments.pageInfo.hasNextPage' "$WORK_DIR/response" > /dev/null 2>&1 \
+    && echo "Warning: PR comments exceeded 100, some comments may be missing." >&2
 
 # --- Transform to normalized JSON ---
 
@@ -98,6 +112,17 @@ jq -n \
                         diff_hunk: .diffHunk
                     }
                 ]
+            }
+        ],
+        comments: [
+            $pr.comments.nodes[] |
+            select(.isMinimized | not) |
+            {
+                id: .id,
+                body: .body,
+                author: (.author.login // "ghost"),
+                created_at: .createdAt,
+                url: .url
             }
         ]
     }
