@@ -32,12 +32,14 @@ DEFAULT_HOURS = 1
 DEFAULT_MAX_EVENTS = 100
 ERROR_MAX_EVENTS = 50
 DISPLAY_MAX_EVENTS = 10
-MESSAGE_TRUNCATE_LENGTH = 100
+MESSAGE_TRUNCATE_LENGTH = 500
 STREAM_NAME_MAX_LENGTH = 30
 MILLISECONDS = 1000
+MAX_PAGINATION_PAGES = 50
 
 ERROR_FILTER_PATTERNS = [
     '{ $.error = "*" }',
+    '{ $.status = "failed" }',
     '{ $.levelname = "ERROR" }',
 ]
 
@@ -132,16 +134,35 @@ def fetch_log_events(
     if filter_pattern:
         kwargs["filterPattern"] = filter_pattern
 
-    response = logs_client.filter_log_events(**kwargs)
+    events: list[LogEvent] = []
+    prev_token: str | None = None
 
-    events = [
-        LogEvent(
-            timestamp=datetime.fromtimestamp(event["timestamp"] / MILLISECONDS, tz=UTC),
-            message=event["message"],
-            log_stream_name=event.get("logStreamName", ""),
-        )
-        for event in response.get("events", [])
-    ]
+    for _ in range(MAX_PAGINATION_PAGES):
+        # Limit each page to remaining events needed
+        kwargs["limit"] = max_events - len(events)
+        response = logs_client.filter_log_events(**kwargs)
+
+        for event in response.get("events", []):
+            events.append(
+                LogEvent(
+                    timestamp=datetime.fromtimestamp(
+                        event["timestamp"] / MILLISECONDS, tz=UTC
+                    ),
+                    message=event["message"],
+                    log_stream_name=event.get("logStreamName", ""),
+                )
+            )
+
+        if len(events) >= max_events:
+            break
+
+        next_token = response.get("nextToken")
+        if not next_token or next_token == prev_token:
+            break
+        prev_token = next_token
+        kwargs["nextToken"] = next_token
+
+    events = events[:max_events]
 
     # Sort newest first
     events.sort(key=lambda e: e.timestamp, reverse=True)
