@@ -2,15 +2,26 @@
 #MISE description="Suggest branch name from current changes or work description"
 #MISE dir="{{cwd}}"
 #USAGE arg "[base_branch]" help="Base branch to compare against (default: main)"
+#USAGE flag "--codex" help="Use Codex CLI instead of Claude Code"
 
 set -euo pipefail
 
-if ! command -v claude &>/dev/null; then
-    echo "Error: claude command not found" >&2
-    exit 1
-fi
+DOTFILES="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
+USE_CODEX="${usage_codex:-false}"
 
-SKILL_PATH="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}/.claude/skills/suggest-branch/SKILL.md"
+if [[ "$USE_CODEX" == "true" ]]; then
+    if ! command -v codex &>/dev/null; then
+        echo "Error: codex command not found" >&2
+        exit 1
+    fi
+    SKILL_PATH="${DOTFILES}/.codex/skills/suggest-branch/SKILL.md"
+else
+    if ! command -v claude &>/dev/null; then
+        echo "Error: claude command not found" >&2
+        exit 1
+    fi
+    SKILL_PATH="${DOTFILES}/.claude/skills/suggest-branch/SKILL.md"
+fi
 
 if [[ ! -f "$SKILL_PATH" ]]; then
     echo "Error: SKILL.md not found at $SKILL_PATH" >&2
@@ -18,9 +29,21 @@ if [[ ! -f "$SKILL_PATH" ]]; then
 fi
 
 BASE_BRANCH="${usage_base_branch:-main}"
+PROMPT="Suggest a branch name. Base branch: ${BASE_BRANCH}"
 
-claude -p \
-    --model haiku \
-    --allowedTools "Bash(git diff*)" "Bash(git status*)" "Bash(git log*)" "Bash(git branch*)" \
-    --append-system-prompt "$(cat "$SKILL_PATH")" \
-    "Suggest a branch name. Base branch: ${BASE_BRANCH}"
+if [[ "$USE_CODEX" == "true" ]]; then
+    OUTFILE=$(mktemp)
+    trap 'rm -f "$OUTFILE"' EXIT
+    printf '%s\n\n%s' "$(cat "$SKILL_PATH")" "$PROMPT" | codex exec \
+        --full-auto \
+        -m gpt-5.1-codex-mini \
+        -o "$OUTFILE" \
+        - >/dev/null 2>&1
+    cat "$OUTFILE"
+else
+    claude -p \
+        --model haiku \
+        --allowedTools "Bash(git diff*)" "Bash(git status*)" "Bash(git log*)" "Bash(git branch*)" \
+        --append-system-prompt "$(cat "$SKILL_PATH")" \
+        "$PROMPT"
+fi

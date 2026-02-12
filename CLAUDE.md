@@ -14,8 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Setup WakaTime: `mise run setup-wakatime` (generates `~/.wakatime.cfg` from 1Password)
 - Install fonts: `mise run setup-fonts` or `bash .config/mise/tasks/setup-fonts` (installs Bizin Gothic NF from GitHub Releases)
 - Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)
-- Auto commit: `mise run auto-commit` or `/auto-commit` in session (generates commit message from staged changes)
-- Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name from current changes)
+- Auto commit: `mise run auto-commit` or `/auto-commit` in session (generates commit message from staged changes, `--codex` for Codex CLI)
+- Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name from current changes, `--codex` for Codex CLI)
 - Create PR: `/pr` or `/pr <base-branch>` in session (creates pull request from branch changes)
 - Resolve review: `/resolve-review` or `/resolve-review <PR number>` in session (fetches and addresses PR review comments)
 - Await CI: `/await-ci` or `/await-ci <PR number>` in session (checks CI status and optionally waits for completion)
@@ -43,7 +43,7 @@ This is a dotfiles repository that manages macOS configuration files through sym
 - Package Management: Homebrew (`Brewfile` - CLI tools, desktop apps, fonts)
 - Tool Management: mise (`~/.config/mise/config.toml`)
 - Claude Code: Global settings, commands, skills, scripts (all symlinked from this repo to `~/.claude/`)
-- Codex CLI: User config (`~/.codex/config.toml`), global instructions (`~/.codex/AGENTS.md` → `~/.claude/CLAUDE.md` symlink)
+- Codex CLI: User config (`~/.codex/config.toml`), skills (`~/.codex/skills/`), global instructions (`~/.codex/AGENTS.md` → `~/.claude/CLAUDE.md` symlink)
 - ccmanager: Session management (`~/.config/ccmanager/config.json`)
 
 ### Custom Shell Functions

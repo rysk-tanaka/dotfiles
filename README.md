@@ -18,7 +18,11 @@ MacOS用の初期セットアップを行います。
 ├── .ssh/                             # SSH設定
 │   └── config_docker.template        # Docker用SSH設定テンプレート
 ├── .codex/                           # Codex CLI設定
-│   └── config.toml                   # ユーザーレベル設定（AGENTS.mdは~/.claude/CLAUDE.mdへのsymlink）
+│   ├── config.toml                   # ユーザーレベル設定（AGENTS.mdは~/.claude/CLAUDE.mdへのsymlink）
+│   └── skills/                       # Codex用スキル（Claude Codeスキルから移植）
+│       ├── auto-commit/              # コミットメッセージ自動生成
+│       ├── suggest-branch/           # ブランチ名提案
+│       └── cloudwatch-logs/          # CloudWatchログ取得
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── settings.json                 # グローバル設定
@@ -127,6 +131,7 @@ MacOS用の初期セットアップを行います。
 
     ```bash
     ln -sf ~/Repositories/rysk/dotfiles/.codex/config.toml ~/.codex/config.toml
+    ln -sf ~/Repositories/rysk/dotfiles/.codex/skills ~/.codex/skills
     ln -sf ~/.claude/CLAUDE.md ~/.codex/AGENTS.md
     ln -sf ~/Repositories/rysk/dotfiles/.claude/settings.json ~/.claude/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.claude/CLAUDE.md ~/.claude/CLAUDE.md
