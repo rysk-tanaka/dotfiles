@@ -49,6 +49,11 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - Clean, readable code with meaningful variable names
 - Follow project-specific conventions when available
 - Prioritize maintainability and clarity
+- 早期returnでネストを浅く保つ（ガード節パターン）
+- 複雑な条件式は説明変数に分割して意図を明示する
+  - Example: `is_eligible = user.is_active and user.age >= MIN_AGE`
+- コメントは「何をするか」ではなく「なぜ必要か」を記述する
+- ブール変数は肯定形で命名する（`is_active` ○ / `is_not_deleted` ✗）
 - Always end files with a trailing newline (空行を末尾に追加)
   - 理由: POSIX標準への準拠、diffの見やすさ向上、多くのエディタ・ツールとの互換性確保
 
