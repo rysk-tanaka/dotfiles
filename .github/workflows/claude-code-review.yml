@@ -21,7 +21,7 @@ jobs:
   claude-review:
     if: |
       (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[review]')) ||
-      (github.event_name == 'issue_comment' && github.event.issue.pull_request && (contains(github.event.comment.body, '@claude-review') || contains(github.event.comment.body, '@claude-review-opus'))) ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '@claude-review')) ||
       (github.event_name == 'workflow_dispatch')
 
     runs-on: ubuntu-latest
@@ -39,18 +39,12 @@ jobs:
 
       - name: Run Claude Code Review
         id: claude-review
-        uses: anthropics/claude-code-action@beta
+        uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          track_progress: true
 
-          # Dynamic model selection based on mention
-          model: |
-            ${{ (
-              github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-review-opus')
-            ) && 'claude-opus-4-20250514' || 'claude-sonnet-4-5-20250929' }}
-
-          # Direct prompt for automated review (no @claude mention needed)
-          direct_prompt: |
+          prompt: |
             このプルリクエストを日本語でレビューしてください。以下の観点からフィードバックを提供してください：
             - コード品質とベストプラクティス
             - 潜在的なバグや問題
@@ -69,27 +63,9 @@ jobs:
             承認 / 要修正 / コメント
 
             ---
-            🤖 モデル: [使用したモデル名]
-            💰 コスト: 入力XXXトークン, 出力XXXトークン, $X.XX
+            使用したモデル名と実際のトークン数、推定コストを計算して出力してください。
+            形式: 🤖 モデル: [実際のモデル名] / 💰 コスト: 入力[N]トークン, 出力[M]トークン, $[金額]
 
-          # Optional: Customize review based on file types
-          # direct_prompt: |
-          #   Review this PR focusing on:
-          #   - For TypeScript files: Type safety and proper interface usage
-          #   - For API endpoints: Security, input validation, and error handling
-          #   - For React components: Performance, accessibility, and best practices
-          #   - For tests: Coverage, edge cases, and test quality
-
-          # Optional: Different prompts for different authors
-          # direct_prompt: |
-          #   ${{ github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' &&
-          #   'Welcome! Please review this PR from a first-time contributor. Be encouraging and provide detailed explanations for any suggestions.' ||
-          #   'Please provide a thorough code review focusing on our coding standards and best practices.' }}
-
-          # Optional: Add specific tools for running tests or linting
-          # allowed_tools: "Bash(npm run test),Bash(npm run lint),Bash(npm run typecheck)"
-
-          # Optional: Skip review for certain conditions
-          # if: |
-          #   !contains(github.event.pull_request.title, '[skip-review]') &&
-          #   !contains(github.event.pull_request.title, '[WIP]')
+          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
+          # or https://docs.claude.com/en/docs/claude-code/cli-reference for available options
+          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
