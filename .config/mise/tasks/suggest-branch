@@ -51,9 +51,14 @@ if [[ "$USE_CODEX" == "true" ]]; then
     fi
     echo "$RESULT"
 else
-    claude -p \
+    RESULT=$(claude -p \
         --model haiku \
         --allowedTools "Bash(git diff*)" "Bash(git status*)" "Bash(git log*)" "Bash(git branch*)" \
         --append-system-prompt "$(cat "$SKILL_PATH")" \
-        "$PROMPT"
+        "$PROMPT")
+    if [[ -z "$RESULT" ]]; then
+        echo "Error: Failed to generate branch name" >&2
+        exit 1
+    fi
+    echo "$RESULT"
 fi
