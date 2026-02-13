@@ -9,6 +9,9 @@
 .claude
 CLAUDE.md
 
+# Codex CLI
+.codex/skills/.system
+
 # Project config (managed via symlinks)
 .claudeignore
 .github/workflows/pull_request_template.md

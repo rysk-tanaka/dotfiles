@@ -1,33 +1,62 @@
 #!/usr/bin/env bash
 #MISE description="Generate commit message from staged changes and commit"
 #MISE dir="{{cwd}}"
+#USAGE flag "--codex" help="Use Codex CLI instead of Claude Code"
 
 set -euo pipefail
 
-if ! command -v claude &>/dev/null; then
-    echo "Error: claude command not found" >&2
-    exit 1
+DOTFILES="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
+USE_CODEX="${usage_codex:-false}"
+
+if [[ "$USE_CODEX" == "true" ]]; then
+    if ! command -v codex &>/dev/null; then
+        echo "Error: codex command not found" >&2
+        exit 1
+    fi
+    SKILL_PATH="${DOTFILES}/.codex/skills/auto-commit/SKILL.md"
+else
+    if ! command -v claude &>/dev/null; then
+        echo "Error: claude command not found" >&2
+        exit 1
+    fi
+    SKILL_PATH="${DOTFILES}/.claude/skills/auto-commit/SKILL.md"
 fi
 
-# Check for staged changes before launching claude
+# Check for staged changes
 if git diff --cached --quiet 2>/dev/null; then
     echo "Error: No staged changes found. Run 'git add' first." >&2
     exit 1
 fi
-
-SKILL_PATH="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}/.claude/skills/auto-commit/SKILL.md"
 
 if [[ ! -f "$SKILL_PATH" ]]; then
     echo "Error: SKILL.md not found at $SKILL_PATH" >&2
     exit 1
 fi
 
-# Generate commit message using Claude
-COMMIT_MSG=$(claude -p \
-    --model haiku \
-    --allowedTools "Bash(git diff --cached*)" "Bash(git status*)" "Bash(git log*)" \
-    --append-system-prompt "$(cat "$SKILL_PATH")" \
-    "Generate a commit message for the staged changes. Output ONLY the commit message, nothing else.")
+PROMPT="Generate a commit message for the staged changes. Output ONLY the commit message, nothing else."
+
+# Generate commit message
+if [[ "$USE_CODEX" == "true" ]]; then
+    OUTFILE=$(mktemp)
+    ERRFILE=$(mktemp)
+    trap 'rm -f "$OUTFILE" "$ERRFILE"' EXIT
+    if ! printf '%s\n\n%s' "$(cat "$SKILL_PATH")" "$PROMPT" | codex exec \
+        --full-auto \
+        -m gpt-5.1-codex-mini \
+        -o "$OUTFILE" \
+        - >/dev/null 2>"$ERRFILE"; then
+        echo "Error: codex exec failed" >&2
+        cat "$ERRFILE" >&2
+        exit 1
+    fi
+    COMMIT_MSG=$(cat "$OUTFILE")
+else
+    COMMIT_MSG=$(claude -p \
+        --model haiku \
+        --allowedTools "Bash(git diff --cached*)" "Bash(git status*)" "Bash(git log*)" \
+        --append-system-prompt "$(cat "$SKILL_PATH")" \
+        "$PROMPT")
+fi
 
 # Ensure single-line message
 COMMIT_MSG=$(echo "$COMMIT_MSG" | head -1)

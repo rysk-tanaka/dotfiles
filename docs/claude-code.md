@@ -39,6 +39,16 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - `/resolve-review` - PRレビューコメントを取得し未解決の指摘に対応
 - `/await-ci` - CIチェックの状態確認・完了待機
 
+## Codex CLI との共用スキル
+
+以下のスキルは Codex CLI 用にも移植済み（`.codex/skills/`）。cloudwatch-logs の Python スクリプトは Claude Code 側のものを共有している。
+
+- `auto-commit` - コミットメッセージ自動生成
+- `suggest-branch` - ブランチ名提案
+- `cloudwatch-logs` - CloudWatchログ取得
+
+`allowed-tools` のフォーマットが異なるため（Claude Code: パターンリスト形式、Codex: カンマ区切り文字列）、SKILL.md はツールごとに個別管理している。
+
 ## 設定変更方法
 
 設定変更は `claude config` コマンドを使用してください。
