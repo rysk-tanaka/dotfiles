@@ -79,6 +79,7 @@ MacOS用の初期セットアップを行います。
 │       └── pull_request_template.md  # PRテンプレート
 ├── .pre-commit-config.yaml           # pre-commitフック設定
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
+├── renovate.json                     # Renovate依存関係自動更新設定
 └── docs/                             # ドキュメント
     ├── ccmanager.md                  # ccmanager導入ガイド
     ├── claude-code.md                # Claude Code設定詳細
