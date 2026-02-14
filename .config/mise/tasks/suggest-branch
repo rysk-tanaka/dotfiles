@@ -9,6 +9,11 @@ set -euo pipefail
 DOTFILES="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
 USE_CODEX="${usage_codex:-false}"
 
+if ! command -v jq &>/dev/null; then
+    echo "Error: jq command not found. Run 'mise install' to install dependencies." >&2
+    exit 1
+fi
+
 if [[ "$USE_CODEX" == "true" ]]; then
     if ! command -v codex &>/dev/null; then
         echo "Error: codex command not found" >&2
@@ -31,6 +36,8 @@ fi
 BASE_BRANCH="${usage_base_branch:-main}"
 PROMPT="Suggest a branch name. Base branch: ${BASE_BRANCH}"
 
+# --- Generate candidates via LLM ---
+
 if [[ "$USE_CODEX" == "true" ]]; then
     OUTFILE=$(mktemp)
     ERRFILE=$(mktemp)
@@ -45,20 +52,91 @@ if [[ "$USE_CODEX" == "true" ]]; then
         exit 1
     fi
     RESULT=$(cat "$OUTFILE")
-    if [[ -z "$RESULT" ]]; then
-        echo "Error: Failed to generate branch name" >&2
-        exit 1
-    fi
-    echo "$RESULT"
 else
     RESULT=$(claude -p \
         --model haiku \
         --allowedTools "Bash(git diff*)" "Bash(git status*)" "Bash(git log*)" "Bash(git branch*)" \
         --append-system-prompt "$(cat "$SKILL_PATH")" \
         "$PROMPT")
-    if [[ -z "$RESULT" ]]; then
-        echo "Error: Failed to generate branch name" >&2
-        exit 1
-    fi
-    echo "$RESULT"
 fi
+
+if [[ -z "$RESULT" ]]; then
+    echo "Error: Failed to generate candidates" >&2
+    exit 1
+fi
+
+# Extract JSON from LLM output (strip markdown fences, then parse with jq)
+STRIPPED=$(echo "$RESULT" | sed '/^```/d')
+if ! JSON=$(echo "$STRIPPED" | jq -e '.' 2>/dev/null); then
+    # Fallback: show raw output if JSON parse fails
+    echo "$RESULT"
+    exit 0
+fi
+
+CURRENT_BRANCH=$(git branch --show-current)
+COUNT=$(echo "$JSON" | jq '.candidates | length')
+
+if [[ "$COUNT" -eq 0 ]]; then
+    echo "候補が生成されませんでした。"
+    exit 1
+fi
+
+# --- Build selection menu ---
+
+# Build display lines: "name - description"
+LINES=()
+while IFS= read -r line; do
+    LINES+=("$line")
+done < <(echo "$JSON" | jq -r '.candidates[] | "\(.name) - \(.description)"')
+
+suggest_command() {
+    local name
+    name=$(printf '%q' "$1")
+    if [[ "$1" == "$CURRENT_BRANCH" ]]; then
+        echo "現在のブランチ名がそのまま適切です。"
+        return
+    fi
+    case "$CURRENT_BRANCH" in
+        ""|"$BASE_BRANCH"|main|develop|release)
+            echo "git switch -c $name" ;;
+        *)
+            echo "git branch -m $name" ;;
+    esac
+}
+
+echo ""
+
+if [[ ! -t 0 || ! -t 1 ]]; then
+    # Non-interactive: list all candidates with commands
+    for line in "${LINES[@]}"; do
+        branch="${line%% - *}"
+        echo "$line"
+        echo "  $(suggest_command "$branch")"
+        echo ""
+    done
+    exit 0
+fi
+
+SELECTED=""
+if command -v fzf &>/dev/null; then
+    SELECTED=$(printf '%s\n' "${LINES[@]}" | fzf --prompt="ブランチを選択> " --height=~10 --reverse) || exit 0
+else
+    echo "ブランチを選択してください。"
+    echo ""
+    select SELECTED in "${LINES[@]}"; do
+        if [[ -n "$SELECTED" ]]; then
+            break
+        fi
+        echo "無効な選択です。もう一度選んでください。" >&2
+    done
+fi
+
+if [[ -z "$SELECTED" ]]; then
+    exit 0
+fi
+
+# Extract branch name (before " - ")
+BRANCH_NAME="${SELECTED%% - *}"
+
+echo ""
+suggest_command "$BRANCH_NAME"

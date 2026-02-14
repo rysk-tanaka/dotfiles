@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Install fonts: `mise run setup-fonts` or `bash .config/mise/tasks/setup-fonts` (installs Bizin Gothic NF from GitHub Releases)
 - Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)
 - Auto commit: `mise run auto-commit` or `/auto-commit` in session (generates commit message from staged changes, `--codex` for Codex CLI)
-- Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name from current changes, `--codex` for Codex CLI)
+- Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name candidates with fzf selection, `--codex` for Codex CLI)
 - Create PR: `/pr` or `/pr <base-branch>` in session (creates pull request from branch changes)
 - Resolve review: `/resolve-review` or `/resolve-review <PR number>` in session (fetches and addresses PR review comments)
 - Await CI: `/await-ci` or `/await-ci <PR number>` in session (checks CI status and optionally waits for completion)
