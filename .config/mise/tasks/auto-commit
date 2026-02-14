@@ -7,6 +7,12 @@ set -euo pipefail
 
 DOTFILES="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
 USE_CODEX="${usage_codex:-false}"
+ABORT_LABEL="--- コミットを中止 ---"
+
+if ! command -v jq &>/dev/null; then
+    echo "Error: jq command not found. Run 'mise install' to install dependencies." >&2
+    exit 1
+fi
 
 if [[ "$USE_CODEX" == "true" ]]; then
     if ! command -v codex &>/dev/null; then
@@ -33,9 +39,10 @@ if [[ ! -f "$SKILL_PATH" ]]; then
     exit 1
 fi
 
-PROMPT="Generate a commit message for the staged changes. Output ONLY the commit message, nothing else."
+PROMPT="Generate commit message candidates for the staged changes. Output ONLY the JSON, nothing else."
 
-# Generate commit message
+# --- Generate candidates via LLM ---
+
 if [[ "$USE_CODEX" == "true" ]]; then
     OUTFILE=$(mktemp)
     ERRFILE=$(mktemp)
@@ -49,44 +56,124 @@ if [[ "$USE_CODEX" == "true" ]]; then
         cat "$ERRFILE" >&2
         exit 1
     fi
-    COMMIT_MSG=$(cat "$OUTFILE")
+    RESULT=$(cat "$OUTFILE")
 else
-    COMMIT_MSG=$(claude -p \
+    RESULT=$(claude -p \
         --model haiku \
         --allowedTools "Bash(git diff --cached*)" "Bash(git status*)" "Bash(git log*)" \
         --append-system-prompt "$(cat "$SKILL_PATH")" \
         "$PROMPT")
 fi
 
-# Ensure single-line message
-COMMIT_MSG=$(echo "$COMMIT_MSG" | head -1)
+if [[ -z "$RESULT" ]]; then
+    echo "Error: Failed to generate candidates" >&2
+    exit 1
+fi
+
+# Extract JSON from LLM output (strip markdown fences, then parse with jq)
+STRIPPED=$(echo "$RESULT" | sed '/^```/d')
+if ! JSON=$(echo "$STRIPPED" | jq -e '.' 2>/dev/null); then
+    echo "Error: Failed to parse JSON from LLM output" >&2
+    echo "$RESULT" | head -20 >&2
+    exit 1
+fi
+
+COUNT=$(echo "$JSON" | jq '.candidates | length')
+
+if [[ "$COUNT" -eq 0 ]]; then
+    echo "候補が生成されませんでした。" >&2
+    exit 1
+fi
+
+# --- Build selection menu ---
+
+# Build parallel arrays: MESSAGES for raw values, LINES for display
+# Use @base64 to safely handle newlines/special chars in JSON fields
+MESSAGES=()
+LINES=()
+while IFS= read -r encoded; do
+    msg=$(echo "$encoded" | base64 -d | jq -r '.message')
+    desc=$(echo "$encoded" | base64 -d | jq -r '.description')
+    MESSAGES+=("$msg")
+    LINES+=("$msg - $desc")
+done < <(echo "$JSON" | jq -r '.candidates[] | @base64')
+
+# Append abort option (LINES only)
+LINES+=("$ABORT_LABEL")
+
+echo ""
+
+if [[ ! -t 0 || ! -t 1 ]]; then
+    echo "Error: Interactive terminal required for commit message selection." >&2
+    echo "Candidates:" >&2
+    for line in "${LINES[@]}"; do
+        [[ "$line" == "$ABORT_LABEL" ]] && continue
+        echo "  $line" >&2
+    done
+    exit 1
+fi
+
+COMMIT_MSG=""
+if command -v fzf &>/dev/null; then
+    SELECTED=$(printf '%s\n' "${LINES[@]}" | fzf --prompt="コミットメッセージを選択> " --height=~10 --reverse) || exit 0
+    if [[ -z "$SELECTED" || "$SELECTED" == "$ABORT_LABEL" ]]; then
+        echo "Aborted."
+        exit 0
+    fi
+    # Look up original message by matching display line
+    for i in "${!LINES[@]}"; do
+        if [[ "${LINES[$i]}" == "$SELECTED" ]]; then
+            COMMIT_MSG="${MESSAGES[$i]}"
+            break
+        fi
+    done
+else
+    echo "コミットメッセージを選択してください。"
+    echo ""
+    SELECTED=""
+    select SELECTED in "${LINES[@]}"; do
+        if [[ -n "$SELECTED" ]]; then
+            break
+        fi
+        echo "無効な選択です。もう一度選んでください。" >&2
+    done
+    if [[ -z "$SELECTED" || "$SELECTED" == "$ABORT_LABEL" ]]; then
+        echo "Aborted."
+        exit 0
+    fi
+    # REPLY is 1-based index from select
+    COMMIT_MSG="${MESSAGES[$((REPLY - 1))]}"
+fi
 
 if [[ -z "$COMMIT_MSG" ]]; then
-    echo "Error: Failed to generate commit message" >&2
-    exit 1
+    echo "Aborted."
+    exit 0
 fi
 
+# --- Execute commit ---
+
+echo ""
 echo "Commit message: $COMMIT_MSG"
 echo ""
-read -p "Commit with this message? [y/N] " -r
-if [[ "$REPLY" =~ ^[Yy]$ ]]; then
-    # Record originally staged files for potential retry
-    STAGED_FILES=$(git diff --cached --name-only)
-    if git commit -m "$COMMIT_MSG"; then
-        :
-    else
-        echo ""
-        # Retry once: pre-commit hooks may have auto-fixed files
-        echo "Commit failed. Retrying with updated files..."
-        echo "$STAGED_FILES" | xargs git add --
-        git commit -m "$COMMIT_MSG"
-    fi
-    echo ""
-    echo "--- Result ---"
-    echo "Hash:    $(git rev-parse --short HEAD)"
-    echo "Message: $(git log -1 --format='%s')"
-    echo "Files:   $(git diff-tree --no-commit-id --name-only -r HEAD | wc -l | tr -d ' ') file(s) changed"
+
+# Record originally staged files for potential retry
+# NUL bytes are lost in command substitution, so use array via read -d ''
+STAGED_FILES=()
+while IFS= read -r -d '' file; do
+    STAGED_FILES+=("$file")
+done < <(git diff --cached --name-only -z)
+if git commit -m "$COMMIT_MSG"; then
+    :
 else
-    echo "Aborted."
-    exit 1
+    echo ""
+    # Retry once: pre-commit hooks may have auto-fixed files
+    echo "Commit failed. Retrying with updated files..."
+    git add -- "${STAGED_FILES[@]}"
+    git commit -m "$COMMIT_MSG"
 fi
+
+echo ""
+echo "--- Result ---"
+echo "Hash:    $(git rev-parse --short HEAD)"
+echo "Message: $(git log -1 --format='%s')"
+echo "Files:   $(git diff-tree --no-commit-id --name-only -r HEAD | wc -l | tr -d ' ') file(s) changed"

@@ -1,7 +1,7 @@
 [
   {
     "name": "auto-commit",
-    "description": "ステージ済みの変更からコミットメッセージを自動生成",
+    "description": "ステージ済みの変更からコミットメッセージ候補を生成し対話的に選択",
     "category": "Git ワークフロー"
   },
   {
@@ -30,7 +30,7 @@
   },
   {
     "name": "suggest-branch",
-    "description": "作業内容を分析して適切なブランチ名を提案",
+    "description": "作業内容を分析してブランチ名候補を生成し対話的に選択",
     "category": "Git ワークフロー",
     "example": "/suggest-branch develop"
   },

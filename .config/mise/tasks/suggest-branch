@@ -9,6 +9,11 @@ set -euo pipefail
 DOTFILES="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
 USE_CODEX="${usage_codex:-false}"
 
+if ! command -v jq &>/dev/null; then
+    echo "Error: jq command not found. Run 'mise install' to install dependencies." >&2
+    exit 1
+fi
+
 if [[ "$USE_CODEX" == "true" ]]; then
     if ! command -v codex &>/dev/null; then
         echo "Error: codex command not found" >&2
@@ -31,6 +36,8 @@ fi
 BASE_BRANCH="${usage_base_branch:-main}"
 PROMPT="Suggest a branch name. Base branch: ${BASE_BRANCH}"
 
+# --- Generate candidates via LLM ---
+
 if [[ "$USE_CODEX" == "true" ]]; then
     OUTFILE=$(mktemp)
     ERRFILE=$(mktemp)
@@ -45,20 +52,116 @@ if [[ "$USE_CODEX" == "true" ]]; then
         exit 1
     fi
     RESULT=$(cat "$OUTFILE")
-    if [[ -z "$RESULT" ]]; then
-        echo "Error: Failed to generate branch name" >&2
-        exit 1
-    fi
-    echo "$RESULT"
 else
     RESULT=$(claude -p \
         --model haiku \
         --allowedTools "Bash(git diff*)" "Bash(git status*)" "Bash(git log*)" "Bash(git branch*)" \
         --append-system-prompt "$(cat "$SKILL_PATH")" \
         "$PROMPT")
-    if [[ -z "$RESULT" ]]; then
-        echo "Error: Failed to generate branch name" >&2
-        exit 1
-    fi
-    echo "$RESULT"
 fi
+
+if [[ -z "$RESULT" ]]; then
+    echo "Error: Failed to generate candidates" >&2
+    exit 1
+fi
+
+# Extract JSON from LLM output (strip markdown fences, then parse with jq)
+STRIPPED=$(echo "$RESULT" | sed '/^```/d')
+if ! JSON=$(echo "$STRIPPED" | jq -e '.' 2>/dev/null); then
+    # Fallback: show raw output if JSON parse fails
+    echo "$RESULT"
+    exit 0
+fi
+
+CURRENT_BRANCH=$(git branch --show-current)
+COUNT=$(echo "$JSON" | jq '.candidates | length')
+
+if [[ "$COUNT" -eq 0 ]]; then
+    echo "候補が生成されませんでした。" >&2
+    exit 1
+fi
+
+# --- Build selection menu ---
+
+# Build parallel arrays: NAMES for raw values, LINES for display
+# Use @base64 to safely handle newlines/special chars in JSON fields
+NAMES=()
+LINES=()
+while IFS= read -r encoded; do
+    name=$(echo "$encoded" | base64 -d | jq -r '.name')
+    desc=$(echo "$encoded" | base64 -d | jq -r '.description')
+    NAMES+=("$name")
+    LINES+=("$name - $desc")
+done < <(echo "$JSON" | jq -r '.candidates[] | @base64')
+
+suggest_command() {
+    local name
+    name=$(printf '%q' "$1")
+    if [[ "$1" == "$CURRENT_BRANCH" ]]; then
+        echo "現在のブランチ名がそのまま適切です。"
+        return
+    fi
+    if [[ -z "$CURRENT_BRANCH" || "$CURRENT_BRANCH" == "$BASE_BRANCH" ]]; then
+        echo "git switch -c $name"
+        return
+    fi
+    # If current branch tracks a remote and has no local-only commits,
+    # treat as shared base branch (e.g. main, develop, release)
+    local upstream
+    upstream=$(git rev-parse --abbrev-ref "@{upstream}" 2>/dev/null) || upstream=""
+    if [[ -n "$upstream" ]] && \
+       [[ $(git rev-list --count "$upstream..$CURRENT_BRANCH" 2>/dev/null) -eq 0 ]]; then
+        echo "git switch -c $name"
+    else
+        echo "git branch -m $name"
+    fi
+}
+
+echo ""
+
+if [[ ! -t 0 || ! -t 1 ]]; then
+    # Non-interactive: list all candidates with commands
+    for i in "${!LINES[@]}"; do
+        echo "${LINES[$i]}"
+        echo "  $(suggest_command "${NAMES[$i]}")"
+        echo ""
+    done
+    exit 0
+fi
+
+BRANCH_NAME=""
+if command -v fzf &>/dev/null; then
+    SELECTED=$(printf '%s\n' "${LINES[@]}" | fzf --prompt="ブランチを選択> " --height=~10 --reverse) || exit 0
+    if [[ -z "$SELECTED" ]]; then
+        exit 0
+    fi
+    # Look up original name by matching display line
+    for i in "${!LINES[@]}"; do
+        if [[ "${LINES[$i]}" == "$SELECTED" ]]; then
+            BRANCH_NAME="${NAMES[$i]}"
+            break
+        fi
+    done
+else
+    echo "ブランチを選択してください。"
+    echo ""
+    SELECTED=""
+    select SELECTED in "${LINES[@]}"; do
+        if [[ -n "$SELECTED" ]]; then
+            break
+        fi
+        echo "無効な選択です。もう一度選んでください。" >&2
+    done
+    if [[ -z "$SELECTED" ]]; then
+        exit 0
+    fi
+    # REPLY is 1-based index from select
+    BRANCH_NAME="${NAMES[$((REPLY - 1))]}"
+fi
+
+if [[ -z "$BRANCH_NAME" ]]; then
+    exit 0
+fi
+
+echo ""
+suggest_command "$BRANCH_NAME"

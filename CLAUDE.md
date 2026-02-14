@@ -14,8 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Setup WakaTime: `mise run setup-wakatime` (generates `~/.wakatime.cfg` from 1Password)
 - Install fonts: `mise run setup-fonts` or `bash .config/mise/tasks/setup-fonts` (installs Bizin Gothic NF from GitHub Releases)
 - Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)
-- Auto commit: `mise run auto-commit` or `/auto-commit` in session (generates commit message from staged changes, `--codex` for Codex CLI)
-- Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name from current changes, `--codex` for Codex CLI)
+- Auto commit: `mise run auto-commit` or `/auto-commit` in session (generates commit message candidates with fzf selection, `--codex` for Codex CLI)
+- Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name candidates with fzf selection, `--codex` for Codex CLI)
 - Create PR: `/pr` or `/pr <base-branch>` in session (creates pull request from branch changes)
 - Resolve review: `/resolve-review` or `/resolve-review <PR number>` in session (fetches and addresses PR review comments)
 - Await CI: `/await-ci` or `/await-ci <PR number>` in session (checks CI status and optionally waits for completion)
@@ -70,8 +70,8 @@ Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/ca
 
 - `/cloudwatch-logs` - Fetch CloudWatch logs (Python script with boto3)
 - `/sync-brew` - Add apps to Brewfile with auto-categorization
-- `/auto-commit` - Generate commit message from staged changes and commit
-- `/suggest-branch` - Suggest branch name from current changes or work description
+- `/auto-commit` - Generate commit message candidates from staged changes with interactive selection (fzf/select)
+- `/suggest-branch` - Suggest branch name candidates with interactive selection (fzf/select)
 - `/pr` - Create pull request from branch changes
 - `/resolve-review` - Resolve PR review comments
 - `/await-ci` - Check CI status and wait for completion
