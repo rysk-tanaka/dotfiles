@@ -77,7 +77,7 @@ CURRENT_BRANCH=$(git branch --show-current)
 COUNT=$(echo "$JSON" | jq '.candidates | length')
 
 if [[ "$COUNT" -eq 0 ]]; then
-    echo "候補が生成されませんでした。"
+    echo "候補が生成されませんでした。" >&2
     exit 1
 fi
 
