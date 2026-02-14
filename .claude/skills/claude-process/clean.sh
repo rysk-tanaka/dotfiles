@@ -16,7 +16,7 @@ if ! init_session_protection; then
     error_exit "親プロセスIDの取得に失敗しました"
 fi
 
-echo "現在のセッション PID: $CURRENT_PID (保護対象)"
+echo "保護対象 PID: ${PROTECTED_PIDS[*]}"
 
 # 全Claude Codeプロセスを取得
 claude_pids=$(get_claude_processes)

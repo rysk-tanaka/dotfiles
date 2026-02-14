@@ -24,7 +24,8 @@ monitor_claude_processes() {
     fi
 
     # プロセス情報を一度だけ取得（パフォーマンス最適化）
-    claude_processes=$(ps -o pid,ppid,pcpu,pmem,vsz,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
+    # rss: 実メモリ使用量（KB）。vsz は仮想メモリで実態と乖離するため使用しない
+    claude_processes=$(ps -o pid,ppid,pcpu,pmem,rss,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
 
     if [ -z "$claude_processes" ]; then
         echo "$(date '+%H:%M:%S') | プロセス数: 0 | 高CPU: 0 | メモリ: 0MB"
@@ -33,8 +34,8 @@ monitor_claude_processes() {
     fi
 
     # 統計計算（より堅牢なカウント手法）
-    process_count=$(echo "$claude_processes" | grep -c '^[[:space:]]*[0-9]' || echo "0")
-    high_cpu_count=$(echo "$claude_processes" | awk '$3 > 80' | grep -c '^[[:space:]]*[0-9]' || echo "0")
+    process_count=$(echo "$claude_processes" | grep -c '^[[:space:]]*[0-9]' || true)
+    high_cpu_count=$(echo "$claude_processes" | awk '$3 > 80' | grep -c '^[[:space:]]*[0-9]' || true)
     total_mem=$(echo "$claude_processes" | awk '{sum += $5} END {printf "%.0f", sum/1024}')
 
     # メモリが計算できない場合の対処
@@ -75,6 +76,7 @@ monitor_claude_processes() {
         fi
 
         # 高CPU使用率プロセスを強制終了
+        # 自動監視のため段階的終了ではなく即座に SIGKILL を使用
         high_cpu_pids=$(echo "$claude_processes" | awk '$3 > 80 {print $1}')
         for pid in $high_cpu_pids; do
             if ! is_protected_pid "$pid"; then
@@ -173,5 +175,5 @@ if [ "$WATCH_MODE" = true ]; then
   done
 else
   echo -e "\n✅ 監視完了"
-  echo "継続監視が必要な場合: bash /Users/rysk/.claude/skills/claude-process/monitor.sh --watch"
+  echo "継続監視が必要な場合: bash $SCRIPT_DIR/monitor.sh --watch"
 fi

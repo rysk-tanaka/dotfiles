@@ -2,10 +2,12 @@
 
 # Common functions for Claude Code process management scripts
 
-# Claude Code プロセスを取得（Claude Desktop を除外）
-# -x: プロセス名の完全一致（Claude Desktop の "Claude" や "Claude Helper" にはマッチしない）
+# Claude Code プロセスの PID を取得（Claude Desktop を除外）
+# macOS の pgrep -x は UCOMM（実バイナリ名）を参照するため、npm 版 Claude Code
+# （UCOMM=node）を検出できない。ps の COMM フィールド（argv[0] ベースネーム）なら
+# "claude" と完全一致し、Claude Desktop（/Applications/Cl...）とは区別できる。
 get_claude_processes() {
-    pgrep -x "claude" 2>/dev/null || true
+    ps -eo pid,comm 2>/dev/null | awk '$2 == "claude" {print $1}' || true
 }
 
 # エラーハンドリング関数
@@ -14,19 +16,40 @@ error_exit() {
     exit 1
 }
 
-# セッション保護用の PID を取得
-# グローバル変数 CURRENT_PID, CURRENT_PPID を設定する
+# セッション保護用の PID リストを構築
+# スクリプトの PID から祖先プロセスを辿り、保護対象をグローバル配列
+# PROTECTED_PIDS に格納する。Claude Code から呼ばれた場合、プロセスツリー上の
+# Claude Code 本体も保護される。
 # 失敗時は非ゼロを返す（呼び出し元で処理を決定）
 init_session_protection() {
-    CURRENT_PID=$$
-    CURRENT_PPID=$(ps -o ppid= -p "$CURRENT_PID" 2>/dev/null | tr -d ' ')
-    if [ -z "$CURRENT_PPID" ]; then
+    PROTECTED_PIDS=()
+    local pid=$$
+    local max_depth=10
+    local depth=0
+
+    while [ "$pid" -gt 1 ] && [ "$depth" -lt "$max_depth" ]; do
+        PROTECTED_PIDS+=("$pid")
+        pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+        if [ -z "$pid" ]; then
+            break
+        fi
+        depth=$((depth + 1))
+    done
+
+    if [ "${#PROTECTED_PIDS[@]}" -lt 2 ]; then
         return 1
     fi
+
 }
 
 # 指定 PID が保護対象かどうか判定
 is_protected_pid() {
     local pid="$1"
-    [ "$pid" = "$CURRENT_PID" ] || [ "$pid" = "$CURRENT_PPID" ]
+    local protected
+    for protected in "${PROTECTED_PIDS[@]}"; do
+        if [ "$pid" = "$protected" ]; then
+            return 0
+        fi
+    done
+    return 1
 }
