@@ -66,7 +66,14 @@ Located in `.claude/commands/`:
 
 ### Claude Code Custom Skills
 
-Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/catalog.json` for the `/skills` command. When adding or updating skills, update catalog.json as well. Skills with shell scripts also require adding their execution patterns to `.claude/settings.json` `permissions.allow` (e.g., `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`).
+Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/catalog.json` for the `/skills` command. When adding or updating skills, update catalog.json as well. Skills with shell scripts require permission entries in two places with different pattern formats.
+
+- `.claude/settings.json` `permissions.allow` → colon format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`
+- SKILL.md `allowed-tools` → space format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script> *)`
+
+Note: These use different pattern engines. The `~` home directory shorthand is not expanded in `allowed-tools` patterns (claude-code#14956), so absolute paths are required.
+
+Skills that also run as mise tasks (auto-commit, suggest-branch) use the collect.sh pattern: a shell script pre-collects git data as JSON, which is passed to the LLM in a single API call via `<git-data>` tags. The SKILL.md includes a fallback to run collect.sh when data is not provided in the prompt.
 
 - `/cloudwatch-logs` - Fetch CloudWatch logs (Python script with boto3)
 - `/sync-brew` - Add apps to Brewfile with auto-categorization
@@ -88,6 +95,11 @@ When running `mise run setup-links` in other projects, the following are symlink
 
 Symlinks are tracked in `~/.config/mise/linked-repos/` for bulk management.
 
+## GitHub Actions
+
+- `claude-code-review.yml` - Automated PR review using Claude Code
+- `claude.yml` - Responds to @claude mentions in issues/PRs
+
 ## mise Tasks
 
 File-based tasks are located in `.config/mise/tasks/`:
@@ -98,6 +110,8 @@ File-based tasks are located in `.config/mise/tasks/`:
 - `setup-wakatime` - Generate WakaTime config from 1Password
 - `setup-fonts` - Install Bizin Gothic NF from GitHub Releases
 - `scan-brew` - Show differences between installed packages and Brewfile
+- `auto-commit` - Generate commit message candidates (also available as `/auto-commit` skill)
+- `suggest-branch` - Suggest branch name candidates (also available as `/suggest-branch` skill)
 
 ## Zsh Aliases
 
