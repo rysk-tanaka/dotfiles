@@ -45,11 +45,11 @@ DIFF=$(git diff --cached -- "${LOCK_EXCLUDES[@]}" ${LARGE_FILE_EXCLUDES[@]+"${LA
 WORK_DIR=$(mktemp -d)
 trap 'rm -rf "$WORK_DIR"' EXIT
 
-echo "$STAGED_FILES" > "$WORK_DIR/staged_files"
-echo "$LOG" > "$WORK_DIR/log"
-echo "$STAT" > "$WORK_DIR/stat"
-echo "$DIFF" > "$WORK_DIR/diff"
-echo "$EXCLUDED_LARGE_FILES" > "$WORK_DIR/excluded_large_files"
+printf '%s' "$STAGED_FILES" > "$WORK_DIR/staged_files"
+printf '%s' "$LOG" > "$WORK_DIR/log"
+printf '%s' "$STAT" > "$WORK_DIR/stat"
+printf '%s' "$DIFF" > "$WORK_DIR/diff"
+printf '%s' "$EXCLUDED_LARGE_FILES" > "$WORK_DIR/excluded_large_files"
 
 jq -n \
     --rawfile staged_files "$WORK_DIR/staged_files" \

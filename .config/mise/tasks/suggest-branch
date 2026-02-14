@@ -68,10 +68,9 @@ if [[ "$USE_CODEX" == "true" ]]; then
     fi
     RESULT=$(cat "$OUTFILE")
 else
-    RESULT=$(claude -p \
+    RESULT=$(printf '%s' "$PROMPT" | claude -p \
         --model haiku \
-        --append-system-prompt "$(cat "$SKILL_PATH")" \
-        "$PROMPT")
+        --append-system-prompt "$(cat "$SKILL_PATH")")
 fi
 
 if [[ -z "$RESULT" ]]; then

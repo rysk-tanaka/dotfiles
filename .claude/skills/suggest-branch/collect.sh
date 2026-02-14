@@ -22,10 +22,11 @@ REMOTE_BRANCHES=$(git branch -r --format='%(refname:short)' 2>/dev/null | head -
 WORK_DIR=$(mktemp -d)
 trap 'rm -rf "$WORK_DIR"' EXIT
 
-echo "$CURRENT_BRANCH" > "$WORK_DIR/current_branch"
-echo "$STATUS" > "$WORK_DIR/status"
-echo "$COMMIT_LOG" > "$WORK_DIR/commit_log"
-echo "$REMOTE_BRANCHES" > "$WORK_DIR/remote_branches"
+# Use printf '%s' to avoid implicit trailing newline on empty values
+printf '%s' "$CURRENT_BRANCH" > "$WORK_DIR/current_branch"
+printf '%s' "$STATUS" > "$WORK_DIR/status"
+printf '%s' "$COMMIT_LOG" > "$WORK_DIR/commit_log"
+printf '%s' "$REMOTE_BRANCHES" > "$WORK_DIR/remote_branches"
 
 jq -n \
     --arg base_branch "$BASE_BRANCH" \
