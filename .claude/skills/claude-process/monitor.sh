@@ -6,19 +6,11 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=common.sh
+source "$SCRIPT_DIR/common.sh"
+
 echo "=== Claude Code プロセス監視開始 ==="
-
-# Claude Codeプロセスをより精密に取得
-get_claude_processes() {
-    # より具体的なパターンでClaude Codeプロセスを特定
-    pgrep -f "(claude.*code|claude_code)" 2>/dev/null || true
-}
-
-# エラーハンドリング関数
-error_exit() {
-    echo "エラー: $1" >&2
-    exit 1
-}
 
 # 監視関数
 monitor_claude_processes() {
@@ -32,7 +24,8 @@ monitor_claude_processes() {
     fi
 
     # プロセス情報を一度だけ取得（パフォーマンス最適化）
-    claude_processes=$(ps -o pid,ppid,pcpu,pmem,vsz,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
+    # rss: 実メモリ使用量（KB）。vsz は仮想メモリで実態と乖離するため使用しない
+    claude_processes=$(ps -o pid,ppid,pcpu,pmem,rss,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
 
     if [ -z "$claude_processes" ]; then
         echo "$(date '+%H:%M:%S') | プロセス数: 0 | 高CPU: 0 | メモリ: 0MB"
@@ -41,8 +34,8 @@ monitor_claude_processes() {
     fi
 
     # 統計計算（より堅牢なカウント手法）
-    process_count=$(echo "$claude_processes" | grep -c '^[[:space:]]*[0-9]' || echo "0")
-    high_cpu_count=$(echo "$claude_processes" | awk '$3 > 80' | grep -c '^[[:space:]]*[0-9]' || echo "0")
+    process_count=$(echo "$claude_processes" | grep -c '^[[:space:]]*[0-9]' || true)
+    high_cpu_count=$(echo "$claude_processes" | awk '$3 > 80' | grep -c '^[[:space:]]*[0-9]' || true)
     total_mem=$(echo "$claude_processes" | awk '{sum += $5} END {printf "%.0f", sum/1024}')
 
     # メモリが計算できない場合の対処
@@ -77,18 +70,16 @@ monitor_claude_processes() {
         echo "🔧 自動クリーンアップを実行します..."
 
         # 現在のプロセス保護
-        current_pid=$$
-        current_ppid=$(ps -o ppid= -p $current_pid 2>/dev/null | tr -d ' ')
-
-        if [ -z "$current_ppid" ]; then
+        if ! init_session_protection; then
             echo "⚠️ 親プロセスIDの取得に失敗、クリーンアップをスキップします"
             return 1
         fi
 
         # 高CPU使用率プロセスを強制終了
+        # 自動監視のため段階的終了ではなく即座に SIGKILL を使用
         high_cpu_pids=$(echo "$claude_processes" | awk '$3 > 80 {print $1}')
         for pid in $high_cpu_pids; do
-            if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
+            if ! is_protected_pid "$pid"; then
                 echo "高CPU使用率プロセス PID:$pid を強制終了"
                 if kill -9 "$pid" 2>/dev/null; then
                     echo "✅ PID:$pid を強制終了しました"
@@ -107,7 +98,7 @@ monitor_claude_processes() {
                 old_pids=$(echo "$claude_pids" | head -n "$terminate_count")
                 if [ -n "$old_pids" ]; then
                     for pid in $old_pids; do
-                        if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
+                        if ! is_protected_pid "$pid"; then
                             echo "古いプロセス PID:$pid を終了"
                             if kill "$pid" 2>/dev/null; then
                                 sleep 0.2
@@ -184,5 +175,5 @@ if [ "$WATCH_MODE" = true ]; then
   done
 else
   echo -e "\n✅ 監視完了"
-  echo "継続監視が必要な場合: bash ~/.claude/scripts/claude-monitor.sh --watch"
+  echo "継続監視が必要な場合: bash $SCRIPT_DIR/monitor.sh --watch"
 fi

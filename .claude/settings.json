@@ -31,7 +31,10 @@
       "Bash(bash /Users/rysk/.claude/skills/auto-commit/collect.sh:*)",
       "Bash(bash /Users/rysk/.claude/skills/pr/collect.sh:*)",
       "Bash(bash /Users/rysk/.claude/skills/resolve-review/fetch.sh:*)",
-      "Bash(bash /Users/rysk/.claude/skills/suggest-branch/collect.sh:*)"
+      "Bash(bash /Users/rysk/.claude/skills/suggest-branch/collect.sh:*)",
+      "Bash(bash /Users/rysk/.claude/skills/claude-process/check.sh:*)",
+      "Bash(bash /Users/rysk/.claude/skills/claude-process/clean.sh:*)",
+      "Bash(bash /Users/rysk/.claude/skills/claude-process/monitor.sh:*)"
     ],
     "deny": [
       "Bash(git add -A:*)",

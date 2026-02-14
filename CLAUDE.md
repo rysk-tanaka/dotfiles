@@ -42,7 +42,7 @@ This is a dotfiles repository that manages macOS configuration files through sym
 - Prompt: Starship (`~/.config/starship.toml`)
 - Package Management: Homebrew (`Brewfile` - CLI tools, desktop apps, fonts)
 - Tool Management: mise (`~/.config/mise/config.toml`)
-- Claude Code: Global settings, commands, skills, scripts (all symlinked from this repo to `~/.claude/`)
+- Claude Code: Global settings, commands, skills (all symlinked from this repo to `~/.claude/`)
 - Codex CLI: User config (`~/.codex/config.toml`), skills (`~/.codex/skills/`), global instructions (`~/.codex/AGENTS.md` → `~/.claude/CLAUDE.md` symlink)
 - ccmanager: Session management (`~/.config/ccmanager/config.json`)
 
@@ -62,7 +62,6 @@ Located in `.claude/commands/`:
 - `/permalink` - Generate GitHub permalink
 - `/uv-init` - Initialize Python project with uv
 - `/skills` - List available skills
-- `/claude-check`, `/claude-monitor`, `/claude-clean` - Process management
 
 ### Claude Code Custom Skills
 
@@ -82,6 +81,7 @@ Skills that also run as mise tasks (auto-commit, suggest-branch) use the collect
 - `/pr` - Create pull request from branch changes
 - `/resolve-review` - Resolve PR review comments
 - `/await-ci` - Check CI status and wait for completion
+- `/claude-process` - Process status check, cleanup, and monitoring (subcommands: check, clean, monitor)
 
 ## Project Integration
 

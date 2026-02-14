@@ -5,11 +5,9 @@
 
 set -euo pipefail
 
-# Claude Codeプロセスをより精密に取得
-get_claude_processes() {
-    # より具体的なパターンでClaude Codeプロセスを特定
-    pgrep -f "(claude.*code|claude_code)" 2>/dev/null || true
-}
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=common.sh
+source "$SCRIPT_DIR/common.sh"
 
 echo "=== Claude Code プロセス一覧 ==="
 
@@ -22,7 +20,8 @@ if [ -z "$claude_pids" ]; then
 fi
 
 # プロセス情報を一度だけ取得（パフォーマンス最適化）
-claude_processes=$(ps -o pid,ppid,pcpu,pmem,vsz,etime,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
+# rss: 実メモリ使用量（KB）。vsz は仮想メモリで実態と乖離するため使用しない
+claude_processes=$(ps -o pid,ppid,pcpu,pmem,rss,etime,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
 
 if [ -z "$claude_processes" ]; then
     echo "Claude Code プロセス情報の取得に失敗しました"
@@ -49,12 +48,12 @@ echo "Total Memory: ${total_mem} MB"
 
 echo -e "\n=== プロセス数 ==="
 # より堅牢なプロセス数カウント（空行を除外）
-process_count=$(echo "$claude_processes" | grep -c '^[[:space:]]*[0-9]' || echo "0")
+process_count=$(echo "$claude_processes" | grep -c '^[[:space:]]*[0-9]' || true)
 echo "Total Processes: $process_count"
 
 if [ "$process_count" -gt 5 ]; then
     echo -e "\n⚠️  警告: Claude Codeプロセスが多数実行中です（$process_count個）"
-    echo "不要なプロセスのクリーンアップを検討してください: /claude-clean"
+    echo "不要なプロセスのクリーンアップを検討してください: /claude-process clean"
 fi
 
 # CPU使用率が50%以上のプロセスをチェック

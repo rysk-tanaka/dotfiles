@@ -29,9 +29,6 @@ MacOS用の初期セットアップを行います。
 │   ├── commands/                     # カスタムコマンド
 │   │   ├── permalink.md              # パーマリンクコマンド
 │   │   ├── uv-init.md                # Pythonプロジェクト初期化
-│   │   ├── claude-check.md           # プロセス状況確認
-│   │   ├── claude-monitor.md         # プロセス監視
-│   │   ├── claude-clean.md           # プロセスクリーンアップ
 │   │   └── skills.md                 # スキル一覧表示
 │   ├── skills/                       # カスタムスキル
 │   │   ├── catalog.json              # スキルメタデータ（/skills コマンド用）
@@ -51,12 +48,13 @@ MacOS用の初期セットアップを行います。
 │   │   ├── resolve-review/           # PRレビュー指摘対応
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   └── fetch.sh              # レビューデータ取得スクリプト
-│   │   └── suggest-branch/           # ブランチ名提案
-│   │       └── SKILL.md              # スキル定義
-│   └── scripts/                      # スクリプトファイル
-│       ├── claude-check.sh           # プロセス状況確認スクリプト
-│       ├── claude-monitor.sh         # プロセス監視スクリプト
-│       └── claude-clean.sh           # プロセスクリーンアップスクリプト
+│   │   ├── suggest-branch/           # ブランチ名提案
+│   │   │   └── SKILL.md              # スキル定義
+│   │   └── claude-process/           # プロセス状況確認・クリーンアップ・監視
+│   │       ├── SKILL.md              # スキル定義
+│   │       ├── check.sh              # プロセス状況確認スクリプト
+│   │       ├── clean.sh              # プロセスクリーンアップスクリプト
+│   │       └── monitor.sh            # プロセス監視スクリプト
 ├── .config/                          # 各種アプリケーション設定
 │   ├── ccmanager/                    # ccmanagerセッション管理
 │   │   └── config.json               # ccmanager設定
@@ -138,7 +136,6 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.claude/CLAUDE.md ~/.claude/CLAUDE.md
     ln -sf ~/Repositories/rysk/dotfiles/.claude/commands ~/.claude/commands
     ln -sf ~/Repositories/rysk/dotfiles/.claude/skills ~/.claude/skills
-    ln -sf ~/Repositories/rysk/dotfiles/.claude/scripts ~/.claude/scripts
     ln -sf ~/Repositories/rysk/dotfiles/.config/ccmanager/config.json ~/.config/ccmanager/config.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/ghostty/config ~/.config/ghostty/config
     ln -sf ~/Repositories/rysk/dotfiles/.config/git/ignore ~/.config/git/ignore
