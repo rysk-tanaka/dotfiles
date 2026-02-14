@@ -70,13 +70,15 @@ echo "Commit message: $COMMIT_MSG"
 echo ""
 read -p "Commit with this message? [y/N] " -r
 if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+    # Record originally staged files for potential retry
+    STAGED_FILES=$(git diff --cached --name-only)
     if git commit -m "$COMMIT_MSG"; then
         :
     else
         echo ""
         # Retry once: pre-commit hooks may have auto-fixed files
         echo "Commit failed. Retrying with updated files..."
-        git add -u
+        echo "$STAGED_FILES" | xargs git add --
         git commit -m "$COMMIT_MSG"
     fi
     echo ""
