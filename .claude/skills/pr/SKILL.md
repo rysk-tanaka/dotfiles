@@ -87,3 +87,13 @@ gh pr create --base <base-branch> --title "<タイトル>" --body "<本文>"
 ### 6. 結果の報告
 
 作成されたPRのURLを表示する。
+
+### 7. 次のアクションのサジェスト
+
+PR作成後、PRのURLからPR番号を抽出し、以下の次のアクションを提示する。
+
+```text
+次のアクション
+- /await-ci <PR番号> --watch  CI の完了を待機
+- /resolve-review <PR番号>    レビュー指摘を確認・対応
+```
