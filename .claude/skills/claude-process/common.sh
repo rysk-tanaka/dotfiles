@@ -3,11 +3,18 @@
 # Common functions for Claude Code process management scripts
 
 # Claude Code プロセスの PID を取得（Claude Desktop を除外）
-# macOS の pgrep -x は UCOMM（実バイナリ名）を参照するため、npm 版 Claude Code
-# （UCOMM=node）を検出できない。ps の COMM フィールド（argv[0] ベースネーム）なら
-# "claude"/"claude_code" と完全一致し、Claude Desktop（/Applications/Cl...）とは区別できる。
+# 2段階で検出する。
+#   1. comm 完全一致: argv[0] が "claude" or "claude_code" のプロセス
+#   2. comm が "node" かつ args に "claude-code" or "claude_code" を含むプロセス
+#      （npm/node 環境で comm が "node" になるケース向け）
+# comm を "node" に限定する理由: args パターンマッチだけでは、ps/awk/bash 等の
+# プロセスが自身のコマンドライン引数にパターン文字列を含んで誤検出されるため。
+# Claude Desktop は全プロセスの args に /Applications/Claude.app を含むため除外できる。
 get_claude_processes() {
-    ps -eo pid,comm 2>/dev/null | awk '$2 == "claude" || $2 == "claude_code" {print $1}' || true
+    ps -eo pid,comm,args 2>/dev/null | awk '
+        $2 == "claude" || $2 == "claude_code" { print $1; next }
+        $2 == "node" && /claude[-_]code/ && !/\/Applications\/Claude\.app/ { print $1 }
+    ' || true
 }
 
 # エラーハンドリング関数
