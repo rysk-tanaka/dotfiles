@@ -6,19 +6,11 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=common.sh
+source "$SCRIPT_DIR/common.sh"
+
 echo "=== Claude Code プロセス監視開始 ==="
-
-# Claude Code プロセスを取得（Claude Desktop を除外）
-# -x: プロセス名の完全一致（Claude Desktop の "Claude" や "Claude Helper" にはマッチしない）
-get_claude_processes() {
-    pgrep -x "claude" 2>/dev/null || true
-}
-
-# エラーハンドリング関数
-error_exit() {
-    echo "エラー: $1" >&2
-    exit 1
-}
 
 # 監視関数
 monitor_claude_processes() {
@@ -77,10 +69,7 @@ monitor_claude_processes() {
         echo "🔧 自動クリーンアップを実行します..."
 
         # 現在のプロセス保護
-        current_pid=$$
-        current_ppid=$(ps -o ppid= -p $current_pid 2>/dev/null | tr -d ' ')
-
-        if [ -z "$current_ppid" ]; then
+        if ! init_session_protection; then
             echo "⚠️ 親プロセスIDの取得に失敗、クリーンアップをスキップします"
             return 1
         fi
@@ -88,7 +77,7 @@ monitor_claude_processes() {
         # 高CPU使用率プロセスを強制終了
         high_cpu_pids=$(echo "$claude_processes" | awk '$3 > 80 {print $1}')
         for pid in $high_cpu_pids; do
-            if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
+            if ! is_protected_pid "$pid"; then
                 echo "高CPU使用率プロセス PID:$pid を強制終了"
                 if kill -9 "$pid" 2>/dev/null; then
                     echo "✅ PID:$pid を強制終了しました"
@@ -107,7 +96,7 @@ monitor_claude_processes() {
                 old_pids=$(echo "$claude_pids" | head -n "$terminate_count")
                 if [ -n "$old_pids" ]; then
                     for pid in $old_pids; do
-                        if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
+                        if ! is_protected_pid "$pid"; then
                             echo "古いプロセス PID:$pid を終了"
                             if kill "$pid" 2>/dev/null; then
                                 sleep 0.2

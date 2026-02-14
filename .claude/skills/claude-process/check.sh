@@ -5,11 +5,9 @@
 
 set -euo pipefail
 
-# Claude Code プロセスを取得（Claude Desktop を除外）
-# -x: プロセス名の完全一致（Claude Desktop の "Claude" や "Claude Helper" にはマッチしない）
-get_claude_processes() {
-    pgrep -x "claude" 2>/dev/null || true
-}
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=common.sh
+source "$SCRIPT_DIR/common.sh"
 
 echo "=== Claude Code プロセス一覧 ==="
 

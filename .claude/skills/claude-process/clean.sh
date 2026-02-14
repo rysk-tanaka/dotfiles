@@ -5,29 +5,18 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=common.sh
+source "$SCRIPT_DIR/common.sh"
+
 echo "=== Claude Code プロセスクリーンアップ開始 ==="
 
-# エラーハンドリング関数
-error_exit() {
-    echo "エラー: $1" >&2
-    exit 1
-}
-
 # 現在のプロセスPIDを取得（このセッションを保護）
-current_pid=$$
-current_ppid=$(ps -o ppid= -p $current_pid 2>/dev/null | tr -d ' ')
-
-if [ -z "$current_ppid" ]; then
+if ! init_session_protection; then
     error_exit "親プロセスIDの取得に失敗しました"
 fi
 
-echo "現在のセッション PID: $current_pid (保護対象)"
-
-# Claude Code プロセスを取得（Claude Desktop を除外）
-# -x: プロセス名の完全一致（Claude Desktop の "Claude" や "Claude Helper" にはマッチしない）
-get_claude_processes() {
-    pgrep -x "claude" 2>/dev/null || true
-}
+echo "現在のセッション PID: $CURRENT_PID (保護対象)"
 
 # 全Claude Codeプロセスを取得
 claude_pids=$(get_claude_processes)
@@ -53,7 +42,7 @@ echo -e "\n=== 高CPU使用率プロセスの終了 ==="
 high_cpu_pids=$(echo "$claude_process_info" | awk '$3 > 50 {print $1}')
 
 for pid in $high_cpu_pids; do
-    if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
+    if ! is_protected_pid "$pid"; then
         cpu_usage=$(echo "$claude_process_info" | awk -v p="$pid" '$1 == p {print $3}')
         if [ -n "$cpu_usage" ]; then
             echo "高CPU使用率プロセス PID:$pid (${cpu_usage}%) を強制終了中..."
@@ -73,7 +62,7 @@ current_epoch=$(date +%s)
 twenty_four_hours_ago=$((current_epoch - 86400))
 
 for pid in $claude_pids; do
-    if [ "$pid" != "$current_pid" ] && [ "$pid" != "$current_ppid" ]; then
+    if ! is_protected_pid "$pid"; then
         # プロセスの開始時間を取得（エポック秒）
         start_time=$(ps -o lstart= -p "$pid" 2>/dev/null)
         if [ -n "$start_time" ]; then
