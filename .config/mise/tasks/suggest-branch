@@ -83,11 +83,16 @@ fi
 
 # --- Build selection menu ---
 
-# Build display lines: "name - description"
+# Build parallel arrays: NAMES for raw values, LINES for display
+# Use @base64 to safely handle newlines/special chars in JSON fields
+NAMES=()
 LINES=()
-while IFS= read -r line; do
-    LINES+=("$line")
-done < <(echo "$JSON" | jq -r '.candidates[] | "\(.name) - \(.description)"')
+while IFS= read -r encoded; do
+    name=$(echo "$encoded" | base64 -d | jq -r '.name')
+    desc=$(echo "$encoded" | base64 -d | jq -r '.description')
+    NAMES+=("$name")
+    LINES+=("$name - $desc")
+done < <(echo "$JSON" | jq -r '.candidates[] | @base64')
 
 suggest_command() {
     local name
@@ -108,35 +113,47 @@ echo ""
 
 if [[ ! -t 0 || ! -t 1 ]]; then
     # Non-interactive: list all candidates with commands
-    for line in "${LINES[@]}"; do
-        branch="${line%% - *}"
-        echo "$line"
-        echo "  $(suggest_command "$branch")"
+    for i in "${!LINES[@]}"; do
+        echo "${LINES[$i]}"
+        echo "  $(suggest_command "${NAMES[$i]}")"
         echo ""
     done
     exit 0
 fi
 
-SELECTED=""
+BRANCH_NAME=""
 if command -v fzf &>/dev/null; then
     SELECTED=$(printf '%s\n' "${LINES[@]}" | fzf --prompt="ブランチを選択> " --height=~10 --reverse) || exit 0
+    if [[ -z "$SELECTED" ]]; then
+        exit 0
+    fi
+    # Look up original name by matching display line
+    for i in "${!LINES[@]}"; do
+        if [[ "${LINES[$i]}" == "$SELECTED" ]]; then
+            BRANCH_NAME="${NAMES[$i]}"
+            break
+        fi
+    done
 else
     echo "ブランチを選択してください。"
     echo ""
+    SELECTED=""
     select SELECTED in "${LINES[@]}"; do
         if [[ -n "$SELECTED" ]]; then
             break
         fi
         echo "無効な選択です。もう一度選んでください。" >&2
     done
+    if [[ -z "$SELECTED" ]]; then
+        exit 0
+    fi
+    # REPLY is 1-based index from select
+    BRANCH_NAME="${NAMES[$((REPLY - 1))]}"
 fi
 
-if [[ -z "$SELECTED" ]]; then
+if [[ -z "$BRANCH_NAME" ]]; then
     exit 0
 fi
-
-# Extract branch name (before " - ")
-BRANCH_NAME="${SELECTED%% - *}"
 
 echo ""
 suggest_command "$BRANCH_NAME"

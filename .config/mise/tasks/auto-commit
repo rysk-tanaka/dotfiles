@@ -88,12 +88,15 @@ fi
 # --- Build selection menu ---
 
 # Build parallel arrays: MESSAGES for raw values, LINES for display
+# Use @base64 to safely handle newlines/special chars in JSON fields
 MESSAGES=()
 LINES=()
-while IFS=$'\t' read -r msg desc; do
+while IFS= read -r encoded; do
+    msg=$(echo "$encoded" | base64 -d | jq -r '.message')
+    desc=$(echo "$encoded" | base64 -d | jq -r '.description')
     MESSAGES+=("$msg")
     LINES+=("$msg - $desc")
-done < <(echo "$JSON" | jq -r '.candidates[] | "\(.message)\t\(.description)"')
+done < <(echo "$JSON" | jq -r '.candidates[] | @base64')
 
 # Append abort option (LINES only)
 LINES+=("$ABORT_LABEL")
