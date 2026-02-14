@@ -34,9 +34,10 @@ allowed-tools: "Bash"
   - `git diff --cached -- . ':!*lock*'` のように pathspec で除外
 - stat の結果で特定のファイルの変更行数が500行を超えている場合、そのファイルは stat の要約のみで判断し、詳細 diff からは除外する
 
-### 4. コミットメッセージの生成
+### 4. コミットメッセージ候補の生成
 
-以下のルールに従ってコミットメッセージを生成する。
+以下のルールに従って、2-4個のコミットメッセージ候補を生成する。
+各候補はニュアンスや着眼点を変えて、異なる表現を提示する。
 
 #### 形式
 
@@ -69,8 +70,21 @@ type(scope): description
 - 命令形で記述（add, update, fix 等）
 - 簡潔に（50文字以内を目安）
 
-### 5. 結果の出力
+### 5. JSON出力
 
-生成したコミットメッセージのみを出力する。余計な説明や装飾は付けず、メッセージ本文だけを1行で出力する。
+候補を以下のJSON形式で出力する。JSON以外のテキスト（説明文など）は一切出力しない。
+
+- `candidates` - 候補の配列
+  - `message` - コミットメッセージ本文
+  - `description` - 候補の意図・ニュアンスの違い（日本語）
+
+```json
+{
+  "candidates": [
+    {"message": "fix(auth): handle expired token refresh", "description": "トークン更新処理の修正に着目"},
+    {"message": "fix(auth): add token expiry handling", "description": "期限切れハンドリングの追加として表現"}
+  ]
+}
+```
 
 メッセージに AI ツールの署名やCo-Authored-By は含めない。
