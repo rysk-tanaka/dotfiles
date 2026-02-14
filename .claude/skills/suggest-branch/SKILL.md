@@ -3,7 +3,8 @@ name: suggest-branch
 description: 作業内容を分析して適切なブランチ名を提案 (user)
 allowed-tools:
   # ~ is not expanded in allowed-tools patterns (claude-code#14956)
-  - Bash(bash /Users/rysk/.claude/skills/suggest-branch/collect.sh*)
+  # Use space-based pattern (not colon :*); SKILL.md uses a different engine from settings.json
+  - Bash(bash /Users/rysk/.claude/skills/suggest-branch/collect.sh *)
 ---
 
 # ブランチ名提案

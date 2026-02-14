@@ -3,7 +3,8 @@ name: auto-commit
 description: ステージ済みの変更からコミットメッセージを自動生成 (user)
 allowed-tools:
   # ~ is not expanded in allowed-tools patterns (claude-code#14956)
-  - Bash(bash /Users/rysk/.claude/skills/auto-commit/collect.sh*)
+  # Use space-based pattern (not colon :*); SKILL.md uses a different engine from settings.json
+  - Bash(bash /Users/rysk/.claude/skills/auto-commit/collect.sh *)
 ---
 
 # コミットメッセージ自動生成
