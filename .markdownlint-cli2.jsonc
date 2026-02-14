@@ -4,5 +4,8 @@
     "MD013": false,
     "MD033": false,
     "MD162": false
-  }
+  },
+  "ignores": [
+    ".codex/skills/**"
+  ]
 }
