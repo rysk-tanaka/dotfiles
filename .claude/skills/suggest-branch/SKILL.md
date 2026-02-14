@@ -2,10 +2,9 @@
 name: suggest-branch
 description: 作業内容を分析して適切なブランチ名を提案 (user)
 allowed-tools:
-  - Bash(git diff*)
-  - Bash(git status*)
-  - Bash(git log*)
-  - Bash(git branch*)
+  # ~ is not expanded in allowed-tools patterns (claude-code#14956)
+  # Use space-based pattern (not colon :*); SKILL.md uses a different engine from settings.json
+  - Bash(bash /Users/rysk/.claude/skills/suggest-branch/collect.sh *)
 ---
 
 # ブランチ名提案
@@ -18,26 +17,22 @@ allowed-tools:
 
 ## 手順
 
-### 1. ベースブランチの決定
+### 1. データ取得
 
-- `$ARGUMENTS` が指定されている場合はそれをベースブランチとする
-- 未指定の場合は `main` をベースブランチとする
+プロンプトに `<git-data>` タグでデータが提供されている場合はそれを使用する。
+提供されていない場合は `bash /Users/rysk/.claude/skills/suggest-branch/collect.sh $ARGUMENTS` を実行してデータを取得する（引数にベースブランチを渡す。省略時は main）。
 
-### 2. 現在の状態を確認
+### 2. データの読み取り
 
-`git status` と `git branch --show-current` を実行し、現在のブランチと作業状態を把握する。
+JSON データの各フィールドを確認する。
 
-### 3. ベースブランチとの差分を確認
+- `base_branch` - ベースブランチ名
+- `current_branch` - 現在のブランチ名
+- `status` - 作業ディレクトリの状態（git status --short）
+- `commit_log` - ベースブランチからのコミットログ
+- `remote_branches` - 既存リモートブランチ名（命名慣例の参考用）
 
-以下を実行して変更内容を把握する。
-
-- `git log <base>..HEAD --oneline` でコミット済みの差分
-- `git diff --stat` で未ステージの変更概要
-- `git diff --cached --stat` でステージ済みの変更概要
-
-差分がある場合は、必要に応じて `git diff <base>` や `git log <base>..HEAD --format="%s"` で詳細を確認する。
-
-### 4. ブランチ名候補の生成
+### 3. ブランチ名候補の生成
 
 #### 差分がある場合
 
@@ -47,7 +42,7 @@ allowed-tools:
 
 #### 差分がない場合
 
-「差分が見つかりません。作業内容を引数で指定してください。」と出力して終了する。
+`commit_log` と `status` がともに空の場合、「差分が見つかりません。作業内容を引数で指定してください。」と出力して終了する。
 
 #### 命名ルール
 
@@ -59,10 +54,9 @@ allowed-tools:
   - 英語
   - 簡潔（2-4語程度）
   - 内容が直感的に分かる名前
-- 既存ブランチの慣例を参考にする
-  - `git branch -r` で既存のリモートブランチ名を確認
+- 既存ブランチの慣例を参考にする（`remote_branches` フィールド参照）
 
-### 5. JSON出力
+### 4. JSON出力
 
 候補を以下のJSON形式で出力する。JSON以外のテキスト（説明文など）は一切出力しない。
 
