@@ -23,10 +23,10 @@ fi
 
 echo "現在のセッション PID: $current_pid (保護対象)"
 
-# Claude Codeプロセスをより精密に取得
+# Claude Code プロセスを取得（Claude Desktop を除外）
+# -x: プロセス名の完全一致（Claude Desktop の "Claude" や "Claude Helper" にはマッチしない）
 get_claude_processes() {
-    # より具体的なパターンでClaude Codeプロセスを特定
-    pgrep -f "(claude.*code|claude_code)" 2>/dev/null || true
+    pgrep -x "claude" 2>/dev/null || true
 }
 
 # 全Claude Codeプロセスを取得
