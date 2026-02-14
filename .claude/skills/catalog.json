@@ -39,5 +39,11 @@
     "description": "Brewfileにアプリを追加（セクション自動判定、auto_updates確認）",
     "category": "パッケージ管理",
     "example": "/sync-brew ripgrep bat"
+  },
+  {
+    "name": "claude-process",
+    "description": "Claude Codeプロセスの状況確認・クリーンアップ・監視",
+    "category": "プロセス管理",
+    "example": "/claude-process clean"
   }
 ]

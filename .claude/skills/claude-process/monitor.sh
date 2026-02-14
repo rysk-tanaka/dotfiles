@@ -184,5 +184,5 @@ if [ "$WATCH_MODE" = true ]; then
   done
 else
   echo -e "\n✅ 監視完了"
-  echo "継続監視が必要な場合: bash ~/.claude/scripts/claude-monitor.sh --watch"
+  echo "継続監視が必要な場合: bash /Users/rysk/.claude/skills/claude-process/monitor.sh --watch"
 fi

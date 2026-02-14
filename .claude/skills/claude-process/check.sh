@@ -54,7 +54,7 @@ echo "Total Processes: $process_count"
 
 if [ "$process_count" -gt 5 ]; then
     echo -e "\n⚠️  警告: Claude Codeプロセスが多数実行中です（$process_count個）"
-    echo "不要なプロセスのクリーンアップを検討してください: /claude-clean"
+    echo "不要なプロセスのクリーンアップを検討してください: /claude-process clean"
 fi
 
 # CPU使用率が50%以上のプロセスをチェック

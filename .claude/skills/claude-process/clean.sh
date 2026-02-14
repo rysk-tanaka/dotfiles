@@ -131,4 +131,4 @@ else
 fi
 
 echo -e "\n✅ クリーンアップ完了"
-echo "必要に応じて /claude-check で状況を再確認してください"
+echo "必要に応じて /claude-process で状況を再確認してください"
