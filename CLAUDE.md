@@ -16,8 +16,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)
 - Auto commit: `mise run auto-commit` or `/auto-commit` in session (generates commit message candidates with fzf selection, `--codex` for Codex CLI)
 - Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name candidates with fzf selection, `--codex` for Codex CLI)
-- Create PR: `/pr` or `/pr <base-branch>` in session (creates pull request from branch changes)
-- Resolve review: `/resolve-review` or `/resolve-review <PR number>` in session (fetches and addresses PR review comments)
+- Create PR: `/pr` or `/pr <base-branch>` in session (creates pull request from branch changes, then suggests `/await-ci` and `/resolve-review`)
+- Resolve review: `/resolve-review` or `/resolve-review <PR number>` in session (waits for CI completion, then fetches and addresses PR review comments)
 - Await CI: `/await-ci` or `/await-ci <PR number>` in session (checks CI status and optionally waits for completion)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.

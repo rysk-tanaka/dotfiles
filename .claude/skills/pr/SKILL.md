@@ -90,10 +90,14 @@ gh pr create --base <base-branch> --title "<タイトル>" --body "<本文>"
 
 ### 7. 次のアクションのサジェスト
 
-PR作成後、PRのURLからPR番号を抽出し、以下の次のアクションを提示する。
+PR作成後、PRのURLからPR番号を抽出し、AskUserQuestion ツールで次のアクションを提示する。
 
-```text
-次のアクション
-- /await-ci <PR番号> --watch  CI の完了を待機
-- /resolve-review <PR番号>    レビュー指摘を確認・対応
-```
+- header: `次のアクション`
+- question: `PR #<PR番号> を作成しました。次に行うアクションを選択してください。`
+- multiSelect: false
+- 選択肢
+  - `/await-ci <PR番号> --watch` - CI の完了を待機
+  - `/resolve-review <PR番号>` - レビュー指摘を確認・対応
+  - `何もしない` - 終了
+
+ユーザーがスキルを選択した場合は、対応する Skill ツールで実行する。

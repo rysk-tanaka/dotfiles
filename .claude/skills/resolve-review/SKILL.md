@@ -21,11 +21,12 @@ PRのレビューコメントを取得し、未解決の指摘を分類・対応
 
 レビュー指摘対応の前に CI 状態を把握しておくと、CI 失敗に起因する指摘を優先対応できる。
 
-`bash /Users/rysk/.claude/skills/await-ci/check.sh $ARGUMENTS` を実行する。
+`bash /Users/rysk/.claude/skills/await-ci/check.sh $ARGUMENTS --watch` を実行する。
+Bash tool の timeout パラメータは 600000（最大値）を指定する。
 
 - status が "fail" → 失敗チェック名を記録し、後続の分類で参考にする
-- status が "pending" → CI 待機は行わず次のステップに進む
 - status が "pass" → そのまま次のステップに進む
+- タイムアウト（exit 2）→ その時点の状態を記録し、次のステップに進む
 - エラー終了 → 無視して次のステップに進む（この手順はオプション）
 
 ### 2. ヘルパースクリプトの実行
