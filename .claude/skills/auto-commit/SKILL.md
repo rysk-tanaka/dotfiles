@@ -2,9 +2,8 @@
 name: auto-commit
 description: ステージ済みの変更からコミットメッセージを自動生成 (user)
 allowed-tools:
-  - Bash(git diff --cached*)
-  - Bash(git status*)
-  - Bash(git log*)
+  # ~ is not expanded in allowed-tools patterns (claude-code#14956)
+  - Bash(bash /Users/rysk/.claude/skills/auto-commit/collect.sh*)
 ---
 
 # コミットメッセージ自動生成
@@ -13,31 +12,22 @@ allowed-tools:
 
 ## 手順
 
-### 1. ステージ済み変更の確認
+### 1. データ取得
 
-`git diff --cached --name-only` を実行し、ステージ済みのファイルがあるか確認する。
+プロンプトに `<git-data>` タグでデータが提供されている場合はそれを使用する。
+提供されていない場合は `bash /Users/rysk/.claude/skills/auto-commit/collect.sh` を実行してデータを取得する。
 
-- 出力が空の場合はステージ済みの変更がないため、「ステージ済みの変更がありません。先に `git add` で変更をステージしてください。」と報告して終了
+### 2. データの読み取り
 
-### 2. コミット履歴の参照
+JSON データの各フィールドを確認する。
 
-`git log --oneline -10` を実行し、直近のコミットメッセージのスタイル（スコープの命名規則等）を把握する。
+- `staged_files` - ステージ済みファイル一覧
+- `log` - 直近10件のコミット履歴（スコープの命名規則の参考用）
+- `stat` - 変更ファイルの統計（ファイル名と行数）
+- `diff` - 詳細な差分（lockファイルと500行超えファイルは除外済み）
+- `excluded_large_files` - diff から除外された大きなファイルの一覧（stat のみで判断すること）
 
-### 3. 変更内容の分析
-
-#### 3a. 変更の概要を取得
-
-`git diff --cached --stat` を実行し、変更ファイルの一覧と行数の概要を取得する。
-
-#### 3b. 詳細な差分を取得
-
-`git diff --cached` で詳細な差分を取得する。ただし以下を考慮する。
-
-- lockファイル（`package-lock.json`, `yarn.lock`, `uv.lock`, `Gemfile.lock`, `poetry.lock`, `pnpm-lock.yaml`, `Cargo.lock`, `composer.lock` 等）は除外する
-  - `git diff --cached -- . ':!*lock*'` のように pathspec で除外
-- stat の結果で特定のファイルの変更行数が500行を超えている場合、そのファイルは stat の要約のみで判断し、詳細 diff からは除外する
-
-### 4. コミットメッセージ候補の生成
+### 3. コミットメッセージ候補の生成
 
 以下のルールに従って、2-4個のコミットメッセージ候補を生成する。
 各候補はニュアンスや着眼点を変えて、異なる表現を提示する。
@@ -73,7 +63,7 @@ type(scope): description
 - 命令形で記述（add, update, fix 等）
 - 簡潔に（50文字以内を目安）
 
-### 5. JSON出力
+### 4. JSON出力
 
 候補を以下のJSON形式で出力する。JSON以外のテキスト（説明文など）は一切出力しない。
 

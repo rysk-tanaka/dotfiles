@@ -28,27 +28,35 @@ else
     SKILL_PATH="${DOTFILES}/.claude/skills/auto-commit/SKILL.md"
 fi
 
-# Check for staged changes
-if git diff --cached --quiet 2>/dev/null; then
-    echo "Error: No staged changes found. Run 'git add' first." >&2
-    exit 1
-fi
-
 if [[ ! -f "$SKILL_PATH" ]]; then
     echo "Error: SKILL.md not found at $SKILL_PATH" >&2
     exit 1
 fi
 
-PROMPT="Generate commit message candidates for the staged changes. Output ONLY the JSON, nothing else."
+# --- Collect git data ---
+
+COLLECT_SCRIPT="${DOTFILES}/.claude/skills/auto-commit/collect.sh"
+if [[ ! -f "$COLLECT_SCRIPT" ]]; then
+    echo "Error: collect.sh not found at $COLLECT_SCRIPT" >&2
+    exit 1
+fi
+
+GIT_DATA=$(bash "$COLLECT_SCRIPT")
 
 # --- Generate candidates via LLM ---
+
+PROMPT="以下の git データを分析してコミットメッセージ候補を生成してください。JSON のみを出力すること。
+
+<git-data>
+${GIT_DATA}
+</git-data>"
 
 if [[ "$USE_CODEX" == "true" ]]; then
     OUTFILE=$(mktemp)
     ERRFILE=$(mktemp)
     trap 'rm -f "$OUTFILE" "$ERRFILE"' EXIT
     if ! printf '%s\n\n%s' "$(cat "$SKILL_PATH")" "$PROMPT" | codex exec \
-        --full-auto \
+        --sandbox read-only \
         -m gpt-5.1-codex-mini \
         -o "$OUTFILE" \
         - >/dev/null 2>"$ERRFILE"; then
@@ -60,7 +68,6 @@ if [[ "$USE_CODEX" == "true" ]]; then
 else
     RESULT=$(claude -p \
         --model haiku \
-        --allowedTools "Bash(git diff --cached*)" "Bash(git status*)" "Bash(git log*)" \
         --append-system-prompt "$(cat "$SKILL_PATH")" \
         "$PROMPT")
 fi
