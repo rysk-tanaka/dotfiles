@@ -101,12 +101,20 @@ suggest_command() {
         echo "現在のブランチ名がそのまま適切です。"
         return
     fi
-    case "$CURRENT_BRANCH" in
-        ""|"$BASE_BRANCH"|main|develop|release)
-            echo "git switch -c $name" ;;
-        *)
-            echo "git branch -m $name" ;;
-    esac
+    if [[ -z "$CURRENT_BRANCH" || "$CURRENT_BRANCH" == "$BASE_BRANCH" ]]; then
+        echo "git switch -c $name"
+        return
+    fi
+    # If current branch tracks a remote and has no local-only commits,
+    # treat as shared base branch (e.g. main, develop, release)
+    local upstream
+    upstream=$(git rev-parse --abbrev-ref "@{upstream}" 2>/dev/null)
+    if [[ -n "$upstream" ]] && \
+       [[ $(git rev-list --count "$upstream..$CURRENT_BRANCH" 2>/dev/null) -eq 0 ]]; then
+        echo "git switch -c $name"
+    else
+        echo "git branch -m $name"
+    fi
 }
 
 echo ""
