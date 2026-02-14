@@ -108,7 +108,7 @@ suggest_command() {
     # If current branch tracks a remote and has no local-only commits,
     # treat as shared base branch (e.g. main, develop, release)
     local upstream
-    upstream=$(git rev-parse --abbrev-ref "@{upstream}" 2>/dev/null)
+    upstream=$(git rev-parse --abbrev-ref "@{upstream}" 2>/dev/null) || upstream=""
     if [[ -n "$upstream" ]] && \
        [[ $(git rev-list --count "$upstream..$CURRENT_BRANCH" 2>/dev/null) -eq 0 ]]; then
         echo "git switch -c $name"

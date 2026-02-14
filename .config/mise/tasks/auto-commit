@@ -156,15 +156,19 @@ echo ""
 echo "Commit message: $COMMIT_MSG"
 echo ""
 
-# Record originally staged files for potential retry (NUL-delimited for safe filenames)
-STAGED_FILES=$(git diff --cached --name-only -z)
+# Record originally staged files for potential retry
+# NUL bytes are lost in command substitution, so use array via read -d ''
+STAGED_FILES=()
+while IFS= read -r -d '' file; do
+    STAGED_FILES+=("$file")
+done < <(git diff --cached --name-only -z)
 if git commit -m "$COMMIT_MSG"; then
     :
 else
     echo ""
     # Retry once: pre-commit hooks may have auto-fixed files
     echo "Commit failed. Retrying with updated files..."
-    printf '%s' "$STAGED_FILES" | xargs -0 git add --
+    git add -- "${STAGED_FILES[@]}"
     git commit -m "$COMMIT_MSG"
 fi
 
