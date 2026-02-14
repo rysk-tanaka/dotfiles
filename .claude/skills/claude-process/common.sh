@@ -5,9 +5,9 @@
 # Claude Code プロセスの PID を取得（Claude Desktop を除外）
 # macOS の pgrep -x は UCOMM（実バイナリ名）を参照するため、npm 版 Claude Code
 # （UCOMM=node）を検出できない。ps の COMM フィールド（argv[0] ベースネーム）なら
-# "claude" と完全一致し、Claude Desktop（/Applications/Cl...）とは区別できる。
+# "claude"/"claude_code" と完全一致し、Claude Desktop（/Applications/Cl...）とは区別できる。
 get_claude_processes() {
-    ps -eo pid,comm 2>/dev/null | awk '$2 == "claude" {print $1}' || true
+    ps -eo pid,comm 2>/dev/null | awk '$2 == "claude" || $2 == "claude_code" {print $1}' || true
 }
 
 # エラーハンドリング関数
@@ -36,7 +36,8 @@ init_session_protection() {
         depth=$((depth + 1))
     done
 
-    if [ "${#PROTECTED_PIDS[@]}" -lt 2 ]; then
+    # 自身の PID すら取得できなかった場合のみ失敗
+    if [ "${#PROTECTED_PIDS[@]}" -eq 0 ]; then
         return 1
     fi
 
