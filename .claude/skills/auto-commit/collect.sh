@@ -27,8 +27,18 @@ while IFS=$'\t' read -r added removed file; do
     fi
 done < <(git diff --cached --numstat)
 
-PATHSPEC=("." ":!*lock*" ${LARGE_FILE_EXCLUDES[@]+"${LARGE_FILE_EXCLUDES[@]}"})
-DIFF=$(git diff --cached -- "${PATHSPEC[@]}")
+# Exclude specific lockfiles using :(exclude,glob) magic so ** matches root and subdirectories
+LOCK_EXCLUDES=(
+    ":(exclude,glob)**/package-lock.json"
+    ":(exclude,glob)**/yarn.lock"
+    ":(exclude,glob)**/pnpm-lock.yaml"
+    ":(exclude,glob)**/uv.lock"
+    ":(exclude,glob)**/Gemfile.lock"
+    ":(exclude,glob)**/poetry.lock"
+    ":(exclude,glob)**/Cargo.lock"
+    ":(exclude,glob)**/composer.lock"
+)
+DIFF=$(git diff --cached -- "${LOCK_EXCLUDES[@]}" ${LARGE_FILE_EXCLUDES[@]+"${LARGE_FILE_EXCLUDES[@]}"})
 
 # --- Output JSON ---
 
