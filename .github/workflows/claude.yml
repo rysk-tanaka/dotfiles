@@ -40,6 +40,8 @@ jobs:
           additional_permissions: |
             actions: read
 
+          claude_args: '--model claude-sonnet-4-5-20250929'
+
           prompt: |
             ユーザーのリクエストに日本語で対応してください。
             回答の最後に、使用したモデル名と実際のトークン数、推定コストを計算して出力してください。
