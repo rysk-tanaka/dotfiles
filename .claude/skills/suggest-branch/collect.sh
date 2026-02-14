@@ -9,11 +9,20 @@ BASE_BRANCH="${1:-main}"
 CURRENT_BRANCH=$(git branch --show-current)
 STATUS=$(git status --short)
 
-# Check if base branch exists
-COMMIT_LOG=""
+# Resolve base branch: try local ref, then remote tracking ref (origin/<base>)
+RESOLVED_BASE=""
 if git rev-parse --verify "$BASE_BRANCH" &>/dev/null; then
-    COMMIT_LOG=$(git log "${BASE_BRANCH}..HEAD" --oneline 2>/dev/null || true)
+    RESOLVED_BASE="$BASE_BRANCH"
+elif git rev-parse --verify "origin/$BASE_BRANCH" &>/dev/null; then
+    RESOLVED_BASE="origin/$BASE_BRANCH"
 fi
+
+if [[ -z "$RESOLVED_BASE" ]]; then
+    echo "Error: base branch '$BASE_BRANCH' not found locally or as 'origin/$BASE_BRANCH'." >&2
+    exit 1
+fi
+
+COMMIT_LOG=$(git log "${RESOLVED_BASE}..HEAD" --oneline 2>/dev/null || true)
 
 REMOTE_BRANCHES=$(git branch -r --format='%(refname:short)' 2>/dev/null | head -30 || true)
 
