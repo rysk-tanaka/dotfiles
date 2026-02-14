@@ -138,6 +138,9 @@ def fetch_log_events(
     prev_token: str | None = None
 
     for _ in range(MAX_PAGINATION_PAGES):
+        if len(events) >= max_events:
+            break
+
         # Limit each page to remaining events needed
         kwargs["limit"] = max_events - len(events)
         response = logs_client.filter_log_events(**kwargs)
@@ -152,9 +155,6 @@ def fetch_log_events(
                     log_stream_name=event.get("logStreamName", ""),
                 )
             )
-
-        if len(events) >= max_events:
-            break
 
         next_token = response.get("nextToken")
         if not next_token or next_token == prev_token:
@@ -180,6 +180,7 @@ def search_error_logs(
 
     Searches with:
     - { $.error = "*" } (python-json-logger format)
+    - { $.status = "failed" } (status field check)
     - { $.levelname = "ERROR" } (python logging format)
 
     Returns deduplicated events sorted newest first.
