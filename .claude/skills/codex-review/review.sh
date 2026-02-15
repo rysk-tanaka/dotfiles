@@ -35,12 +35,41 @@ find "$CACHE_DIR" -name 'codex-review-*.txt' -mtime +7 -delete 2>/dev/null || tr
 if [[ -z "$RESULT" ]]; then
     # Fallback: output entire stderr for best-effort analysis
     cat "$WORK_DIR/stderr"
-    if [[ -n "$SESSION_ID" ]]; then
-        cat "$WORK_DIR/stderr" > "$CACHE_DIR/codex-review-$SESSION_ID.txt"
-    fi
 else
     printf '%s\n' "$RESULT"
-    if [[ -n "$SESSION_ID" ]]; then
-        printf '%s\n' "$RESULT" > "$CACHE_DIR/codex-review-$SESSION_ID.txt"
+fi
+
+# Extract usage from session JSONL
+USAGE=""
+if [[ -n "$SESSION_ID" ]]; then
+    TODAY=$(date -u +%Y/%m/%d)
+    SESSION_FILE=$(find "$HOME/.codex/sessions" -name "*${SESSION_ID}.jsonl" -path "*${TODAY}*" 2>/dev/null | head -1 || true)
+    # Fallback: search without date constraint
+    if [[ -z "$SESSION_FILE" ]]; then
+        SESSION_FILE=$(find "$HOME/.codex/sessions" -name "*${SESSION_ID}.jsonl" 2>/dev/null | head -1 || true)
+    fi
+    if [[ -n "$SESSION_FILE" ]]; then
+        USAGE=$(grep '"token_count"' "$SESSION_FILE" | tail -1 | jq -c '{
+            total_tokens: .payload.info.total_token_usage.total_tokens,
+            input_tokens: .payload.info.total_token_usage.input_tokens,
+            cached_tokens: .payload.info.total_token_usage.cached_input_tokens,
+            output_tokens: .payload.info.total_token_usage.output_tokens,
+            reasoning_tokens: .payload.info.total_token_usage.reasoning_output_tokens,
+            rate_limit_5h: .payload.info.rate_limits.primary.used_percent,
+            rate_limit_weekly: .payload.info.rate_limits.secondary.used_percent
+        }' 2>/dev/null || true)
+        if [[ -n "$USAGE" ]]; then
+            printf '\n---USAGE---\n%s\n' "$USAGE"
+        fi
+    fi
+fi
+
+# Cache output for session loss recovery
+if [[ -n "$SESSION_ID" ]]; then
+    OUTPUT=$(if [[ -z "$RESULT" ]]; then cat "$WORK_DIR/stderr"; else printf '%s\n' "$RESULT"; fi)
+    if [[ -n "$USAGE" ]]; then
+        printf '%s\n\n---USAGE---\n%s\n' "$OUTPUT" "$USAGE" > "$CACHE_DIR/codex-review-$SESSION_ID.txt"
+    else
+        printf '%s\n' "$OUTPUT" > "$CACHE_DIR/codex-review-$SESSION_ID.txt"
     fi
 fi
