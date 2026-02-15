@@ -72,11 +72,11 @@ Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/ca
 - `.claude/settings.json` `permissions.allow` → colon format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`
 - SKILL.md `allowed-tools` → space format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script> *)`
 
-Note: These use different pattern engines. The `~` home directory shorthand is not expanded in `allowed-tools` patterns (claude-code#14956), so absolute paths are required.
+Note: These use different pattern engines. The `~` home directory shorthand is not expanded in `allowed-tools` patterns (claude-code#14956), so absolute paths are required. For `Read` permissions in settings.json, the `//` prefix is the correct format (e.g., `Read(//Users/rysk/.cache/claude-bg/**)`) — this is not a typo.
 
 Skills that also run as mise tasks (auto-commit, suggest-branch) use the collect.sh pattern: a shell script pre-collects git data as JSON, which is passed to the LLM in a single API call via `<git-data>` tags. The SKILL.md includes a fallback to run collect.sh when data is not provided in the prompt.
 
-Background-executing skills (resolve-review, codex-review) use a two-phase pattern: the launch phase starts the shell script with `run_in_background` and returns immediately, while the result processing phase triggers automatically when a background task completion system-reminder is detected (or when the user explicitly requests results). This allows multiple skills to run concurrently.
+Background-executing skills (resolve-review, codex-review) use a two-phase pattern: the launch phase starts the shell script with `run_in_background` and returns immediately, while the result processing phase triggers automatically when a background task completion system-reminder is detected (or when the user explicitly requests results). This allows multiple skills to run concurrently. Results are cached to `~/.cache/claude-bg/` for session loss recovery (e.g., `codex-review-{session-id}.txt`).
 
 - `/cloudwatch-logs` - Fetch CloudWatch logs (Python script with boto3)
 - `/sync-brew` - Add apps to Brewfile with auto-categorization
