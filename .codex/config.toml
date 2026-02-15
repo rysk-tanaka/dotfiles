@@ -1,8 +1,28 @@
 model = "gpt-5.3-codex"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
+model_reasoning_summary = "auto"  # デフォルト("auto")
+model_verbosity = "medium"  # デフォルト("medium")
 project_doc_fallback_filenames = ["CLAUDE.md"]
+personality = "pragmatic"
+web_search = "cached"  # デフォルト("cached")
 
 [sandbox_workspace_write]
 writable_roots = ["~/Library/Application Support/zoxide"]
+
+[features]
+parallel = true  # デフォルト(true)
+shell_snapshot = true  # ベータ機能
+
+# 高速レビュー用（簡単な変更）
+[profiles.quick]
+model_reasoning_effort = "low"
+model_reasoning_summary = "concise"
+model_verbosity = "low"
+
+# 重要なレビュー用（リリース前など）
+[profiles.important]
+model_reasoning_effort = "high"
+model_reasoning_summary = "detailed"
+model_verbosity = "high"
