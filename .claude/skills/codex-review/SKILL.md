@@ -79,9 +79,13 @@ BashOutput ツールで review.sh の出力を確認する。
 
 ```text
 Codex 使用量
+- モデル: {model}
 - トークン: {total_tokens} (入力: {input_tokens}, キャッシュ: {cached_tokens}, 出力: {output_tokens}, 推論: {reasoning_tokens})
-- レートリミット: 5時間枠 {rate_limit_5h}% / 週間枠 {rate_limit_weekly}%
+- コスト: ${cost_usd}
+- 残量: 5時間枠 {remaining_5h}% / 週間枠 {remaining_weekly}%
 ```
+
+残量フィールドがない場合はその行を省略する。
 
 使用量データがない場合はこのセクションを省略する。
 

@@ -39,37 +39,46 @@ else
     printf '%s\n' "$RESULT"
 fi
 
-# Extract usage from session JSONL
-USAGE=""
-if [[ -n "$SESSION_ID" ]]; then
-    TODAY=$(date -u +%Y/%m/%d)
-    SESSION_FILE=$(find "$HOME/.codex/sessions" -name "*${SESSION_ID}.jsonl" -path "*${TODAY}*" 2>/dev/null | head -1 || true)
-    # Fallback: search without date constraint
-    if [[ -z "$SESSION_FILE" ]]; then
-        SESSION_FILE=$(find "$HOME/.codex/sessions" -name "*${SESSION_ID}.jsonl" 2>/dev/null | head -1 || true)
-    fi
-    if [[ -n "$SESSION_FILE" ]]; then
-        USAGE=$(grep '"token_count"' "$SESSION_FILE" | tail -1 | jq -c '{
-            total_tokens: .payload.info.total_token_usage.total_tokens,
-            input_tokens: .payload.info.total_token_usage.input_tokens,
-            cached_tokens: .payload.info.total_token_usage.cached_input_tokens,
-            output_tokens: .payload.info.total_token_usage.output_tokens,
-            reasoning_tokens: .payload.info.total_token_usage.reasoning_output_tokens,
-            rate_limit_5h: .payload.info.rate_limits.primary.used_percent,
-            rate_limit_weekly: .payload.info.rate_limits.secondary.used_percent
-        }' 2>/dev/null || true)
-        if [[ -n "$USAGE" ]]; then
-            printf '\n---USAGE---\n%s\n' "$USAGE"
-        fi
-    fi
+# Extract usage via ccusage-codex (latest session = the one just completed)
+USAGE=$(ccusage-codex session --since "$(date +%Y%m%d)" --json --noColor 2>/dev/null \
+    | jq -c '.sessions[-1] // empty | {
+        total_tokens: .totalTokens,
+        input_tokens: .inputTokens,
+        cached_tokens: .cachedInputTokens,
+        output_tokens: .outputTokens,
+        reasoning_tokens: .reasoningOutputTokens,
+        cost_usd: .costUSD,
+        model: (.models | keys[0])
+    }' 2>/dev/null || true)
+
+# Extract rate limits from latest session JSONL
+# File names contain timestamps (rollout-YYYY-MM-DDT...), so reverse sort by name = newest first
+# Session directories use local time, not UTC
+RATE_LIMITS=$(find "$HOME/.codex/sessions/$(date +%Y/%m/%d)" -name 'rollout-*.jsonl' 2>/dev/null \
+    | sort -r \
+    | head -5 \
+    | xargs grep -l 'rate_limits' 2>/dev/null \
+    | head -1 \
+    | xargs grep 'rate_limits' 2>/dev/null \
+    | tail -1 \
+    | jq -c '.payload.rate_limits | select(.primary) | {
+        remaining_5h: (100 - .primary.used_percent),
+        remaining_weekly: (100 - .secondary.used_percent)
+    }' 2>/dev/null || true)
+
+# Merge usage and rate limits into single JSON
+if [[ -n "$USAGE" && -n "$RATE_LIMITS" ]]; then
+    USAGE=$(jq -c -s '.[0] * .[1]' <(printf '%s' "$USAGE") <(printf '%s' "$RATE_LIMITS") 2>/dev/null || printf '%s' "$USAGE")
+fi
+if [[ -n "$USAGE" ]]; then
+    printf '\n---USAGE---\n%s\n' "$USAGE"
 fi
 
 # Cache output for session loss recovery
-if [[ -n "$SESSION_ID" ]]; then
-    OUTPUT=$(if [[ -z "$RESULT" ]]; then cat "$WORK_DIR/stderr"; else printf '%s\n' "$RESULT"; fi)
-    if [[ -n "$USAGE" ]]; then
-        printf '%s\n\n---USAGE---\n%s\n' "$OUTPUT" "$USAGE" > "$CACHE_DIR/codex-review-$SESSION_ID.txt"
-    else
-        printf '%s\n' "$OUTPUT" > "$CACHE_DIR/codex-review-$SESSION_ID.txt"
-    fi
+CACHE_ID="${SESSION_ID:-$(date +%s)}"
+OUTPUT=$(if [[ -z "$RESULT" ]]; then cat "$WORK_DIR/stderr"; else printf '%s\n' "$RESULT"; fi)
+if [[ -n "$USAGE" ]]; then
+    printf '%s\n\n---USAGE---\n%s\n' "$OUTPUT" "$USAGE" > "$CACHE_DIR/codex-review-$CACHE_ID.txt"
+else
+    printf '%s\n' "$OUTPUT" > "$CACHE_DIR/codex-review-$CACHE_ID.txt"
 fi
