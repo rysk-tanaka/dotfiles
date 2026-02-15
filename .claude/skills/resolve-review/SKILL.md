@@ -14,20 +14,58 @@ PRのレビューコメントを取得し、未解決の指摘を分類・対応
 
 ## 入力
 
-`$ARGUMENTS` に PR 番号が渡される（省略時は現在のブランチから自動検出）。
+`$ARGUMENTS` に PR 番号とオプションフラグが渡される。
 
-## 手順
+- PR 番号は省略可（現在のブランチから自動検出）
+- `--bg` フラグ指定でバックグラウンド実行モードに切り替え
 
-このスキルは「起動フェーズ」と「結果処理フェーズ」の2段階で動作する。
-起動フェーズでバックグラウンド実行を開始し、すぐにユーザーに制御を返す。
+例
+
+- `/resolve-review 20` → フォアグラウンド、PR番号 20
+- `/resolve-review --bg` → バックグラウンド、PR番号は自動検出
+- `/resolve-review 20 --bg` → バックグラウンド、PR番号 20
+
+## モード判定
+
+`$ARGUMENTS` に `--bg` が含まれるかどうかで実行モードを判定する。
+`--bg` を除いた残りの引数をスクリプトに渡す。
+
+- `--bg` なし → フォアグラウンドモード（デフォルト）
+- `--bg` あり → バックグラウンドモード
+
+## フォアグラウンドモード（デフォルト）
+
+### 1. CI ステータスの確認（オプション）
+
+`bash /Users/rysk/.claude/skills/await-ci/check.sh $SCRIPT_ARGS --watch` を実行する。
+Bash tool の timeout パラメータは 600000（最大値）を指定する。
+
+- `$SCRIPT_ARGS` が空の場合は引数なしで実行（スクリプト側で自動検出）
+- status が "fail" → 失敗チェック名を記録し、後続の分類で参考にする
+- status が "pass" → そのまま次のステップに進む
+- タイムアウト（exit 2）→ その時点の状態を記録し、次のステップに進む
+- エラー終了 → 無視して次のステップに進む（この手順はオプション）
+
+### 2. ヘルパースクリプトの実行
+
+`bash /Users/rysk/.claude/skills/resolve-review/fetch.sh $SCRIPT_ARGS` を実行する。
+
+- `$SCRIPT_ARGS` が空の場合は引数なしで実行（スクリプト側で自動検出）
+- スクリプトが非ゼロ終了した場合は、stderr のエラーメッセージをユーザーに報告して終了
+
+### 3. 共通分析ステップへ
+
+fetch.sh の出力を「共通分析ステップ」に従って処理する。
+
+## バックグラウンドモード（--bg）
 
 ### 起動フェーズ
 
 #### 1. CI ステータス確認の開始
 
-`bash /Users/rysk/.claude/skills/await-ci/check.sh $ARGUMENTS --watch` を Bash tool の `run_in_background` パラメータを `true` にして実行する。
+`bash /Users/rysk/.claude/skills/await-ci/check.sh $SCRIPT_ARGS --watch` を Bash tool の `run_in_background` パラメータを `true` にして実行する。
 
-- `$ARGUMENTS` が空の場合は引数なしで実行（スクリプト側で自動検出）
+- `$SCRIPT_ARGS` が空の場合は引数なしで実行（スクリプト側で自動検出）
 
 #### 2. ユーザーへの報告
 
@@ -59,12 +97,18 @@ BashOutput ツールで check.sh の出力を確認する。
 
 #### 4. ヘルパースクリプトの実行
 
-`bash /Users/rysk/.claude/skills/resolve-review/fetch.sh $ARGUMENTS` を実行する。
+`bash /Users/rysk/.claude/skills/resolve-review/fetch.sh $SCRIPT_ARGS` を実行する。
 
-- `$ARGUMENTS` が空の場合は引数なしで実行（スクリプト側で自動検出）
+- `$SCRIPT_ARGS` が空の場合は引数なしで実行（スクリプト側で自動検出）
 - スクリプトが非ゼロ終了した場合は、stderr のエラーメッセージをユーザーに報告して終了
 
-#### 5. 出力の解析
+#### 5. 共通分析ステップへ
+
+fetch.sh の出力を「共通分析ステップ」に従って処理する。
+
+## 共通分析ステップ
+
+### 出力の解析
 
 スクリプトの stdout は JSON 形式で以下のフィールドを含む。
 
@@ -89,7 +133,7 @@ BashOutput ツールで check.sh の出力を確認する。
   - `created_at` - 投稿日時
   - `url` - コメントURL
 
-#### 6. コメントの分類
+### コメントの分類
 
 レビュースレッド。
 
@@ -101,7 +145,7 @@ BashOutput ツールで check.sh の出力を確認する。
 - レビュー指摘（改善点、問題の指摘）→ 要対応
 - サマリー・情報提供のみ → 対応不要
 
-#### 7. ユーザーへの報告
+### ユーザーへの報告
 
 以下の形式で報告する。
 
@@ -117,7 +161,7 @@ BashOutput ツールで check.sh の出力を確認する。
   - 投稿者とコメントURL
   - 指摘内容
 
-#### 8. 対応アクションの提案
+### 対応アクションの提案
 
 各未解決スレッドについて。
 
