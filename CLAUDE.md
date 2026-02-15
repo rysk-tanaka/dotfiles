@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Install fonts: `mise run setup-fonts` or `bash .config/mise/tasks/setup-fonts` (installs Bizin Gothic NF from GitHub Releases)
 - Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)
 - Auto commit: `mise run auto-commit` or `/auto-commit` in session (generates commit message candidates with fzf selection, `--codex` for Codex CLI)
-- Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name candidates with fzf selection, `--codex` for Codex CLI)
+- Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name candidates with fzf selection and auto-applies, `--codex` for Codex CLI)
 - Create PR: `/pr` or `/pr <base-branch>` in session (creates pull request from branch changes, then suggests `/await-ci` and `/resolve-review`)
 - Resolve review: `/resolve-review` or `/resolve-review <PR number>` in session (waits for CI completion, then fetches and addresses PR review comments)
 - Await CI: `/await-ci` or `/await-ci <PR number>` in session (checks CI status and optionally waits for completion)
@@ -78,7 +78,7 @@ Skills that also run as mise tasks (auto-commit, suggest-branch) use the collect
 - `/cloudwatch-logs` - Fetch CloudWatch logs (Python script with boto3)
 - `/sync-brew` - Add apps to Brewfile with auto-categorization
 - `/auto-commit` - Generate commit message candidates from staged changes with interactive selection (fzf/select)
-- `/suggest-branch` - Suggest branch name candidates with interactive selection (fzf/select)
+- `/suggest-branch` - Suggest branch name candidates with interactive selection and auto-apply (fzf/select)
 - `/pr` - Create pull request from branch changes
 - `/resolve-review` - Resolve PR review comments
 - `/await-ci` - Check CI status and wait for completion

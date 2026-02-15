@@ -107,37 +107,39 @@ while IFS= read -r encoded; do
     LINES+=("$name - $desc")
 done < <(echo "$JSON" | jq -r '.candidates[] | @base64')
 
-suggest_command() {
-    local name
-    name=$(printf '%q' "$1")
-    if [[ "$1" == "$CURRENT_BRANCH" ]]; then
+apply_branch_name() {
+    local name="$1"
+    if [[ "$name" == "$CURRENT_BRANCH" ]]; then
         echo "現在のブランチ名がそのまま適切です。"
         return
     fi
+
+    local cmd
     if [[ -z "$CURRENT_BRANCH" || "$CURRENT_BRANCH" == "$BASE_BRANCH" ]]; then
-        echo "git switch -c $name"
-        return
-    fi
-    # If current branch tracks a remote and has no local-only commits,
-    # treat as shared base branch (e.g. main, develop, release)
-    local upstream
-    upstream=$(git rev-parse --abbrev-ref "@{upstream}" 2>/dev/null) || upstream=""
-    if [[ -n "$upstream" ]] && \
-       [[ $(git rev-list --count "$upstream..$CURRENT_BRANCH" 2>/dev/null) -eq 0 ]]; then
-        echo "git switch -c $name"
+        cmd=(switch -c)
     else
-        echo "git branch -m $name"
+        # If current branch tracks a remote and has no local-only commits,
+        # treat as shared base branch (e.g. main, develop, release)
+        local upstream
+        upstream=$(git rev-parse --abbrev-ref "@{upstream}" 2>/dev/null) || upstream=""
+        if [[ -n "$upstream" ]] && \
+           [[ $(git rev-list --count "$upstream..$CURRENT_BRANCH" 2>/dev/null) -eq 0 ]]; then
+            cmd=(switch -c)
+        else
+            cmd=(branch -m)
+        fi
     fi
+
+    echo "git ${cmd[*]} $name"
+    git "${cmd[@]}" "$name"
 }
 
 echo ""
 
 if [[ ! -t 0 || ! -t 1 ]]; then
-    # Non-interactive: list all candidates with commands
+    # Non-interactive: list all candidates without execution
     for i in "${!LINES[@]}"; do
         echo "${LINES[$i]}"
-        echo "  $(suggest_command "${NAMES[$i]}")"
-        echo ""
     done
     exit 0
 fi
@@ -177,4 +179,4 @@ if [[ -z "$BRANCH_NAME" ]]; then
 fi
 
 echo ""
-suggest_command "$BRANCH_NAME"
+apply_branch_name "$BRANCH_NAME"
