@@ -24,9 +24,23 @@ BEGIN { in_codex = 0 }
 in_codex { print }
 ' "$WORK_DIR/stderr")
 
+# Extract session id from stderr for cache persistence
+SESSION_ID=$(grep -oE 'session id: [0-9a-f-]+' "$WORK_DIR/stderr" | cut -d' ' -f3 || true)
+
+CACHE_DIR="$HOME/.cache/claude-bg"
+mkdir -p "$CACHE_DIR"
+# Clean up cache files older than 7 days
+find "$CACHE_DIR" -name 'codex-review-*.txt' -mtime +7 -delete 2>/dev/null || true
+
 if [[ -z "$RESULT" ]]; then
     # Fallback: output entire stderr for best-effort analysis
     cat "$WORK_DIR/stderr"
+    if [[ -n "$SESSION_ID" ]]; then
+        cat "$WORK_DIR/stderr" > "$CACHE_DIR/codex-review-$SESSION_ID.txt"
+    fi
 else
     printf '%s\n' "$RESULT"
+    if [[ -n "$SESSION_ID" ]]; then
+        printf '%s\n' "$RESULT" > "$CACHE_DIR/codex-review-$SESSION_ID.txt"
+    fi
 fi

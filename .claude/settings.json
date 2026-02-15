@@ -35,7 +35,9 @@
       "Bash(bash /Users/rysk/.claude/skills/claude-process/check.sh:*)",
       "Bash(bash /Users/rysk/.claude/skills/claude-process/clean.sh:*)",
       "Bash(bash /Users/rysk/.claude/skills/claude-process/monitor.sh:*)",
-      "Bash(bash /Users/rysk/.claude/skills/codex-review/review.sh:*)"
+      "Bash(bash /Users/rysk/.claude/skills/codex-review/review.sh:*)",
+      "Read(//Users/rysk/.cache/claude-bg/**)",
+      "Read(//Users/rysk/.claude/skills/catalog.json)"
     ],
     "deny": [
       "Bash(git add -A:*)",
