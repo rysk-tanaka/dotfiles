@@ -7,7 +7,8 @@ BASE_BRANCH="${1:-main}"
 # --- Data collection ---
 
 CURRENT_BRANCH=$(git branch --show-current)
-STATUS=$(git status --short)
+# Only staged changes; unstaged/untracked files are noise for branch naming
+STATUS=$(git diff --cached --name-status)
 
 # Resolve base branch: try local ref, then remote tracking ref (origin/<base>)
 RESOLVED_BASE=""

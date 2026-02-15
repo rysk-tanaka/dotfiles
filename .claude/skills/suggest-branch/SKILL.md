@@ -28,7 +28,7 @@ JSON データの各フィールドを確認する。
 
 - `base_branch` - ベースブランチ名
 - `current_branch` - 現在のブランチ名
-- `status` - 作業ディレクトリの状態（git status --short）
+- `status` - ステージ済みの変更（git diff --cached --name-status）
 - `commit_log` - ベースブランチからのコミットログ
 - `remote_branches` - 既存リモートブランチ名（命名慣例の参考用）
 
