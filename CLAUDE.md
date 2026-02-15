@@ -17,9 +17,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Auto commit: `mise run auto-commit` or `/auto-commit` in session (generates commit message candidates with fzf selection, `--codex` for Codex CLI)
 - Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name candidates with fzf selection and auto-applies, `--codex` for Codex CLI)
 - Create PR: `/pr` or `/pr <base-branch>` in session (creates pull request from branch changes, then suggests `/await-ci` and `/resolve-review`)
-- Resolve review: `/resolve-review` or `/resolve-review <PR number>` in session (waits for CI completion, then fetches and addresses PR review comments)
+- Resolve review: `/resolve-review` or `/resolve-review <PR number>` in session (background: starts CI wait, then fetches and addresses PR review comments)
 - Await CI: `/await-ci` or `/await-ci <PR number>` in session (checks CI status and optionally waits for completion)
-- Codex review: `/codex-review` or `/codex-review <base-branch>` in session (runs code review via Codex CLI)
+- Codex review: `/codex-review` or `/codex-review <base-branch>` in session (background: runs code review via Codex CLI)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 
@@ -63,6 +63,7 @@ Located in `.claude/commands/`:
 - `/permalink` - Generate GitHub permalink
 - `/uv-init` - Initialize Python project with uv
 - `/skills` - List available skills
+- `/check-bg` - Check background task results
 
 ### Claude Code Custom Skills
 
@@ -75,15 +76,17 @@ Note: These use different pattern engines. The `~` home directory shorthand is n
 
 Skills that also run as mise tasks (auto-commit, suggest-branch) use the collect.sh pattern: a shell script pre-collects git data as JSON, which is passed to the LLM in a single API call via `<git-data>` tags. The SKILL.md includes a fallback to run collect.sh when data is not provided in the prompt.
 
+Background-executing skills (resolve-review, codex-review) use a two-phase pattern: the launch phase starts the shell script with `run_in_background` and returns immediately, while the result processing phase triggers automatically when a background task completion system-reminder is detected (or when the user explicitly requests results). This allows multiple skills to run concurrently.
+
 - `/cloudwatch-logs` - Fetch CloudWatch logs (Python script with boto3)
 - `/sync-brew` - Add apps to Brewfile with auto-categorization
 - `/auto-commit` - Generate commit message candidates from staged changes with interactive selection (fzf/select)
 - `/suggest-branch` - Suggest branch name candidates with interactive selection and auto-apply (fzf/select)
 - `/pr` - Create pull request from branch changes
-- `/resolve-review` - Resolve PR review comments
+- `/resolve-review` - Resolve PR review comments (background execution, two-phase)
 - `/await-ci` - Check CI status and wait for completion
 - `/claude-process` - Process status check, cleanup, and monitoring (subcommands: check, clean, monitor)
-- `/codex-review` - Codex CLIでコードレビューを実行し指摘内容を取得・対応
+- `/codex-review` - Run code review via Codex CLI (background execution, two-phase)
 
 ## Project Integration
 

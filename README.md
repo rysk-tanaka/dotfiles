@@ -27,6 +27,7 @@ MacOS用の初期セットアップを行います。
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── settings.json                 # グローバル設定
 │   ├── commands/                     # カスタムコマンド
+│   │   ├── check-bg.md               # バックグラウンドタスク結果確認
 │   │   ├── permalink.md              # パーマリンクコマンド
 │   │   ├── uv-init.md                # Pythonプロジェクト初期化
 │   │   └── skills.md                 # スキル一覧表示
@@ -48,6 +49,9 @@ MacOS用の初期セットアップを行います。
 │   │   ├── resolve-review/           # PRレビュー指摘対応
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   └── fetch.sh              # レビューデータ取得スクリプト
+│   │   ├── codex-review/             # Codex CLIコードレビュー
+│   │   │   ├── SKILL.md              # スキル定義
+│   │   │   └── review.sh             # レビュー実行スクリプト
 │   │   ├── suggest-branch/           # ブランチ名提案
 │   │   │   └── SKILL.md              # スキル定義
 │   │   └── claude-process/           # プロセス状況確認・クリーンアップ・監視
