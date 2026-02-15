@@ -19,6 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Create PR: `/pr` or `/pr <base-branch>` in session (creates pull request from branch changes, then suggests `/await-ci` and `/resolve-review`)
 - Resolve review: `/resolve-review` or `/resolve-review <PR number>` in session (waits for CI completion, then fetches and addresses PR review comments)
 - Await CI: `/await-ci` or `/await-ci <PR number>` in session (checks CI status and optionally waits for completion)
+- Codex review: `/codex-review` or `/codex-review <base-branch>` in session (runs code review via Codex CLI)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 
@@ -82,6 +83,7 @@ Skills that also run as mise tasks (auto-commit, suggest-branch) use the collect
 - `/resolve-review` - Resolve PR review comments
 - `/await-ci` - Check CI status and wait for completion
 - `/claude-process` - Process status check, cleanup, and monitoring (subcommands: check, clean, monitor)
+- `/codex-review` - Codex CLIでコードレビューを実行し指摘内容を取得・対応
 
 ## Project Integration
 

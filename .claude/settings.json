@@ -34,7 +34,8 @@
       "Bash(bash /Users/rysk/.claude/skills/suggest-branch/collect.sh:*)",
       "Bash(bash /Users/rysk/.claude/skills/claude-process/check.sh:*)",
       "Bash(bash /Users/rysk/.claude/skills/claude-process/clean.sh:*)",
-      "Bash(bash /Users/rysk/.claude/skills/claude-process/monitor.sh:*)"
+      "Bash(bash /Users/rysk/.claude/skills/claude-process/monitor.sh:*)",
+      "Bash(bash /Users/rysk/.claude/skills/codex-review/review.sh:*)"
     ],
     "deny": [
       "Bash(git add -A:*)",
