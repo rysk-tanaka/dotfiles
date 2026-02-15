@@ -45,5 +45,11 @@
     "description": "Claude Codeプロセスの状況確認・クリーンアップ・監視",
     "category": "プロセス管理",
     "example": "/claude-process clean"
+  },
+  {
+    "name": "codex-review",
+    "description": "Codex CLIでコードレビューを実行し指摘内容を取得・対応",
+    "category": "Git ワークフロー",
+    "example": "/codex-review develop"
   }
 ]
