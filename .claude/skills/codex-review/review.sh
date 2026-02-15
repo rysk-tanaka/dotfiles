@@ -29,6 +29,8 @@ SESSION_ID=$(grep -oE 'session id: [0-9a-f-]+' "$WORK_DIR/stderr" | cut -d' ' -f
 
 CACHE_DIR="$HOME/.cache/claude-bg"
 mkdir -p "$CACHE_DIR"
+# Clean up cache files older than 7 days
+find "$CACHE_DIR" -name 'codex-review-*.txt' -mtime +7 -delete 2>/dev/null || true
 
 if [[ -z "$RESULT" ]]; then
     # Fallback: output entire stderr for best-effort analysis

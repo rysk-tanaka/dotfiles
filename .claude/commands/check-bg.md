@@ -13,4 +13,4 @@
 
 BashOutput でシェルが見つからない場合（セッション消失時）は以下を試行する。
 
-- codex-review の場合: `~/.cache/claude-bg/` ディレクトリ内の `codex-review-*.txt` ファイルを確認し、最新のものを読み取って結果処理フェーズに従って処理する
+- codex-review の場合: `$HOME/.cache/claude-bg/` ディレクトリ内の `codex-review-*.txt` ファイルを確認し、最新のものを読み取って結果処理フェーズに従って処理する
