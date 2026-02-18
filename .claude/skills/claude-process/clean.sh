@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-# shellcheck source=common.sh
+# shellcheck disable=SC1091 source=common.sh  # -x なしでも警告を抑制
 source "$SCRIPT_DIR/common.sh"
 
 echo "=== Claude Code プロセスクリーンアップ開始 ==="
@@ -27,6 +27,7 @@ if [ -z "$claude_pids" ]; then
 fi
 
 # プロセス情報を一度だけ取得（パフォーマンス最適化）
+# shellcheck disable=SC2086  # 複数PIDをスペース区切りで渡すため意図的
 claude_process_info=$(ps -o pid,ppid,pcpu,etime,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
 
 if [ -z "$claude_process_info" ]; then
@@ -108,6 +109,7 @@ done
 echo -e "\n=== クリーンアップ後の状況 ==="
 remaining_pids=$(get_claude_processes)
 if [ -n "$remaining_pids" ]; then
+    # shellcheck disable=SC2086  # 複数PIDをスペース区切りで渡すため意図的
     remaining_info=$(ps -o pid,ppid,pcpu,etime,cmd -p $remaining_pids 2>/dev/null | grep -v PID || true)
     if [ -n "$remaining_info" ]; then
         echo "$remaining_info"

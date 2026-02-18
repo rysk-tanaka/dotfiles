@@ -7,7 +7,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-# shellcheck source=common.sh
+# shellcheck disable=SC1091 source=common.sh  # -x なしでも警告を抑制
 source "$SCRIPT_DIR/common.sh"
 
 echo "=== Claude Code プロセス監視開始 ==="
@@ -25,6 +25,7 @@ monitor_claude_processes() {
 
     # プロセス情報を一度だけ取得（パフォーマンス最適化）
     # rss: 実メモリ使用量（KB）。vsz は仮想メモリで実態と乖離するため使用しない
+    # shellcheck disable=SC2086  # 複数PIDをスペース区切りで渡すため意図的
     claude_processes=$(ps -o pid,ppid,pcpu,pmem,rss,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
 
     if [ -z "$claude_processes" ]; then
@@ -63,6 +64,18 @@ monitor_claude_processes() {
     # メモリ使用量が2GB以上
     if [ "$total_mem" -gt 2048 ]; then
         echo "📊 高メモリ使用量: ${total_mem}MB"
+        needs_cleanup=true
+    fi
+
+    # Claude Desktop 関連プロセスの高CPU チェック
+    companion_output=$(get_companion_processes)
+    if [ -n "$companion_output" ]; then
+        echo "🚨 Claude Desktop 関連の高CPUプロセス検出:"
+        echo "$companion_output" | while read -r pid cpu; do
+            comm=$(ps -o comm= -p "$pid" 2>/dev/null || echo "unknown")
+            echo "  PID: $pid | CPU: ${cpu}% | プロセス: $comm"
+        done
+        echo "→ Claude Desktop アプリの再起動を推奨します"
         needs_cleanup=true
     fi
 

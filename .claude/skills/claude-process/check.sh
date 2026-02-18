@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-# shellcheck source=common.sh
+# shellcheck disable=SC1091 source=common.sh  # -x なしでも警告を抑制
 source "$SCRIPT_DIR/common.sh"
 
 echo "=== Claude Code プロセス一覧 ==="
@@ -21,6 +21,7 @@ fi
 
 # プロセス情報を一度だけ取得（パフォーマンス最適化）
 # rss: 実メモリ使用量（KB）。vsz は仮想メモリで実態と乖離するため使用しない
+# shellcheck disable=SC2086  # 複数PIDをスペース区切りで渡すため意図的
 claude_processes=$(ps -o pid,ppid,pcpu,pmem,rss,etime,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
 
 if [ -z "$claude_processes" ]; then
@@ -71,3 +72,44 @@ echo -e "\n=== 実行時間の長いプロセス ==="
 echo "$claude_processes" | awk '{print $1, $6}' | while read -r pid etime; do
     echo "PID: $pid | 実行時間: $etime"
 done
+
+# === Claude Desktop セクション ===
+desktop_pids=$(get_claude_desktop_processes)
+
+if [ -n "$desktop_pids" ]; then
+    # shellcheck disable=SC2086  # 複数PIDをスペース区切りで渡すため意図的
+    desktop_processes=$(ps -o pid,pcpu,pmem,rss,etime,comm -p $desktop_pids 2>/dev/null | grep -v PID || true)
+
+    if [ -n "$desktop_processes" ]; then
+        echo -e "\n=== Claude Desktop プロセス一覧 ==="
+        desktop_count=$(echo "$desktop_processes" | grep -c '^[[:space:]]*[0-9]' || true)
+        desktop_mem=$(echo "$desktop_processes" | awk '{sum += $4} END {printf "%.1f", sum/1024}')
+        echo "プロセス数: $desktop_count | メモリ合計: ${desktop_mem} MB"
+        echo "$desktop_processes" | sort -k2 -nr | head -5 | while read -r pid cpu _mem rss etime comm; do
+            echo "PID: $pid | CPU: ${cpu}% | メモリ: $(echo "$rss" | awk '{printf "%.0f", $1/1024}')MB | 時間: $etime | $comm"
+        done
+
+        # Desktop 側の高CPU チェック
+        high_cpu_desktop=$(echo "$desktop_processes" | awk '$2 > 50 {print $1, $2}')
+        if [ -n "$high_cpu_desktop" ]; then
+            echo -e "\n🚨 Claude Desktop 高CPU使用率プロセス:"
+            echo "$high_cpu_desktop" | while read -r pid cpu; do
+                echo "PID: $pid | CPU: ${cpu}%"
+            done
+            echo "→ Claude Desktop アプリの再起動を推奨します"
+        fi
+    fi
+fi
+
+# === 関連プロセス（高CPU）セクション ===
+companion_output=$(get_companion_processes)
+
+if [ -n "$companion_output" ]; then
+    echo -e "\n🚨 === 関連プロセス（高CPU） ==="
+    echo "Claude Desktop と同時に起動し高CPU を消費しているプロセス:"
+    echo "$companion_output" | while read -r pid cpu; do
+        comm=$(ps -o comm= -p "$pid" 2>/dev/null || echo "unknown")
+        echo "PID: $pid | CPU: ${cpu}% | プロセス: $comm"
+    done
+    echo "→ Claude Desktop アプリの再起動を推奨します"
+fi
