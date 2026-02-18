@@ -16,6 +16,7 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - `/permalink` - 指定ファイルのGitHubパーマリンクを生成
 - `/uv-init` - uvでPythonプロジェクトを初期化（pyproject.toml設定自動生成、pytest, ruff, mypy付き）
 - `/skills` - 利用可能なスキルの一覧を表示
+- `/check-bg` - バックグラウンドタスクの結果を確認
 
 ## カスタムスキル
 
@@ -30,6 +31,7 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - `/resolve-review` - PRレビューコメントを取得し未解決の指摘に対応
 - `/await-ci` - CIチェックの状態確認・完了待機
 - `/claude-process` - プロセスの状況確認・クリーンアップ・監視（サブコマンド: check, clean, monitor）
+- `/codex-review` - Codex CLIによるコードレビュー（フォアグラウンドデフォルト、`--bg` でバックグラウンド実行）
 
 ## Codex CLI との共用スキル
 

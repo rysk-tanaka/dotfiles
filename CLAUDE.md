@@ -14,12 +14,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Setup WakaTime: `mise run setup-wakatime` (generates `~/.wakatime.cfg` from 1Password)
 - Install fonts: `mise run setup-fonts` or `bash .config/mise/tasks/setup-fonts` (installs Bizin Gothic NF from GitHub Releases)
 - Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)
-- Auto commit: `mise run auto-commit` or `/auto-commit` in session (generates commit message candidates with fzf selection, `--codex` for Codex CLI)
-- Suggest branch: `mise run suggest-branch` or `/suggest-branch` in session (suggests branch name candidates with fzf selection and auto-applies, `--codex` for Codex CLI)
-- Create PR: `/pr` or `/pr <base-branch>` in session (creates pull request from branch changes, then suggests `/await-ci` and `/resolve-review`)
-- Resolve review: `/resolve-review` or `/resolve-review <PR number>` in session (foreground by default, `--bg` for background execution)
-- Await CI: `/await-ci` or `/await-ci <PR number>` in session (checks CI status and optionally waits for completion)
-- Codex review: `/codex-review` or `/codex-review <base-branch>` in session (foreground by default, `--bg` for background execution)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 
@@ -32,40 +26,7 @@ This is a dotfiles repository that manages macOS configuration files through sym
 3. Tool Management: mise handles installation and version management of development tools
 4. Project Integration: The `setup-links` task allows other projects to inherit coding standards and configurations
 
-## Key Components
-
-### Managed Configurations
-
-- Terminal: Ghostty (`~/.config/ghostty/config`)
-- Shell: Zsh (`~/.zshrc`, `~/.zprofile`) with custom aliases
-- Version Control: Git (`~/.gitconfig`, `~/.config/git/ignore`)
-- Editors: Vim (`~/.vimrc`), Zed (`~/.config/zed/`)
-- Prompt: Starship (`~/.config/starship.toml`)
-- Package Management: Homebrew (`Brewfile` - CLI tools, desktop apps, fonts)
-- Tool Management: mise (`~/.config/mise/config.toml`)
-- Claude Code: Global settings, commands, skills (all symlinked from this repo to `~/.claude/`)
-- Codex CLI: User config (`~/.codex/config.toml`), skills (`~/.codex/skills/`), global instructions (`~/.codex/AGENTS.md` → `~/.claude/CLAUDE.md` symlink)
-- ccmanager: Session management (`~/.config/ccmanager/config.json`)
-
-### Custom Shell Functions
-
-Defined in `.config/mise/shell-functions.sh` and auto-loaded via `.zshrc`:
-
-- `mdlint` - markdownlint-cli2 wrapper that auto-detects git root config
-- `mermaidlint` - Validates Mermaid syntax in Markdown files
-- `build_lambda` - Docker Lambda build wrapper with 1Password SSH agent support
-- `teleport` - Claude Code teleport wrapper for SSH Host Alias environments
-
-### Claude Code Custom Commands
-
-Located in `.claude/commands/`:
-
-- `/permalink` - Generate GitHub permalink
-- `/uv-init` - Initialize Python project with uv
-- `/skills` - List available skills
-- `/check-bg` - Check background task results
-
-### Claude Code Custom Skills
+## Claude Code Custom Skills
 
 Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/catalog.json` for the `/skills` command. When adding or updating skills, update catalog.json as well. Skills with shell scripts require permission entries in two places with different pattern formats.
 
@@ -78,16 +39,6 @@ Skills that also run as mise tasks (auto-commit, suggest-branch) use the collect
 
 Dual-mode skills (resolve-review, codex-review) support foreground (default) and background (`--bg` flag) execution. Foreground mode runs synchronously and processes results immediately. Background mode uses a two-phase pattern: the launch phase starts the shell script with `run_in_background` and returns immediately, while the result processing phase triggers automatically when a background task completion system-reminder is detected (or when the user explicitly requests results). Background mode allows multiple skills to run concurrently. Results are cached to `~/.cache/claude-bg/` for session loss recovery (e.g., `codex-review-{session-id}.txt`).
 
-- `/cloudwatch-logs` - Fetch CloudWatch logs (Python script with boto3)
-- `/sync-brew` - Add apps to Brewfile with auto-categorization
-- `/auto-commit` - Generate commit message candidates from staged changes with interactive selection (fzf/select)
-- `/suggest-branch` - Suggest branch name candidates with interactive selection and auto-apply (fzf/select)
-- `/pr` - Create pull request from branch changes
-- `/resolve-review` - Resolve PR review comments (foreground default, `--bg` for background)
-- `/await-ci` - Check CI status and wait for completion
-- `/claude-process` - Process status check, cleanup, and monitoring (subcommands: check, clean, monitor)
-- `/codex-review` - Run code review via Codex CLI (foreground default, `--bg` for background)
-
 ## Project Integration
 
 When running `mise run setup-links` in other projects, the following are symlinked:
@@ -99,34 +50,6 @@ When running `mise run setup-links` in other projects, the following are symlink
 - `.claudeignore` - Claude Code context exclusion (caches, build artifacts, etc. to reduce file tree snapshot tokens)
 
 Symlinks are tracked in `~/.config/mise/linked-repos/` for bulk management.
-
-## GitHub Actions
-
-- `claude-code-review.yml` - Automated PR review using Claude Code
-- `claude.yml` - Responds to @claude mentions in issues/PRs
-
-## mise Tasks
-
-File-based tasks are located in `.config/mise/tasks/`:
-
-- `setup-links` - Create symlinks and register to tracking
-- `cleanup-links` - Remove all symlinks from current repo
-- `cleanup-link` - Remove specific link from all registered repos (with confirmation)
-- `setup-wakatime` - Generate WakaTime config from 1Password
-- `setup-fonts` - Install Bizin Gothic NF from GitHub Releases
-- `scan-brew` - Show differences between installed packages and Brewfile
-- `auto-commit` - Generate commit message candidates (also available as `/auto-commit` skill)
-- `suggest-branch` - Suggest branch name candidates (also available as `/suggest-branch` skill)
-
-## Zsh Aliases
-
-Key productivity aliases defined in `.zshrc`:
-
-- `le`, `lt` - eza listing with git info
-- `tree` - eza tree view
-- `ruffc`, `rufff` - ruff check/format
-- `mr` - `mise run`
-- `diff` - delta
 
 ## Code Style
 
