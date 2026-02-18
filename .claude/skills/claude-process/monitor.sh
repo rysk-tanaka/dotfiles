@@ -17,31 +17,30 @@ monitor_claude_processes() {
     # Claude Codeプロセスを取得
     claude_pids=$(get_claude_processes)
 
-    if [ -z "$claude_pids" ]; then
-        echo "$(date '+%H:%M:%S') | プロセス数: 0 | 高CPU: 0 | メモリ: 0MB"
-        echo "✅ Claude Codeプロセスが見つかりません"
-        return 0
+    # CLI プロセスの統計
+    local process_count=0
+    local high_cpu_count=0
+    local total_mem=0
+    local claude_processes=""
+    local high_cpu_pids=""
+
+    if [ -n "$claude_pids" ]; then
+        # プロセス情報を一度だけ取得（パフォーマンス最適化）
+        # rss: 実メモリ使用量（KB）。vsz は仮想メモリで実態と乖離するため使用しない
+        # shellcheck disable=SC2086  # 複数PIDをスペース区切りで渡すため意図的
+        claude_processes=$(ps -o pid,ppid,pcpu,pmem,rss,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
     fi
 
-    # プロセス情報を一度だけ取得（パフォーマンス最適化）
-    # rss: 実メモリ使用量（KB）。vsz は仮想メモリで実態と乖離するため使用しない
-    # shellcheck disable=SC2086  # 複数PIDをスペース区切りで渡すため意図的
-    claude_processes=$(ps -o pid,ppid,pcpu,pmem,rss,cmd -p $claude_pids 2>/dev/null | grep -v PID || true)
+    if [ -n "$claude_processes" ]; then
+        # 統計計算（より堅牢なカウント手法）
+        process_count=$(echo "$claude_processes" | grep -c '^[[:space:]]*[0-9]' || true)
+        high_cpu_count=$(echo "$claude_processes" | awk '$3 > 80' | grep -c '^[[:space:]]*[0-9]' || true)
+        total_mem=$(echo "$claude_processes" | awk '{sum += $5} END {printf "%.0f", sum/1024}')
 
-    if [ -z "$claude_processes" ]; then
-        echo "$(date '+%H:%M:%S') | プロセス数: 0 | 高CPU: 0 | メモリ: 0MB"
-        echo "✅ Claude Codeプロセス情報の取得に失敗"
-        return 0
-    fi
-
-    # 統計計算（より堅牢なカウント手法）
-    process_count=$(echo "$claude_processes" | grep -c '^[[:space:]]*[0-9]' || true)
-    high_cpu_count=$(echo "$claude_processes" | awk '$3 > 80' | grep -c '^[[:space:]]*[0-9]' || true)
-    total_mem=$(echo "$claude_processes" | awk '{sum += $5} END {printf "%.0f", sum/1024}')
-
-    # メモリが計算できない場合の対処
-    if [ -z "$total_mem" ] || [ "$total_mem" = "" ]; then
-        total_mem=0
+        # メモリが計算できない場合の対処
+        if [ -z "$total_mem" ] || [ "$total_mem" = "" ]; then
+            total_mem=0
+        fi
     fi
 
     echo "$(date '+%H:%M:%S') | プロセス数: $process_count | 高CPU: $high_cpu_count | メモリ: ${total_mem}MB"
@@ -158,6 +157,15 @@ stop_daemon() {
     local pid
     pid=$(cat "$PIDFILE")
     if kill -0 "$pid" 2>/dev/null; then
+        # PID再利用による誤終了を防ぐため、プロセスが monitor.sh であることを検証
+        local proc_cmd
+        proc_cmd=$(ps -o args= -p "$pid" 2>/dev/null || true)
+        if [[ "$proc_cmd" != *"monitor.sh"* ]]; then
+            rm -f "$PIDFILE"
+            echo "PIDファイルのプロセス (PID: $pid) は monitor.sh ではありません: $proc_cmd"
+            echo "PIDファイルを削除しました"
+            return 1
+        fi
         kill "$pid"
         rm -f "$PIDFILE"
         echo "✅ デーモンを停止しました (PID: $pid)"
@@ -176,6 +184,15 @@ daemon_status() {
     local pid
     pid=$(cat "$PIDFILE")
     if kill -0 "$pid" 2>/dev/null; then
+        # PID再利用チェック
+        local proc_cmd
+        proc_cmd=$(ps -o args= -p "$pid" 2>/dev/null || true)
+        if [[ "$proc_cmd" != *"monitor.sh"* ]]; then
+            rm -f "$PIDFILE"
+            echo "PIDファイルのプロセス (PID: $pid) は monitor.sh ではありません"
+            echo "PIDファイルを削除しました"
+            return 1
+        fi
         echo "✅ デーモン稼働中 (PID: $pid)"
         echo "ログ: $LOGFILE"
         if [ -f "$LOGFILE" ]; then
@@ -260,9 +277,13 @@ if [ "$DAEMON_MODE" = true ]; then
     if [ -f "$PIDFILE" ]; then
         existing_pid=$(cat "$PIDFILE")
         if kill -0 "$existing_pid" 2>/dev/null; then
-            echo "⚠️  デーモンは既に起動しています (PID: $existing_pid)"
-            echo "停止するには: bash $0 --stop"
-            exit 1
+            # PID再利用チェック: monitor.sh でなければ stale pidfile として扱う
+            existing_cmd=$(ps -o args= -p "$existing_pid" 2>/dev/null || true)
+            if [[ "$existing_cmd" == *"monitor.sh"* ]]; then
+                echo "⚠️  デーモンは既に起動しています (PID: $existing_pid)"
+                echo "停止するには: bash $0 --stop"
+                exit 1
+            fi
         fi
         rm -f "$PIDFILE"
     fi
