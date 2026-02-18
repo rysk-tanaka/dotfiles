@@ -135,8 +135,10 @@ notify() {
     local message="$1"
     local title="${2:-Claude Process Monitor}"
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        osascript <<EOF 2>/dev/null || true
-display notification "$message" with title "$title"
+        osascript 2>/dev/null - "$message" "$title" <<'EOF' || true
+on run argv
+    display notification (item 1 of argv) with title (item 2 of argv)
+end run
 EOF
     fi
 }

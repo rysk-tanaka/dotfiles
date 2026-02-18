@@ -86,7 +86,8 @@ monitor_claude_processes() {
         [ "$total_mem" -gt 2048 ] && alert_parts+=("メモリ: ${total_mem}MB")
         [ -n "$companion_output" ] && alert_parts+=("関連プロセス高CPU")
         local alert_msg
-        alert_msg=$(IFS=', '; echo "${alert_parts[*]}")
+        printf -v alert_msg '%s, ' "${alert_parts[@]}"
+        alert_msg="${alert_msg%, }"
         notify "異常検出: ${alert_msg}。自動クリーンアップを実行します" "⚠️ Claude Process Monitor"
 
         echo "🔧 自動クリーンアップを実行します..."
