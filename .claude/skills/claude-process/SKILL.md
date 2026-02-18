@@ -51,3 +51,15 @@ monitor の場合、ユーザーが継続監視を希望すれば `--watch` フ�
 - check で高CPU/多数プロセス検出 → clean の実行を提案
 - clean 完了後 → check での再確認を提案
 - monitor で異常検出 → 自動クリーンアップの結果を報告
+
+## macOS 通知の前提条件
+
+monitor サブコマンドは異常検出時に osascript 経由で macOS 通知を送信する。
+通知を受け取るには、システム設定でスクリプトエディタの通知を有効にする必要がある。
+
+1. スクリプトエディタ.app を起動
+2. `display notification "test" with title "test"` を実行
+3. 表示される許可バナーをクリックして通知を有効化
+4. システム設定 > 通知 > スクリプトエディタ で「バナー」を選択
+
+参考: <https://christina04.hatenablog.com/entry/enable-osascript-notification>

@@ -128,6 +128,17 @@ get_companion_processes() {
     done
 }
 
+# macOS 通知を送信
+# $1: メッセージ本文
+# $2: タイトル（省略時: "Claude Process Monitor"）
+notify() {
+    local message="$1"
+    local title="${2:-Claude Process Monitor}"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        osascript -e "display notification \"$message\" with title \"$title\"" 2>/dev/null || true
+    fi
+}
+
 # 指定 PID が保護対象かどうか判定
 is_protected_pid() {
     local pid="$1"

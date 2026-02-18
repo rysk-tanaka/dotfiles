@@ -80,6 +80,16 @@ monitor_claude_processes() {
     fi
 
     if [ "$needs_cleanup" = true ]; then
+        # 異常検出を通知
+        local alert_parts=()
+        [ "$high_cpu_count" -gt 0 ] && alert_parts+=("高CPU: ${high_cpu_count}個")
+        [ "$process_count" -gt 10 ] && alert_parts+=("プロセス数: ${process_count}個")
+        [ "$total_mem" -gt 2048 ] && alert_parts+=("メモリ: ${total_mem}MB")
+        [ -n "$companion_output" ] && alert_parts+=("関連プロセス高CPU")
+        local alert_msg
+        alert_msg=$(IFS=', '; echo "${alert_parts[*]}")
+        notify "異常検出: ${alert_msg}。自動クリーンアップを実行します" "⚠️ Claude Process Monitor"
+
         echo "🔧 自動クリーンアップを実行します..."
 
         # 現在のプロセス保護
@@ -128,6 +138,7 @@ monitor_claude_processes() {
             fi
         fi
 
+        notify "クリーンアップ完了" "✅ Claude Process Monitor"
         echo "✅ クリーンアップ完了"
     else
         echo "✅ プロセス状態正常"
