@@ -40,7 +40,7 @@ jobs:
           additional_permissions: |
             actions: read
 
-          claude_args: '--model claude-sonnet-4-5-20250929'
+          claude_args: '--model claude-sonnet-4-6'
 
           prompt: |
             ユーザーのリクエストに日本語で対応してください。
