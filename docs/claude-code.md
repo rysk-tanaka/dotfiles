@@ -43,6 +43,24 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 
 `allowed-tools` のフォーマットが異なるため（Claude Code: パターンリスト形式、Codex: カンマ区切り文字列）、SKILL.md はツールごとに個別管理している。
 
+## Hooks
+
+### Notification
+
+`.claude/settings.json` の `hooks.Notification` で設定。通知イベント発生時にコマンドを実行できる。
+`matcher` フィールドで `notification_type` によるフィルタリングが可能（パイプ区切り）。
+
+通知タイプは以下の4種類。
+
+| notification_type | 発火タイミング |
+| --- | --- |
+| permission_prompt | ツール実行の許可プロンプト表示時（Allow/Deny） |
+| idle_prompt | 作業完了後、ユーザー入力待ち状態になった時 |
+| auth_success | 認証フロー（OAuth等）が成功した時 |
+| elicitation_dialog | AskUserQuestion等のダイアログ表示時 |
+
+現在の設定では `permission_prompt` を除外している（セッション中に頻発し通知過多になるため）。
+
 ## 設定変更方法
 
 設定変更は `claude config` コマンドを使用してください。

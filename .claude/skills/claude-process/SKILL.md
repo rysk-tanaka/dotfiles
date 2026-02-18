@@ -39,9 +39,18 @@ Claude Codeのプロセス状況確認、クリーンアップ、監視を行う
 - clean: `bash /Users/rysk/.claude/skills/claude-process/clean.sh`
 - monitor: `bash /Users/rysk/.claude/skills/claude-process/monitor.sh`
 
-monitor の場合、ユーザーが継続監視を希望すれば `--watch` フラグ付きで再実行する。
-`--watch` 実行時は Bash tool の timeout を 600000（最大値）に設定し、
+monitor のオプション。
+
+- (なし) — 一回限りの監視チェック
+- `--watch` — フォアグラウンドで継続監視（Ctrl+C で停止）
+- `--daemon` — バックグラウンドで継続監視（デーモンモード）
+- `--stop` — デーモンを停止
+- `--status` — デーモンの状態確認（最新ログ10行を表示）
+- `--interval N` — 監視間隔を秒で指定（デフォルト 300秒）
+
+セッション内で `--watch` を使う場合は Bash tool の timeout を 600000（最大値）に設定し、
 `run_in_background=true` での実行を提案する。
+セッション外で使う場合は `--daemon` を推奨する。
 
 ### 3. 結果の報告
 
@@ -51,3 +60,15 @@ monitor の場合、ユーザーが継続監視を希望すれば `--watch` フ�
 - check で高CPU/多数プロセス検出 → clean の実行を提案
 - clean 完了後 → check での再確認を提案
 - monitor で異常検出 → 自動クリーンアップの結果を報告
+
+## macOS 通知の前提条件
+
+monitor サブコマンドは異常検出時に osascript 経由で macOS 通知を送信する。
+通知を受け取るには、システム設定でスクリプトエディタの通知を有効にする必要がある。
+
+1. スクリプトエディタ.app を起動
+2. `display notification "test" with title "test"` を実行
+3. 表示される許可バナーをクリックして通知を有効化
+4. システム設定 > 通知 > スクリプトエディタ で「バナー」を選択
+
+参考: <https://christina04.hatenablog.com/entry/enable-osascript-notification>
