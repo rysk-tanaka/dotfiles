@@ -145,8 +145,55 @@ monitor_claude_processes() {
     fi
 }
 
+# デーモン管理用パス
+PIDFILE="$HOME/.cache/claude-process-monitor.pid"
+LOGFILE="$HOME/.cache/claude-process-monitor.log"
+
+# デーモン停止
+stop_daemon() {
+    if [ ! -f "$PIDFILE" ]; then
+        echo "デーモンは起動していません"
+        return 0
+    fi
+    local pid
+    pid=$(cat "$PIDFILE")
+    if kill -0 "$pid" 2>/dev/null; then
+        kill "$pid"
+        rm -f "$PIDFILE"
+        echo "✅ デーモンを停止しました (PID: $pid)"
+    else
+        rm -f "$PIDFILE"
+        echo "PIDファイルが残っていましたが、プロセスは既に終了しています"
+    fi
+}
+
+# デーモンステータス
+daemon_status() {
+    if [ ! -f "$PIDFILE" ]; then
+        echo "デーモンは起動していません"
+        return 1
+    fi
+    local pid
+    pid=$(cat "$PIDFILE")
+    if kill -0 "$pid" 2>/dev/null; then
+        echo "✅ デーモン稼働中 (PID: $pid)"
+        echo "ログ: $LOGFILE"
+        if [ -f "$LOGFILE" ]; then
+            echo -e "\n--- 最新ログ (10行) ---"
+            tail -10 "$LOGFILE"
+        fi
+        return 0
+    else
+        rm -f "$PIDFILE"
+        echo "PIDファイルが残っていましたが、プロセスは既に終了しています"
+        return 1
+    fi
+}
+
 # オプション解析
 WATCH_MODE=false
+DAEMON_MODE=false
+DAEMON_ACTION=""
 INTERVAL=300  # デフォルト5分間隔
 
 while [[ $# -gt 0 ]]; do
@@ -155,8 +202,20 @@ while [[ $# -gt 0 ]]; do
       WATCH_MODE=true
       shift
       ;;
+    -d|--daemon)
+      DAEMON_MODE=true
+      shift
+      ;;
+    --stop)
+      DAEMON_ACTION="stop"
+      shift
+      ;;
+    --status)
+      DAEMON_ACTION="status"
+      shift
+      ;;
     -i|--interval)
-      if [ -z "$2" ]; then
+      if [ -z "${2:-}" ]; then
         error_exit "--interval オプションには値が必要です"
       fi
       # 数値検証
@@ -171,8 +230,11 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     -h|--help)
-      echo "Usage: $0 [-w|--watch] [-i|--interval SECONDS] [-h|--help]"
-      echo "  -w, --watch     継続監視モード（Ctrl+Cで停止）"
+      echo "Usage: $0 [OPTIONS]"
+      echo "  -w, --watch     継続監視モード（フォアグラウンド、Ctrl+Cで停止）"
+      echo "  -d, --daemon    バックグラウンドで継続監視（デーモンモード）"
+      echo "  --stop          デーモンを停止"
+      echo "  --status        デーモンの状態を確認"
       echo "  -i, --interval  監視間隔（秒単位、デフォルト300秒）"
       echo "  -h, --help      このヘルプを表示"
       exit 0
@@ -183,6 +245,36 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+# デーモン管理アクション
+if [ -n "$DAEMON_ACTION" ]; then
+    case "$DAEMON_ACTION" in
+        stop)   stop_daemon ;;
+        status) daemon_status ;;
+    esac
+    exit $?
+fi
+
+# デーモンモード: バックグラウンドで --watch として再起動
+if [ "$DAEMON_MODE" = true ]; then
+    if [ -f "$PIDFILE" ]; then
+        existing_pid=$(cat "$PIDFILE")
+        if kill -0 "$existing_pid" 2>/dev/null; then
+            echo "⚠️  デーモンは既に起動しています (PID: $existing_pid)"
+            echo "停止するには: bash $0 --stop"
+            exit 1
+        fi
+        rm -f "$PIDFILE"
+    fi
+
+    mkdir -p "$(dirname "$LOGFILE")"
+    nohup bash "$0" --watch --interval "$INTERVAL" >> "$LOGFILE" 2>&1 &
+    echo $! > "$PIDFILE"
+    echo "✅ デーモンを起動しました (PID: $!)"
+    echo "ログ: $LOGFILE"
+    echo "停止: bash $0 --stop | 状態: bash $0 --status"
+    exit 0
+fi
 
 # 初回実行
 monitor_claude_processes
@@ -199,5 +291,6 @@ if [ "$WATCH_MODE" = true ]; then
   done
 else
   echo -e "\n✅ 監視完了"
-  echo "継続監視が必要な場合: bash $SCRIPT_DIR/monitor.sh --watch"
+  echo "継続監視: bash $SCRIPT_DIR/monitor.sh --watch"
+  echo "バックグラウンド監視: bash $SCRIPT_DIR/monitor.sh --daemon"
 fi

@@ -39,9 +39,18 @@ Claude Codeのプロセス状況確認、クリーンアップ、監視を行う
 - clean: `bash /Users/rysk/.claude/skills/claude-process/clean.sh`
 - monitor: `bash /Users/rysk/.claude/skills/claude-process/monitor.sh`
 
-monitor の場合、ユーザーが継続監視を希望すれば `--watch` フラグ付きで再実行する。
-`--watch` 実行時は Bash tool の timeout を 600000（最大値）に設定し、
+monitor のオプション。
+
+- (なし) — 一回限りの監視チェック
+- `--watch` — フォアグラウンドで継続監視（Ctrl+C で停止）
+- `--daemon` — バックグラウンドで継続監視（デーモンモード）
+- `--stop` — デーモンを停止
+- `--status` — デーモンの状態確認（最新ログ10行を表示）
+- `--interval N` — 監視間隔を秒で指定（デフォルト 300秒）
+
+セッション内で `--watch` を使う場合は Bash tool の timeout を 600000（最大値）に設定し、
 `run_in_background=true` での実行を提案する。
+セッション外で使う場合は `--daemon` を推奨する。
 
 ### 3. 結果の報告
 
