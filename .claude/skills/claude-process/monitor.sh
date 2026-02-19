@@ -79,6 +79,60 @@ monitor_claude_processes() {
     fi
 
     if [ "$needs_cleanup" = true ]; then
+        # 現在のプロセス保護
+        if ! init_session_protection; then
+            echo "⚠️ 親プロセスIDの取得に失敗、クリーンアップをスキップします"
+            return 1
+        fi
+
+        # 高CPU使用率プロセスの処理
+        high_cpu_pids=$(echo "$claude_processes" | awk '$3 > 80 {print $1}')
+        local killed_any=false
+
+        if [ "$CONSECUTIVE_DETECTION" = true ] && [ -z "$high_cpu_pids" ]; then
+            # 高CPUプロセスがない場合はステートをクリア（誤った連続検出を防止）
+            rm -f "$HIGH_CPU_STATEFILE"
+        elif [ "$CONSECUTIVE_DETECTION" = true ] && [ -n "$high_cpu_pids" ]; then
+            # 連続検知方式: 2回連続で高CPUの場合のみ強制終了
+            local prev_high_cpu_pids=""
+            if [ -f "$HIGH_CPU_STATEFILE" ]; then
+                prev_high_cpu_pids=$(cat "$HIGH_CPU_STATEFILE")
+            fi
+
+            # 今回の高CPU PIDをステートファイルに記録（次回サイクル用）
+            mkdir -p "$(dirname "$HIGH_CPU_STATEFILE")"
+            echo "$high_cpu_pids" > "$HIGH_CPU_STATEFILE"
+
+            for pid in $high_cpu_pids; do
+                if ! is_protected_pid "$pid"; then
+                    if [ -n "$prev_high_cpu_pids" ] && echo "$prev_high_cpu_pids" | grep -qw "$pid"; then
+                        echo "高CPU使用率プロセス PID:$pid を強制終了（2回連続検出）"
+                        if kill -9 "$pid" 2>/dev/null; then
+                            echo "✅ PID:$pid を強制終了しました"
+                            killed_any=true
+                        else
+                            echo "⚠️ PID:$pid の終了に失敗しました"
+                        fi
+                    else
+                        echo "⚠️ 高CPU使用率プロセス PID:$pid を検出（初回、次回も継続する場合に終了）"
+                    fi
+                fi
+            done
+        elif [ -n "$high_cpu_pids" ]; then
+            # ワンショット実行: 従来通り即座に強制終了
+            for pid in $high_cpu_pids; do
+                if ! is_protected_pid "$pid"; then
+                    echo "高CPU使用率プロセス PID:$pid を強制終了"
+                    if kill -9 "$pid" 2>/dev/null; then
+                        echo "✅ PID:$pid を強制終了しました"
+                        killed_any=true
+                    else
+                        echo "⚠️ PID:$pid の終了に失敗しました"
+                    fi
+                fi
+            done
+        fi
+
         # 異常検出を通知
         local alert_parts=()
         [ "$high_cpu_count" -gt 0 ] && alert_parts+=("高CPU: ${high_cpu_count}個")
@@ -88,29 +142,14 @@ monitor_claude_processes() {
         local alert_msg
         printf -v alert_msg '%s, ' "${alert_parts[@]}"
         alert_msg="${alert_msg%, }"
-        notify "異常検出: ${alert_msg}。自動クリーンアップを実行します" "⚠️ Claude Process Monitor"
 
-        echo "🔧 自動クリーンアップを実行します..."
-
-        # 現在のプロセス保護
-        if ! init_session_protection; then
-            echo "⚠️ 親プロセスIDの取得に失敗、クリーンアップをスキップします"
-            return 1
+        if [ "$killed_any" = true ] || [ "$process_count" -gt 8 ] || [ -n "$companion_output" ]; then
+            notify "異常検出: ${alert_msg}。自動クリーンアップを実行します" "⚠️ Claude Process Monitor"
+            echo "🔧 自動クリーンアップを実行します..."
+        else
+            notify "異常検出: ${alert_msg}。監視中（次回も継続する場合に終了）" "⚠️ Claude Process Monitor"
+            echo "👀 監視中（次回も継続する場合に終了）..."
         fi
-
-        # 高CPU使用率プロセスを強制終了
-        # 自動監視のため段階的終了ではなく即座に SIGKILL を使用
-        high_cpu_pids=$(echo "$claude_processes" | awk '$3 > 80 {print $1}')
-        for pid in $high_cpu_pids; do
-            if ! is_protected_pid "$pid"; then
-                echo "高CPU使用率プロセス PID:$pid を強制終了"
-                if kill -9 "$pid" 2>/dev/null; then
-                    echo "✅ PID:$pid を強制終了しました"
-                else
-                    echo "⚠️ PID:$pid の終了に失敗しました"
-                fi
-            fi
-        done
 
         # 多数のプロセスがある場合、古いものを終了
         if [ "$process_count" -gt 8 ]; then
@@ -138,9 +177,13 @@ monitor_claude_processes() {
             fi
         fi
 
-        notify "クリーンアップ完了" "✅ Claude Process Monitor"
-        echo "✅ クリーンアップ完了"
+        if [ "$killed_any" = true ] || [ "$process_count" -gt 8 ]; then
+            notify "クリーンアップ完了" "✅ Claude Process Monitor"
+            echo "✅ クリーンアップ完了"
+        fi
     else
+        # 正常時はステートファイルをクリア
+        rm -f "$HIGH_CPU_STATEFILE"
         echo "✅ プロセス状態正常"
     fi
 }
@@ -148,6 +191,7 @@ monitor_claude_processes() {
 # デーモン管理用パス
 PIDFILE="$HOME/.cache/claude-process-monitor.pid"
 LOGFILE="$HOME/.cache/claude-process-monitor.log"
+HIGH_CPU_STATEFILE="$HOME/.cache/claude-process-monitor-highcpu.state"
 
 # デーモン停止
 stop_daemon() {
@@ -162,16 +206,16 @@ stop_daemon() {
         local proc_cmd
         proc_cmd=$(ps -o args= -p "$pid" 2>/dev/null || true)
         if [[ "$proc_cmd" != *"monitor.sh"* ]]; then
-            rm -f "$PIDFILE"
+            rm -f "$PIDFILE" "$HIGH_CPU_STATEFILE"
             echo "PIDファイルのプロセス (PID: $pid) は monitor.sh ではありません: $proc_cmd"
             echo "PIDファイルを削除しました"
             return 1
         fi
         kill "$pid"
-        rm -f "$PIDFILE"
+        rm -f "$PIDFILE" "$HIGH_CPU_STATEFILE"
         echo "✅ デーモンを停止しました (PID: $pid)"
     else
-        rm -f "$PIDFILE"
+        rm -f "$PIDFILE" "$HIGH_CPU_STATEFILE"
         echo "PIDファイルが残っていましたが、プロセスは既に終了しています"
     fi
 }
@@ -189,7 +233,7 @@ daemon_status() {
         local proc_cmd
         proc_cmd=$(ps -o args= -p "$pid" 2>/dev/null || true)
         if [[ "$proc_cmd" != *"monitor.sh"* ]]; then
-            rm -f "$PIDFILE"
+            rm -f "$PIDFILE" "$HIGH_CPU_STATEFILE"
             echo "PIDファイルのプロセス (PID: $pid) は monitor.sh ではありません"
             echo "PIDファイルを削除しました"
             return 1
@@ -202,7 +246,7 @@ daemon_status() {
         fi
         return 0
     else
-        rm -f "$PIDFILE"
+        rm -f "$PIDFILE" "$HIGH_CPU_STATEFILE"
         echo "PIDファイルが残っていましたが、プロセスは既に終了しています"
         return 1
     fi
@@ -213,6 +257,7 @@ WATCH_MODE=false
 DAEMON_MODE=false
 DAEMON_ACTION=""
 INTERVAL=300  # デフォルト5分間隔
+CONSECUTIVE_DETECTION=false  # watch/daemonモードで有効化
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -286,7 +331,7 @@ if [ "$DAEMON_MODE" = true ]; then
                 exit 1
             fi
         fi
-        rm -f "$PIDFILE"
+        rm -f "$PIDFILE" "$HIGH_CPU_STATEFILE"
     fi
 
     mkdir -p "$(dirname "$LOGFILE")"
@@ -298,18 +343,25 @@ if [ "$DAEMON_MODE" = true ]; then
     exit 0
 fi
 
+# 継続監視モードでは連続検知を有効化（初回実行前に設定）
+if [ "$WATCH_MODE" = true ]; then
+  CONSECUTIVE_DETECTION=true
+  # 新しいセッション開始時はステートをクリア（前回セッションの残留を防止）
+  rm -f "$HIGH_CPU_STATEFILE"
+fi
+
 # 初回実行
 monitor_claude_processes
 
 # 継続監視モード
 if [ "$WATCH_MODE" = true ]; then
-  echo -e "\n継続監視モード開始（${INTERVAL}秒間隔）"
+  echo -e "\n継続監視モード開始（${INTERVAL}秒間隔、連続検知方式）"
   echo "停止するには Ctrl+C を押してください"
 
   while true; do
     sleep "$INTERVAL"
     echo -e "\n$(date '+%H:%M:%S') | 定期チェック"
-    monitor_claude_processes
+    monitor_claude_processes || echo "⚠️ 監視サイクルでエラーが発生しました（このサイクルをスキップ）"
   done
 else
   echo -e "\n✅ 監視完了"
