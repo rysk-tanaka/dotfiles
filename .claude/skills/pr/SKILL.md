@@ -98,6 +98,8 @@ PR作成後、PRのURLからPR番号を抽出し、AskUserQuestion ツールで�
 - 選択肢
   - `/await-ci <PR番号> --watch` - CI の完了を待機
   - `/resolve-review <PR番号>` - レビュー指摘を確認・対応
+  - `/review <PR番号>` - コードレビューを実行
+  - `/pr-review-toolkit:review-pr` - PR の包括的レビューを実行
   - `何もしない` - 終了
 
-ユーザーがスキルを選択した場合は、対応する Skill ツールで実行する。
+ユーザーがスキルを選択した場合は、対応する Skill ツールまたは SlashCommand ツールで実行する。
