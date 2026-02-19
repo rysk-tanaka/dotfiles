@@ -361,7 +361,7 @@ if [ "$WATCH_MODE" = true ]; then
   while true; do
     sleep "$INTERVAL"
     echo -e "\n$(date '+%H:%M:%S') | 定期チェック"
-    monitor_claude_processes
+    monitor_claude_processes || echo "⚠️ 監視サイクルでエラーが発生しました（このサイクルをスキップ）"
   done
 else
   echo -e "\n✅ 監視完了"
