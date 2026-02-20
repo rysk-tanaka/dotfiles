@@ -45,9 +45,17 @@ WORK_DIR=$(mktemp -d)
 trap 'rm -rf "$WORK_DIR"' EXIT
 
 fetch_checks() {
-    gh pr checks "$PR_NUMBER" \
+    local stderr_file="$WORK_DIR/stderr"
+    if gh pr checks "$PR_NUMBER" \
         --json bucket,name,state,description,link,workflow,event,startedAt,completedAt \
-        > "$WORK_DIR/raw" 2>/dev/null
+        > "$WORK_DIR/raw" 2>"$stderr_file"; then
+        return 0
+    fi
+    if grep -q "no checks reported" "$stderr_file" 2>/dev/null; then
+        echo '[]' > "$WORK_DIR/raw"
+        return 10
+    fi
+    return 1
 }
 
 normalize_output() {
@@ -114,7 +122,12 @@ exit_with_status() {
 # --- One-shot mode ---
 
 if [[ "$WATCH" == false ]]; then
-    if ! fetch_checks; then
+    rc=0
+    fetch_checks || rc=$?
+    if [[ "$rc" -eq 10 ]]; then
+        echo '{"pr_number":'"$PR_NUMBER"',"status":"no_checks","elapsed_seconds":0,"summary":{"total":0,"pass":0,"fail":0,"pending":0,"skipping":0,"cancel":0},"checks":[]}'
+        exit 0
+    elif [[ "$rc" -ne 0 ]]; then
         echo "Error: failed to fetch CI checks for PR #$PR_NUMBER" >&2
         exit 1
     fi
@@ -125,10 +138,24 @@ fi
 
 START_TIME=$SECONDS
 
+NO_CHECKS_LIMIT=60
+
 while true; do
     elapsed=$(( SECONDS - START_TIME ))
 
-    if ! fetch_checks; then
+    rc=0
+    fetch_checks || rc=$?
+    if [[ "$rc" -eq 10 ]]; then
+        no_checks_limit=$(( NO_CHECKS_LIMIT < TIMEOUT ? NO_CHECKS_LIMIT : TIMEOUT ))
+        if [[ "$elapsed" -ge "$no_checks_limit" ]]; then
+            echo "[$(date +%H:%M:%S)] No CI checks configured for PR #$PR_NUMBER" >&2
+            echo '{"pr_number":'"$PR_NUMBER"',"status":"no_checks","elapsed_seconds":'"$elapsed"',"summary":{"total":0,"pass":0,"fail":0,"pending":0,"skipping":0,"cancel":0},"checks":[]}'
+            exit 0
+        fi
+        echo "[$(date +%H:%M:%S)] No checks found yet, waiting... (${elapsed}s elapsed)" >&2
+        sleep "$INTERVAL"
+        continue
+    elif [[ "$rc" -ne 0 ]]; then
         echo "[$(date +%H:%M:%S)] Warning: failed to fetch checks, retrying..." >&2
         sleep "$INTERVAL"
         continue

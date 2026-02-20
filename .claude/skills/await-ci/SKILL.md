@@ -29,7 +29,7 @@ PR の CI チェック状態を取得し、必要に応じて完了まで待機�
 スクリプトの stdout は JSON 形式で以下のフィールドを含む。
 
 - `pr_number` - PR番号
-- `status` - 全体ステータス（"pass", "fail", "pending"）
+- `status` - 全体ステータス（"pass", "fail", "pending", "no_checks"）
 - `elapsed_seconds` - 経過時間（秒）
 - `summary` - バケットごとのカウント
   - `total`, `pass`, `fail`, `pending`, `skipping`, `cancel`
@@ -44,6 +44,10 @@ PR の CI チェック状態を取得し、必要に応じて完了まで待機�
 ### 3. 結果の報告
 
 status に応じて報告する。
+
+#### status が "no_checks" の場合
+
+CI チェックが設定されていない旨を報告する。
 
 #### status が "pass" の場合
 
