@@ -9,7 +9,7 @@ set -euo pipefail
 command -v jq >/dev/null 2>&1 || exit 0
 
 INPUT=$(cat)
-PROMPT=$(printf '%s' "$INPUT" | jq -r '.prompt // empty')
+PROMPT=$(printf '%s' "$INPUT" | jq -r '.prompt // empty' 2>/dev/null) || exit 0
 
 # --- Early exits ---
 
@@ -138,9 +138,4 @@ fi
 
 # --- Output ---
 
-jq -n --arg msg "$MSG" '{
-  "hookSpecificOutput": {
-    "hookEventName": "UserPromptSubmit",
-    "additionalContext": $msg
-  }
-}'
+printf '%s\n' "$MSG"
