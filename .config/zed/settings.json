@@ -7,11 +7,23 @@
 // custom settings, run `zed: open default settings` from the
 // command palette
 {
-  "features": {
-    "edit_prediction_provider": "copilot",
+  "agent_servers": {
+    "github-copilot": {
+      "favorite_models": [
+        "claude-opus-4.6",
+        "claude-sonnet-4.6",
+        "gpt-5.2-codex"
+      ],
+      "type": "registry"
+    }
+  },
+  "edit_predictions": {
+    "provider": "copilot"
   },
   "agent": {
-    "always_allow_tool_actions": true,
+    "tool_permissions": {
+      "default": "allow"
+    },
     "model_parameters": [],
   },
   "vim_mode": true,
