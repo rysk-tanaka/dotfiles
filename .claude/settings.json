@@ -50,7 +50,7 @@
       "Read(~/.ssh/**)"
     ]
   },
-  "model": "claude-opus-4-6",
+  "model": "opus",
   "hooks": {
     "PostToolUse": [
       {
