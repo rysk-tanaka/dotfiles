@@ -28,6 +28,7 @@ yarn = "latest"
 zoxide = "latest"
 
 # aqua: tools
+"aqua:ducaale/xh" = "latest"
 "aqua:google/osv-scanner" = "latest"
 "aqua:j178/prek" = "latest"
 "aqua:sxyazi/yazi" = "latest"
