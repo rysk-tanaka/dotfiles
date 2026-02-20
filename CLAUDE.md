@@ -51,8 +51,17 @@ When running `mise run setup-links` in other projects, the following are symlink
 
 Symlinks are tracked in `~/.config/mise/linked-repos/` for bulk management.
 
+## Claude Code Hooks
+
+Located in `.claude/hooks/`, configured in `.claude/settings.json` under `hooks`.
+
+- UserPromptSubmit (`suggest-effort.sh`) - Analyzes prompt complexity via keyword scoring and suggests effort level adjustments. Outputs plain text to stdout (not JSON, to avoid claude-code#17550). Must complete in < 100ms.
+- PostToolUse - Auto-lints Python files after Edit/Write (inline command in settings.json)
+- Notification - macOS notification via osascript on idle_prompt/auth_success/elicitation_dialog
+
 ## Code Style
 
 - Shell scripts: Bash, use shellcheck for validation
 - Python: Python 3.12 with type hints, format with ruff, type-check with mypy/ty/pyright
 - Commit messages: Follow conventional commits (feat, fix, docs, chore)
+- Pre-commit hooks: `end-of-file-fixer` and `trailing-whitespace` run automatically on commit
