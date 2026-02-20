@@ -15,12 +15,11 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 
 - `/permalink` - 指定ファイルのGitHubパーマリンクを生成
 - `/uv-init` - uvでPythonプロジェクトを初期化（pyproject.toml設定自動生成、pytest, ruff, mypy付き）
-- `/skills` - 利用可能なスキルの一覧を表示
 - `/check-bg` - バックグラウンドタスクの結果を確認
 
 ## カスタムスキル
 
-スキルの追加・更新時は `.claude/skills/catalog.json` も合わせて更新してください（`/skills` コマンドで参照されます）。
+スキルの追加・更新時は `.claude/skills/catalog.json` も合わせて更新してください。
 シェルスクリプトを含むスキルは `.claude/settings.json` の `permissions.allow` にも実行パターンの追加が必要です（例: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`）。
 
 - `/cloudwatch-logs` - CloudWatchログの取得・検索（boto3ベースのPythonスクリプトで実装）

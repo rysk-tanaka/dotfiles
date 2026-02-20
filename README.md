@@ -31,10 +31,9 @@ MacOS用の初期セットアップを行います。
 │   ├── commands/                     # カスタムコマンド
 │   │   ├── check-bg.md               # バックグラウンドタスク結果確認
 │   │   ├── permalink.md              # パーマリンクコマンド
-│   │   ├── uv-init.md                # Pythonプロジェクト初期化
-│   │   └── skills.md                 # スキル一覧表示
+│   │   └── uv-init.md                # Pythonプロジェクト初期化
 │   ├── skills/                       # カスタムスキル
-│   │   ├── catalog.json              # スキルメタデータ（/skills コマンド用）
+│   │   ├── catalog.json              # スキルメタデータ
 │   │   ├── cloudwatch-logs/          # CloudWatchログ取得
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   └── cloudwatch_logs.py    # Pythonスクリプト（PEP 723）

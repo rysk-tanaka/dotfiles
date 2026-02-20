@@ -28,7 +28,7 @@ This is a dotfiles repository that manages macOS configuration files through sym
 
 ## Claude Code Custom Skills
 
-Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/catalog.json` for the `/skills` command. When adding or updating skills, update catalog.json as well. Skills with shell scripts require permission entries in two places with different pattern formats.
+Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/catalog.json`. When adding or updating skills, update catalog.json as well. Skills with shell scripts require permission entries in two places with different pattern formats.
 
 - `.claude/settings.json` `permissions.allow` → colon format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`
 - SKILL.md `allowed-tools` → space format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script> *)`
