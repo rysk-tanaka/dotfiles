@@ -52,6 +52,17 @@
   },
   "model": "opus",
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/rysk/Repositories/rysk/dotfiles/.claude/hooks/suggest-effort.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
