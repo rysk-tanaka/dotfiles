@@ -26,6 +26,8 @@ MacOS用の初期セットアップを行います。
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── settings.json                 # グローバル設定
+│   ├── hooks/                        # フックスクリプト
+│   │   └── suggest-effort.sh         # effortレベル提案（UserPromptSubmit）
 │   ├── commands/                     # カスタムコマンド
 │   │   ├── check-bg.md               # バックグラウンドタスク結果確認
 │   │   ├── permalink.md              # パーマリンクコマンド
