@@ -4,5 +4,12 @@
   "enabledManagers": ["github-actions", "mise", "pre-commit"],
   "labels": ["dependencies"],
   "timezone": "Asia/Tokyo",
-  "schedule": ["before 9am on saturday"]
+  "schedule": ["before 9am on saturday"],
+  "packageRules": [
+    {
+      "matchManagers": ["mise"],
+      "matchPackageNames": ["python"],
+      "allowedVersions": "~3.12"
+    }
+  ]
 }

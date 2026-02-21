@@ -23,7 +23,7 @@ This is a dotfiles repository that manages macOS configuration files through sym
 
 1. Configuration Storage: All dotfiles are stored in this repository under their respective paths
 2. Symlink Management: Manual creation of symlinks from the repository to their expected system locations
-3. Tool Management: mise handles installation and version management of development tools
+3. Tool Management: mise handles installation and version management of development tools. Versions are pinned in `.config/mise/config.toml` and updated via Renovate. Exceptions: `node` (lts), `claude-code` (latest)
 4. Project Integration: The `setup-links` task allows other projects to inherit coding standards and configurations
 
 ## Claude Code Custom Skills
