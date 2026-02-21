@@ -40,7 +40,7 @@ jobs:
 
             ## 手順
 
-            1. `gh pr view` で PR 本文を取得する
+            1. 下記「対象PR」に記載の PR番号を使い `gh pr view <PR番号>` で PR 本文を取得する
             2. PR 本文から Release Notes セクション（`### Release Notes` 以降）を抽出する
             3. 内容が実質的かどうか判定する
                - Compare Source リンクのみ、changelog のリンクのみ、または空の場合はスキップ
@@ -54,7 +54,7 @@ jobs:
 
             - コメントの先頭に `<!-- renovate-translate -->` マーカーを含める（HTML コメントとして不可視）
             - 既存のマーカー付きコメントを検索する
-              - `gh api repos/${{ github.repository }}/issues/$PR_NUMBER/comments` でコメント一覧を取得
+              - `gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number || github.event.inputs.pr_number }}/comments` でコメント一覧を取得
               - body に `<!-- renovate-translate -->` を含むコメントを探す
               - 見つかった場合: `gh api -X PATCH repos/${{ github.repository }}/issues/comments/COMMENT_ID -f body="..."` で更新
               - 見つからない場合: `gh pr comment` で新規投稿
