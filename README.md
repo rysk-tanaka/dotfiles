@@ -79,6 +79,7 @@ MacOS用の初期セットアップを行います。
 │   └── workflows/                    # GitHub Actions
 │       ├── claude-code-review.yml    # PRの自動レビュー
 │       ├── claude.yml                # @claudeメンション応答
+│       ├── renovate-translate.yml    # Renovate PRリリースノート翻訳
 │       └── pull_request_template.md  # PRテンプレート
 ├── .pre-commit-config.yaml           # pre-commitフック設定
 ├── .markdownlint-cli2.jsonc          # markdownlint設定

@@ -1,0 +1,78 @@
+name: Renovate Release Notes Translation
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR番号を指定して翻訳を実行"
+        required: true
+        type: string
+
+jobs:
+  translate:
+    if: |
+      (github.event_name == 'pull_request' && github.actor == 'renovate[bot]') ||
+      (github.event_name == 'workflow_dispatch')
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Translate Release Notes
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          prompt: |
+            Renovate が作成した PR のリリースノートを日本語で要約してコメントに投稿してください。
+
+            ## 手順
+
+            1. 下記「対象PR」に記載の PR番号を使い `gh pr view <PR番号>` で PR 本文を取得する
+            2. PR 本文から Release Notes セクション（`### Release Notes` 以降）を抽出する
+            3. 内容が実質的かどうか判定する
+               - Compare Source リンクのみ、changelog のリンクのみ、または空の場合はスキップ
+               - スキップ時は「リリースノートに実質的な内容がないため、翻訳をスキップしました。」とだけコメントする
+            4. 実質的な内容がある場合、以下の形式で日本語の要約を作成する
+               - 各バージョンごとに主要な変更点を箇条書きでまとめる
+               - 技術的な用語はそのまま残してよい
+               - 簡潔さを重視する
+
+            ## コメント管理
+
+            - コメントの先頭に `<!-- renovate-translate -->` マーカーを含める（HTML コメントとして不可視）
+            - 既存のマーカー付きコメントを検索する
+              - `gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number || github.event.inputs.pr_number }}/comments` でコメント一覧を取得
+              - body に `<!-- renovate-translate -->` を含むコメントを探す
+              - 見つかった場合: `gh api -X PATCH repos/${{ github.repository }}/issues/comments/COMMENT_ID -f body="..."` で更新
+              - 見つからない場合: `gh pr comment` で新規投稿
+
+            ## コメント形式
+
+            ```text
+            <!-- renovate-translate -->
+            ## 📋 リリースノート要約
+
+            （日本語の要約内容）
+
+            ---
+            🤖 モデル: [実際のモデル名] / 💰 コスト: 入力[N]トークン, 出力[M]トークン, $[金額]
+            ```
+
+            ## 対象PR
+
+            PR番号: ${{ github.event.pull_request.number || github.event.inputs.pr_number }}
+
+          claude_args: '--model claude-sonnet-4-6 --allowed-tools "Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh api:*)"'
