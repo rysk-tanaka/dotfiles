@@ -126,12 +126,13 @@ fetch.sh の出力を「共通分析ステップ」に従って処理する。
     - `path` - 対象ファイルパス
     - `line` - 対象行番号
     - `diff_hunk` - 差分コンテキスト
-- `comments` - 一般コメントの配列（minimized 除外済み）
+- `comments` - 一般コメントの配列（minimized 除外済み、ボットは最新1件のみ）
   - `id` - コメントID
   - `body` - コメント本文
   - `author` - 投稿者
   - `created_at` - 投稿日時
   - `url` - コメントURL
+- `bot_comments_omitted` - ボット著者（claude）の省略されたコメント数
 
 ### コメントの分類
 
