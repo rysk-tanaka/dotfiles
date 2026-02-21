@@ -8,7 +8,7 @@
   "packageRules": [
     {
       "matchManagers": ["mise"],
-      "matchPackageNames": ["python"],
+      "matchDepNames": ["python"],
       "allowedVersions": "~3.12"
     }
   ]
