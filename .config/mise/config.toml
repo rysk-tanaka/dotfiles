@@ -3,7 +3,7 @@
 1password-cli = "2.32.1"
 aws-sam-cli = "1.154.0"
 aws-vault = "7.2.0"
-awscli = "2.33.26"                         # requires rosetta 2
+awscli = "2.33.27"                         # requires rosetta 2
 bat = "0.26.1"
 delta = "0.18.2"
 duckdb = "1.4.4"
