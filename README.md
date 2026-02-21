@@ -88,7 +88,8 @@ MacOS用の初期セットアップを行います。
     ├── claude-code.md                # Claude Code設定詳細
     ├── git-worktree-runner.md        # git-worktree-runner導入ガイド
     ├── jujutsu.md                    # Jujutsu (jj) 導入ガイド
-    └── mcp.md                        # MCP設定詳細
+    ├── mcp.md                        # MCP設定詳細
+    └── renovate.md                   # Renovate依存関係自動更新設定
 ```
 
 ## セットアップ
@@ -421,3 +422,4 @@ source .venv/bin/activate
 - [MCP設定](./docs/mcp.md) - MCPサーバーの設定
 - [ccmanager](./docs/ccmanager.md) - AIアシスタントセッション管理ツール
 - [Jujutsu](./docs/jujutsu.md) - Jujutsu (jj) バージョン管理システム
+- [Renovate](./docs/renovate.md) - 依存関係の自動更新設定

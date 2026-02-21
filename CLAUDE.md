@@ -23,8 +23,9 @@ This is a dotfiles repository that manages macOS configuration files through sym
 
 1. Configuration Storage: All dotfiles are stored in this repository under their respective paths
 2. Symlink Management: Manual creation of symlinks from the repository to their expected system locations
-3. Tool Management: mise handles installation and version management of development tools. Versions are pinned in `.config/mise/config.toml` and updated via Renovate. Exceptions: `node` (lts), `claude-code` (latest)
+3. Tool Management: mise handles installation and version management of development tools. Versions are pinned in `.config/mise/config.toml` and updated via Renovate (`renovate.json`). Exceptions: `node` (lts), `claude-code` (latest) are not tracked by Renovate
 4. Project Integration: The `setup-links` task allows other projects to inherit coding standards and configurations
+5. Documentation: Detailed guides are in `docs/` (claude-code, mcp, renovate, etc.)
 
 ## Claude Code Custom Skills
 
@@ -58,6 +59,14 @@ Located in `.claude/hooks/`, configured in `.claude/settings.json` under `hooks`
 - UserPromptSubmit (`suggest-effort.sh`) - Analyzes prompt complexity via keyword scoring and suggests effort level adjustments. Outputs plain text to stdout (not JSON, to avoid claude-code#17550). Must complete in < 100ms.
 - PostToolUse - Auto-lints Python files after Edit/Write (inline command in settings.json)
 - Notification - macOS notification via osascript on idle_prompt/auth_success/elicitation_dialog
+
+## Permission Boundaries
+
+The following operations are blocked in `.claude/settings.json` deny rules.
+
+- `git add -A`, `git add --all`, `git add .` - always stage specific files instead
+- `rm -rf` - destructive removal blocked
+- Reading `.env*`, `~/.aws/credentials`, `~/.gnupg/**`, `~/.ssh/**` - sensitive files blocked
 
 ## Code Style
 
