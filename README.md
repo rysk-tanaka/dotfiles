@@ -46,7 +46,8 @@ MacOS用の初期セットアップを行います。
 │   │   │   └── check.sh              # CIチェック取得スクリプト
 │   │   ├── pr/                       # プルリクエスト作成
 │   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── collect.sh            # データ収集スクリプト
+│   │   │   ├── collect.sh            # データ収集スクリプト
+│   │   │   └── pull_request_template.md  # フォールバック用PRテンプレート
 │   │   ├── resolve-review/           # PRレビュー指摘対応
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   ├── fetch.sh              # レビューデータ取得スクリプト
