@@ -16,6 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)
 - Setup Claude token: `mise run setup-claude-token` (sets `CLAUDE_CODE_OAUTH_TOKEN` secret on current GitHub repo)
 - Setup review label: `mise run setup-review-label` (creates `claude-review` label on current GitHub repo)
+- Suggest branch name: `mise run suggest-branch` (analyzes work and suggests branch names)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 
@@ -68,6 +69,12 @@ The following operations are blocked in `.claude/settings.json` deny rules.
 - `git add -A`, `git add --all`, `git add .` - always stage specific files instead
 - `rm -rf` - destructive removal blocked
 - Reading `.env*`, `~/.aws/credentials`, `~/.gnupg/**`, `~/.ssh/**` - sensitive files blocked
+
+## GitHub Workflows
+
+- `claude-code-review.yml` - `claude-review` ラベル付きPR、`@claude-review` コメント、または手動実行でClaude Code Reviewを実行
+- `claude.yml` - Issue/PRコメントで `@claude` メンションすると汎用Claude Codeが応答
+- `renovate-translate.yml` - Renovate BotのPRリリースノートを日本語に要約してコメント投稿
 
 ## Code Style
 
