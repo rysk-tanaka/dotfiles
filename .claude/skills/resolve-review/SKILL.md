@@ -4,6 +4,7 @@ description: PRレビューコメントを取得し対応が必要な項目を�
 allowed-tools:
   # ~ is not expanded in allowed-tools patterns (claude-code#14956)
   - Bash(bash /Users/rysk/.claude/skills/resolve-review/fetch.sh*)
+  - Bash(bash /Users/rysk/.claude/skills/resolve-review/minimize.sh *)
   - Bash(bash /Users/rysk/.claude/skills/await-ci/check.sh*)
   - BashOutput
 ---
@@ -133,6 +134,7 @@ fetch.sh の出力を「共通分析ステップ」に従って処理する。
   - `created_at` - 投稿日時
   - `url` - コメントURL
 - `bot_comments_omitted` - ボット著者（claude）の省略されたコメント数
+- `bot_comments_to_minimize` - 省略されたボットコメントの node ID 配列
 
 ### コメントの分類
 
@@ -161,6 +163,7 @@ fetch.sh の出力を「共通分析ステップ」に従って処理する。
 - 要対応の一般コメントの詳細
   - 投稿者とコメントURL
   - 指摘内容
+- bot コメント省略数（`bot_comments_omitted` > 0 の場合）
 
 ### 対応アクションの提案
 
@@ -171,3 +174,11 @@ fetch.sh の出力を「共通分析ステップ」に従って処理する。
 - 対応不要と判断した場合は、その理由を説明する
 
 すべてのコメントに対応した後、レビュアーに再確認を依頼することを提案する。
+
+### bot コメントの折りたたみ
+
+`bot_comments_to_minimize` が空でない場合、ユーザーに折りたたみを提案する。
+
+- 対象コメント数を報告
+- ユーザーの承認を得てから minimize.sh を実行
+- 実行結果（折りたたみ済み件数）を報告

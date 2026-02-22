@@ -141,6 +141,7 @@ jq -n \
             }
         ],
         comments: ($human + $bot_latest | sort_by(.created_at)),
-        bot_comments_omitted: (($bot | length) - ($bot_latest | length))
+        bot_comments_omitted: (($bot | length) - ($bot_latest | length)),
+        bot_comments_to_minimize: (($bot | map(.id)) - ($bot_latest | map(.id)))
     }
     '
