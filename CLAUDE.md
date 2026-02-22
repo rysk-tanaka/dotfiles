@@ -15,6 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Install fonts: `mise run setup-fonts` or `bash .config/mise/tasks/setup-fonts` (installs Bizin Gothic NF from GitHub Releases)
 - Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)
 - Setup Claude token: `mise run setup-claude-token` (sets `CLAUDE_CODE_OAUTH_TOKEN` secret on current GitHub repo)
+- Setup review label: `mise run setup-review-label` (creates `claude-review` label on current GitHub repo)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 

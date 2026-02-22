@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#MISE description="Create claude-review label on current GitHub repo"
+#MISE dir="{{cwd}}"
+
+set -euo pipefail
+
+# Check prerequisites
+if ! command -v gh &>/dev/null; then
+    echo "Error: gh CLI not installed" >&2
+    exit 1
+fi
+
+if ! gh auth status &>/dev/null; then
+    echo "Error: gh CLI not authenticated. Run 'gh auth login' first" >&2
+    exit 1
+fi
+
+# Detect repository
+REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null) || true
+if [ -z "$REPO" ]; then
+    echo "Error: Not in a GitHub repository" >&2
+    exit 1
+fi
+
+# Create label (--force overwrites if already exists)
+gh label create claude-review --description "Claude Code Reviewを実行" --color "D97757" --force --repo "$REPO"
+
+echo "claude-review label created on $REPO"
