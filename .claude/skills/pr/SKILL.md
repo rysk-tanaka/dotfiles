@@ -74,14 +74,26 @@ Base: <ベースブランチ> ← <現在のブランチ>
 <PR本文>
 ```
 
-ユーザーに「この内容でPRを作成しますか？」と確認する。修正が要望された場合は、フィードバックを反映して再生成する。
+AskUserQuestion ツールでPR内容の確認と `claude-review` ラベルの付与を同時に尋ねる。
+
+- question: `この内容でPRを作成しますか？修正があればコメントしてください。`
+- header: `PR作成`
+- multiSelect: false
+- 選択肢
+  - `作成する` - ラベルなしでPRを作成
+  - `claude-review 付きで作成` - `claude-review` ラベルを付けてPRを作成
+- 修正が要望された場合は、フィードバックを反映して再度確認する
 
 ### 5. PR作成
 
 ユーザーの承認を得た後、`gh pr create` コマンドを実行する。
 
 ```bash
+# ラベルなし
 gh pr create --base <base-branch> --title "<タイトル>" --body "<本文>"
+
+# claude-review ラベル付き
+gh pr create --base <base-branch> --title "<タイトル>" --body "<本文>" --label claude-review
 ```
 
 ### 6. 結果の報告
