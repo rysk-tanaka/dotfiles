@@ -18,22 +18,8 @@ on:
         type: string
 
 jobs:
-  ensure-label:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-    steps:
-      - name: Ensure claude-review label exists
-        run: gh label create claude-review --description "Claude Code Reviewを実行" --color "D97757" --force
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-
   claude-review:
-    needs: ensure-label
     if: |
-      always() &&
       (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'claude-review')) ||
       (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '@claude-review')) ||
       (github.event_name == 'workflow_dispatch')
