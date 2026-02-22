@@ -6,6 +6,7 @@
     "MD162": false
   },
   "ignores": [
-    ".codex/skills/**"
+    ".codex/skills/**",
+    "node_modules/**"
   ]
 }
