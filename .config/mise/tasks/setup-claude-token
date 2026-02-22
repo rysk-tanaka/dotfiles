@@ -28,6 +28,7 @@ if [ ! -t 0 ]; then
 else
     echo "Paste your Claude Code OAuth token (from 'claude setup-token'):"
     read -rs TOKEN
+    echo
 fi
 
 if [ -z "$TOKEN" ]; then
