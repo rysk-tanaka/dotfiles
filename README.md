@@ -49,7 +49,8 @@ MacOS用の初期セットアップを行います。
 │   │   │   └── collect.sh            # データ収集スクリプト
 │   │   ├── resolve-review/           # PRレビュー指摘対応
 │   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── fetch.sh              # レビューデータ取得スクリプト
+│   │   │   ├── fetch.sh              # レビューデータ取得スクリプト
+│   │   │   └── minimize.sh           # botコメント折りたたみスクリプト
 │   │   ├── codex-review/             # Codex CLIコードレビュー
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   └── review.sh             # レビュー実行スクリプト
