@@ -3,7 +3,7 @@ name: pr
 description: ブランチの変更を分析してプルリクエストを作成 (user)
 allowed-tools:
   # ~ is not expanded in allowed-tools patterns (claude-code#14956)
-  - Bash(bash /Users/rysk/.claude/skills/pr/collect.sh*)
+  - Bash(bash /Users/rysk/.claude/skills/pr/collect.sh *)
 ---
 
 # プルリクエスト作成
