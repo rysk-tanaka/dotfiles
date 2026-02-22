@@ -124,7 +124,7 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - Git commit messages in English
 - Follow Conventional Commits when specified
 - Single-line commit messages preferred
-- Pull request templates: Check `.github/workflows/pull_request_template.md`
+- Pull request templates: Check `.github/pull_request_template.md`
 - コミットメッセージに以下を含めない
   - `🤖 Generated with [Claude Code](https://claude.com/claude-code)`
   - `Co-Authored-By: Claude <noreply@anthropic.com>`

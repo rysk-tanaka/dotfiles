@@ -41,8 +41,8 @@ DIFF=$(git diff "${BASE_BRANCH}...HEAD" -- . ':!*lock.json' ':!*.lock' ':!*lock.
 
 TEMPLATE=""
 TEMPLATE_PATHS=(
-    ".github/workflows/pull_request_template.md" # intentional: setup-links symlinks here
     ".github/pull_request_template.md"
+    "${HOME}/.claude/skills/pr/pull_request_template.md"
 )
 for tmpl in "${TEMPLATE_PATHS[@]}"; do
     if [[ -f "$tmpl" ]]; then

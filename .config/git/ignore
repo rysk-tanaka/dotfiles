@@ -14,7 +14,6 @@ CLAUDE.md
 
 # Project config (managed via symlinks)
 .claudeignore
-.github/workflows/pull_request_template.md
 .markdownlint-cli2.jsonc
 .mcp.json
 .pre-commit-config.yaml

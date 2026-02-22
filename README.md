@@ -46,7 +46,8 @@ MacOS用の初期セットアップを行います。
 │   │   │   └── check.sh              # CIチェック取得スクリプト
 │   │   ├── pr/                       # プルリクエスト作成
 │   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── collect.sh            # データ収集スクリプト
+│   │   │   ├── collect.sh            # データ収集スクリプト
+│   │   │   └── pull_request_template.md  # フォールバック用PRテンプレート
 │   │   ├── resolve-review/           # PRレビュー指摘対応
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   ├── fetch.sh              # レビューデータ取得スクリプト
@@ -81,8 +82,7 @@ MacOS用の初期セットアップを行います。
 │   └── workflows/                    # GitHub Actions
 │       ├── claude-code-review.yml    # PRの自動レビュー
 │       ├── claude.yml                # @claudeメンション応答
-│       ├── renovate-translate.yml    # Renovate PRリリースノート翻訳
-│       └── pull_request_template.md  # PRテンプレート（setup-links配置用）
+│       └── renovate-translate.yml    # Renovate PRリリースノート翻訳
 ├── .pre-commit-config.yaml           # pre-commitフック設定
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
 ├── renovate.json                     # Renovate依存関係自動更新設定
@@ -253,7 +253,6 @@ mise run setup-links
 
 これは以下のシンボリックリンクを作成します。
 
-- .github/workflows/pull_request_template.md
 - .pre-commit-config.yaml
 - .markdownlint-cli2.jsonc
 - .mcp.json
