@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#MISE description="Set CLAUDE_CODE_OAUTH_TOKEN secret on current GitHub repo"
+#MISE dir="{{cwd}}"
+
+set -euo pipefail
+
+# Check prerequisites
+if ! command -v gh &>/dev/null; then
+    echo "Error: gh CLI not installed" >&2
+    exit 1
+fi
+
+if ! gh auth status &>/dev/null; then
+    echo "Error: gh CLI not authenticated. Run 'gh auth login' first" >&2
+    exit 1
+fi
+
+# Detect repository
+REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null) || true
+if [ -z "$REPO" ]; then
+    echo "Error: Not in a GitHub repository" >&2
+    exit 1
+fi
+
+# Read token from stdin (pipe) or interactive prompt
+if [ ! -t 0 ]; then
+    TOKEN=$(cat)
+else
+    echo "Paste your Claude Code OAuth token (from 'claude setup-token'):"
+    read -rs TOKEN
+fi
+
+if [ -z "$TOKEN" ]; then
+    echo "Error: Token is empty" >&2
+    exit 1
+fi
+
+# Set secret
+echo "$TOKEN" | gh secret set CLAUDE_CODE_OAUTH_TOKEN --repo "$REPO"
+
+echo "CLAUDE_CODE_OAUTH_TOKEN set on $REPO"
