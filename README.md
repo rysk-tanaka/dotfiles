@@ -76,11 +76,12 @@ MacOS用の初期セットアップを行います。
 │       ├── shell-functions.sh        # カスタムシェル関数
 │       └── tasks/                    # miseタスク
 ├── .github/                          # GitHub関連
+│   ├── pull_request_template.md      # PRテンプレート
 │   └── workflows/                    # GitHub Actions
 │       ├── claude-code-review.yml    # PRの自動レビュー
 │       ├── claude.yml                # @claudeメンション応答
 │       ├── renovate-translate.yml    # Renovate PRリリースノート翻訳
-│       └── pull_request_template.md  # PRテンプレート
+│       └── pull_request_template.md  # PRテンプレート（setup-links配置用）
 ├── .pre-commit-config.yaml           # pre-commitフック設定
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
 ├── renovate.json                     # Renovate依存関係自動更新設定
