@@ -1,0 +1,24 @@
+name: mise install
+
+# Ruleset (not branch protection) marks skipped checks as satisfied,
+# so the paths filter does not block PRs that don't touch config.toml.
+on:
+  pull_request:
+    paths:
+      - .config/mise/config.toml
+
+jobs:
+  mise-install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+
+      # mise reads .config/mise/config.toml relative to the working
+      # directory (repo root after checkout), not ~/.config/mise/.
+      - name: Verify tool installation
+        run: mise install

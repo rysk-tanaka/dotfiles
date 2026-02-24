@@ -57,9 +57,19 @@
 
 上記の設定例では以下の3ルールを定義しています。
 
-- マイナー・パッチ更新を自動マージ。メジャー更新（破壊的変更の可能性）のみ手動レビュー対象となる
+- マイナー・パッチ更新を自動マージ。メジャー更新（破壊的変更の可能性）のみ手動レビュー対象となる。Renovate はデフォルトで GitHub の Auto-merge 機能（`platformAutomerge`）を使用するため、リポジトリ設定で「Allow auto-merge」が有効になっている必要がある
 - Python のバージョンを `~3.12`（3.12.x の範囲）に制限。3.13 以降への自動更新PRが作成されなくなる
 - `ccusage` と `@ccusage/codex` を `groupName` でグループ化。同一モノレポから公開されるパッケージのため、1つのPRにまとめる
+
+### automerge と CI 検証
+
+マイナー・パッチ更新の automerge を安全に運用するため、`.github/workflows/mise-install.yml` で `mise install` を実行する CI を設けています。
+
+- `.config/mise/config.toml` が変更された PR に対して自動実行される
+- `mise install` が失敗した場合、CI が red になり automerge がブロックされる
+- GitHub Ruleset で `mise-install` ジョブを required status check に設定済み
+
+これにより、ツールのインストールが失敗するバージョンが自動マージされるリスクを防止しています。
 
 パッケージの指定には `matchDepNames` を使用します。以前は `matchPackageNames` が使われていましたが、Renovate v39 以降は `matchDepNames` に統一されています。
 
