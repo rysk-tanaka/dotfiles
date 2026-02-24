@@ -33,4 +33,6 @@ jobs:
       # directory (repo root after checkout), not ~/.config/mise/.
       - name: Verify tool installation
         if: steps.changes.outputs.config == 'true'
+        env:
+          MISE_HTTP_TIMEOUT: 120
         run: mise install
