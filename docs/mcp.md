@@ -32,6 +32,19 @@ AWS CLIコマンドの実行を提供します。
 - 前提条件: なし（初回実行時にChromiumが自動インストール）
 - 用途: UI動作確認、デバッグ、E2Eテスト作成支援
 
+### GitHub MCP Server
+
+GitHub APIへのアクセスを提供します。
+
+- URL: `https://api.githubcopilot.com/mcp/`
+- トランスポート: HTTP（リモートサーバー）
+- スコープ: プロジェクト
+- 機能: リポジトリ管理、Issue/PR操作、GitHub Actions監視、コードセキュリティ分析
+- 認証: `gh auth token` のOAuthトークンを `GITHUB_TOKEN` 環境変数経由で Bearer ヘッダーに設定
+- 前提条件: `gh auth login` 済みの GitHub アカウント、`GITHUB_TOKEN` 環境変数
+- 参考: <https://github.com/github/github-mcp-server>
+- 備考: `gh` CLIと機能が重複するが、MCPツールとしてLLMが直接利用できる利点がある
+
 ### Human-In-the-Loop Discord MCP Server
 
 Discord経由で人間とのやり取りを提供します。
@@ -124,6 +137,13 @@ MCPサーバーの設定は以下のファイルに保存されます。
       "command": "pnpm",
       "args": ["dlx", "@playwright/mcp@latest"],
       "env": {}
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_TOKEN}"
+      }
     }
   }
 }
