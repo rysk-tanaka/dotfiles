@@ -42,6 +42,83 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 
 `allowed-tools` のフォーマットが異なるため（Claude Code: パターンリスト形式、Codex: カンマ区切り文字列）、SKILL.md はツールごとに個別管理している。
 
+## プラグイン
+
+プラグインはスキル、エージェント、フック、MCPサーバーをパッケージ化して配布・インストールできる仕組み。
+マーケットプレース（プラグインカタログ）経由でインストールする。
+
+### マーケットプレース管理
+
+```bash
+# マーケットプレースの追加
+/plugin marketplace add owner/repo
+
+# マーケットプレースの更新
+/plugin marketplace update marketplace-name
+
+# マーケットプレースの一覧
+/plugin marketplace list
+
+# マーケットプレースの削除（インストール済みプラグインも削除される）
+/plugin marketplace remove marketplace-name
+```
+
+公式マーケットプレース `claude-plugins-official` はデフォルトで利用可能。
+プラグイン一覧が古い場合は `update` で最新化する。
+
+### プラグインのインストール
+
+```bash
+# インストール（user スコープ）
+/plugin install plugin-name@marketplace-name
+
+# スコープ指定（user / project / local）
+/plugin install plugin-name@marketplace-name --scope project
+
+# アンインストール
+/plugin uninstall plugin-name@marketplace-name
+
+# 無効化（アンインストールせず一時停止）
+/plugin disable plugin-name@marketplace-name
+
+# 有効化
+/plugin enable plugin-name@marketplace-name
+```
+
+インストール後は Claude Code の再起動が必要。
+
+### CodeRabbit
+
+AI コードレビュープラグイン。40以上の静的解析ツールとAST解析による指摘を提供する。
+
+#### 前提条件
+
+- CodeRabbit CLI のインストール（`brew install --cask coderabbit`、Brewfile管理済み）
+- `coderabbit auth login` で認証
+
+#### インストール
+
+```bash
+/plugin marketplace update claude-plugins-official
+/plugin install coderabbit@claude-plugins-official
+```
+
+#### 使い方
+
+```bash
+# 全変更をレビュー
+/coderabbit:review
+
+# コミット済みのみ
+/coderabbit:review committed
+
+# 未コミットのみ
+/coderabbit:review uncommitted
+
+# 特定ブランチとの差分
+/coderabbit:review --base main
+```
+
 ## Hooks
 
 ### Notification

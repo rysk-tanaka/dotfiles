@@ -35,6 +35,7 @@ cask "zoom"
 cask "claude"
 
 # Development
+cask "coderabbit"
 cask "orbstack"
 cask "wakatime"
 
