@@ -2,7 +2,6 @@
 # Standard tools
 1password-cli = "2.32.1"
 aws-sam-cli = "1.154.0"
-aws-vault = "7.2.0"
 awscli = "2.33.28"                         # requires rosetta 2
 bat = "0.26.1"
 delta = "0.18.2"
@@ -32,6 +31,7 @@ zoxide = "0.9.9"
 claude-code = "latest"                     # managed outside Renovate
 
 # aqua: tools
+"aqua:99designs/aws-vault" = "7.2.0"       # mise registry maps to incorrect aqua:ByteNess/aws-vault
 "aqua:ducaale/xh" = "0.25.3"
 "aqua:google/osv-scanner" = "2.3.3"
 "aqua:j178/prek" = "0.3.3"
