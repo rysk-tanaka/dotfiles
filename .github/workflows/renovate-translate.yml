@@ -75,4 +75,5 @@ jobs:
 
             PR番号: ${{ github.event.pull_request.number || github.event.inputs.pr_number }}
 
+          allowed_bots: "renovate[bot]"
           claude_args: '--model claude-sonnet-4-6 --allowed-tools "Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh api:*)"'
