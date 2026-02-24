@@ -43,7 +43,7 @@ claude-code = "latest"                     # managed outside Renovate
 # npm: tools
 "npm:aws-cdk" = "2.1106.1"
 "npm:cc-sdd" = "2.1.1"
-"npm:ccmanager" = "3.8.1"
+"npm:ccmanager" = "3.10.0"
 "npm:ccusage" = "18.0.5"                     # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
 "npm:@ccusage/codex" = "18.0.5"              # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
 "npm:claude-code-templates" = "1.28.16"
