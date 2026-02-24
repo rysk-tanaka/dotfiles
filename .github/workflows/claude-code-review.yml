@@ -1,30 +1,16 @@
 name: Claude Code Review
 
 on:
-  # 1. claude-reviewラベルが付いたPR
   pull_request:
-    types: [opened, synchronize, labeled]
-
-  # 2. PRコメントで@claude-reviewをメンション
-  issue_comment:
-    types: [created]
-
-  # 3. 手動実行
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: "PR番号を指定してレビューを実行"
-        required: true
-        type: string
+    types: [opened, synchronize, labeled, ready_for_review, reopened]
 
 jobs:
   claude-review:
     if: |
-      (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'claude-review')) ||
-      (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '@claude-review')) ||
-      (github.event_name == 'workflow_dispatch')
+      contains(github.event.pull_request.labels.*.name, 'claude-review')
 
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       pull-requests: read
@@ -43,29 +29,59 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: ${{ github.event.action != 'labeled' }}
+          use_sticky_comment: true
 
           prompt: |
-            このプルリクエストを日本語でレビューしてください。以下の観点からフィードバックを提供してください：
+            このプルリクエストを日本語でレビューしてください。インラインコメントとサマリーはすべて日本語で記述してください。
+            以下の観点からフィードバックを提供してください。
             - コード品質とベストプラクティス
             - 潜在的なバグや問題
             - パフォーマンスの考慮事項
             - セキュリティ上の懸念
 
-            回答は簡潔にまとめ、以下の形式で出力してください：
+            ## 重要度分類
 
-            ## ✅ 良い点
-            - （主要な良い点を2-3個）
+            各指摘を以下の 3 段階に分類してください。
 
-            ## ⚠️ 改善点
-            - （重要な問題のみ1-3個）
+            - [critical]: 本番障害やセキュリティ脆弱性。必ず修正が必要
+            - [warning]: コード品質やメンテナンス性の問題。修正を推奨
+            - [info]: 改善提案や情報提供。対応は任意
+
+            ## インラインコメントのルール
+
+            具体的な問題箇所には mcp__github_inline_comment__create_inline_comment を使ってインラインコメントを付けてください。
+            - [critical] と [warning] のみインラインコメントを作成してください
+            - [info] はインラインコメントにせず、サマリーの「その他の提案」セクションにまとめてください
+            - 各インラインコメントの冒頭に `[critical]` または `[warning]` を明記してください
+
+            ## 重複コメント防止
+
+            インラインコメントを作成する前に、まず `gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments` で既存のレビューコメントを確認してください。
+            同じファイルの同じ行または近接行（前後5行以内）に同じ趣旨の指摘が既に存在する場合は、新しいコメントを作成せずスキップしてください。
+            また、今回のレビュー内でも同じ趣旨のコメントを複数箇所に投稿しないでください。代表的な1箇所にのみコメントし、他の該当箇所があればそのコメント内で言及してください。
+
+            ## 出力形式
+
+            最終出力は以下の形式でサマリーのみ記載してください。
 
             ## 総合評価
             承認 / 要修正 / コメント
 
-            ---
-            使用したモデル名と実際のトークン数、推定コストを計算して出力してください。
-            形式: 🤖 モデル: [実際のモデル名] / 💰 コスト: 入力[N]トークン, 出力[M]トークン, $[金額]
+            ## 概要
+            （変更内容の要約を1-2文で）
 
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://docs.claude.com/en/docs/claude-code/cli-reference for available options
-          claude_args: '--model claude-sonnet-4-6 --allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
+            ## 良い点
+            - （主要な良い点を2-3個）
+
+            ## 指摘件数
+            - critical: N件
+            - warning: N件
+            - info: N件（サマリーに記載）
+
+            ## その他の提案
+            - （[info] レベルの指摘をここにまとめる。なければ「なし」）
+
+            ---
+            🤖 モデル: [実際のモデル名] / 💰 コスト: 入力[N]トークン, 出力[M]トークン, $[金額]
+
+          claude_args: '--model claude-sonnet-4-6 --allowed-tools "mcp__github_inline_comment__create_inline_comment,Bash(gh api *),Bash(gh issue view *),Bash(gh search *),Bash(gh issue list *),Bash(gh pr diff *),Bash(gh pr view *),Bash(gh pr list *)"'
