@@ -74,7 +74,10 @@ The following operations are blocked in `.claude/settings.json` deny rules.
 
 - `claude-code-review.yml` - `claude-review` ラベル付きPRでClaude Code Reviewを実行（PR作成・更新・ラベル付与・reopenで発火）
 - `claude.yml` - Issue/PRコメント・PRレビュー・Issue作成で `@claude` メンションすると汎用Claude Codeが応答
+- `mise-install.yml` - `.config/mise/config.toml` 変更PRで `mise install` を実行（Renovate automergeの安全弁、Rulesetで必須チェック化）
 - `renovate-translate.yml` - Renovate BotのPRリリースノートを日本語に要約してコメント投稿
+
+Note: ワークフロー内の `actions/checkout@v6` は正しいバージョン。v6 は 2025年にリリース済み（知識カットオフによる誤検知に注意）。
 
 ## Code Style
 
