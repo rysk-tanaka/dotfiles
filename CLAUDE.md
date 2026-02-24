@@ -72,8 +72,8 @@ The following operations are blocked in `.claude/settings.json` deny rules.
 
 ## GitHub Workflows
 
-- `claude-code-review.yml` - `claude-review` ラベル付きPR、`@claude-review` コメント、または手動実行でClaude Code Reviewを実行
-- `claude.yml` - Issue/PRコメントで `@claude` メンションすると汎用Claude Codeが応答
+- `claude-code-review.yml` - `claude-review` ラベル付きPRでClaude Code Reviewを実行（PR作成・更新・ラベル付与・reopenで発火）
+- `claude.yml` - Issue/PRコメント・PRレビュー・Issue作成で `@claude` メンションすると汎用Claude Codeが応答
 - `renovate-translate.yml` - Renovate BotのPRリリースノートを日本語に要約してコメント投稿
 
 ## Code Style

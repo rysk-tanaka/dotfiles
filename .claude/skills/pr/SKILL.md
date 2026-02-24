@@ -96,6 +96,11 @@ gh pr create --base <base-branch> --title "<タイトル>" --body "<本文>"
 gh pr create --base <base-branch> --title "<タイトル>" --body "<本文>" --label claude-review
 ```
 
+### 5a. ラベル未作成時のフォールバック
+
+`--label claude-review` 付きで `gh pr create` を実行した際に `'claude-review' not found` エラーが発生した場合、
+ユーザーに `mise run setup-review-label` の実行を促し、完了後にPR作成を再試行する。
+
 ### 6. 結果の報告
 
 作成されたPRのURLを表示する。
