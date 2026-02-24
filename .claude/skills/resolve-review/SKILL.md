@@ -5,6 +5,7 @@ allowed-tools:
   # ~ is not expanded in allowed-tools patterns (claude-code#14956)
   - Bash(bash /Users/rysk/.claude/skills/resolve-review/fetch.sh *)
   - Bash(bash /Users/rysk/.claude/skills/resolve-review/minimize.sh *)
+  - Bash(bash /Users/rysk/.claude/skills/resolve-review/resolve.sh *)
   - Bash(bash /Users/rysk/.claude/skills/await-ci/check.sh *)
   - BashOutput
 ---
@@ -174,6 +175,20 @@ fetch.sh の出力を「共通分析ステップ」に従って処理する。
 - 対応不要と判断した場合は、その理由を説明する
 
 すべてのコメントに対応した後、レビュアーに再確認を依頼することを提案する。
+
+### スレッドの resolve
+
+対応が完了したスレッドがある場合、resolve を提案する。対象は以下のいずれかに該当する未解決スレッド。
+
+- コード修正により対応が完了した
+- `is_outdated == true`（コード変更で古くなった）
+- 分析の結果、対応不要と判断した
+
+提案時の手順。
+
+- 対象スレッド数と各スレッドの概要（ファイルパス、指摘内容の要約）を報告
+- ユーザーの承認を得てから resolve.sh を実行
+- 実行結果（resolve 済み件数）を報告
 
 ### bot コメントの折りたたみ
 
