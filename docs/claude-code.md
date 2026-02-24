@@ -91,19 +91,19 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 
 AI コードレビュープラグイン。40以上の静的解析ツールとAST解析による指摘を提供する。
 
-前提条件
+#### 前提条件
 
 - CodeRabbit CLI のインストール（`brew install --cask coderabbit`、Brewfile管理済み）
 - `coderabbit auth login` で認証
 
-インストール
+#### インストール
 
 ```bash
 /plugin marketplace update claude-plugins-official
 /plugin install coderabbit@claude-plugins-official
 ```
 
-使い方
+#### 使い方
 
 ```bash
 # 全変更をレビュー
