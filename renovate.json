@@ -7,9 +7,18 @@
   "schedule": ["before 9am on saturday"],
   "packageRules": [
     {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
       "matchManagers": ["mise"],
       "matchDepNames": ["python"],
       "allowedVersions": "~3.12"
+    },
+    {
+      "matchManagers": ["mise"],
+      "matchDepNames": ["npm:ccusage", "npm:@ccusage/codex"],
+      "groupName": "ccusage"
     }
   ]
 }

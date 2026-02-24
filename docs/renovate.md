@@ -24,9 +24,18 @@
   "schedule": ["before 9am on saturday"],
   "packageRules": [
     {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
       "matchManagers": ["mise"],
       "matchDepNames": ["python"],
       "allowedVersions": "~3.12"
+    },
+    {
+      "matchManagers": ["mise"],
+      "matchDepNames": ["npm:ccusage", "npm:@ccusage/codex"],
+      "groupName": "ccusage"
     }
   ]
 }
@@ -34,7 +43,7 @@
 
 各フィールドの説明。
 
-- `extends` - `config:recommended` で推奨プリセットを適用（自動マージなし、range更新なし等）
+- `extends` - `config:recommended` で推奨プリセットを適用（range更新なし等）
 - `enabledManagers` - 有効にするマネージャを限定。対応しているマネージャは以下の3つ
   - `github-actions` - `.github/workflows/` 内のアクションバージョン
   - `mise` - `.config/mise/config.toml` のツールバージョン
@@ -46,7 +55,11 @@
 
 `packageRules` でマネージャ・パッケージごとの挙動をカスタマイズできます。
 
-上記の設定例では、mise管理のPythonバージョンを `~3.12`（3.12.x の範囲）に制限しています。これにより 3.13 以降への自動更新PRが作成されなくなります。
+上記の設定例では以下の3ルールを定義しています。
+
+- マイナー・パッチ更新を自動マージ。メジャー更新（破壊的変更の可能性）のみ手動レビュー対象となる
+- Python のバージョンを `~3.12`（3.12.x の範囲）に制限。3.13 以降への自動更新PRが作成されなくなる
+- `ccusage` と `@ccusage/codex` を `groupName` でグループ化。同一モノレポから公開されるパッケージのため、1つのPRにまとめる
 
 パッケージの指定には `matchDepNames` を使用します。以前は `matchPackageNames` が使われていましたが、Renovate v39 以降は `matchDepNames` に統一されています。
 
