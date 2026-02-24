@@ -51,7 +51,8 @@ MacOS用の初期セットアップを行います。
 │   │   ├── resolve-review/           # PRレビュー指摘対応
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   ├── fetch.sh              # レビューデータ取得スクリプト
-│   │   │   └── minimize.sh           # botコメント折りたたみスクリプト
+│   │   │   ├── minimize.sh           # botコメント折りたたみスクリプト
+│   │   │   └── resolve.sh            # レビュースレッド解決スクリプト
 │   │   ├── codex-review/             # Codex CLIコードレビュー
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   └── review.sh             # レビュー実行スクリプト
