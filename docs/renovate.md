@@ -67,7 +67,7 @@
 
 - `.config/mise/config.toml` が変更された PR に対して自動実行される
 - `mise install` が失敗した場合、CI が red になり automerge がブロックされる
-- GitHub Ruleset で `mise-install` ジョブを required status check に設定済み
+- GitHub Ruleset（"Require mise install check"）で `mise-install` ジョブを required status check に設定済み。Repository Admin は bypass 対象のため、main への直接 push には影響しない
 
 これにより、ツールのインストールが失敗するバージョンが自動マージされるリスクを防止しています。
 
