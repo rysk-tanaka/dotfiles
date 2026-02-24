@@ -5,5 +5,5 @@
     "MD033": false,
     "MD162": false,
   },
-  "ignores": [".codex/skills/**", "**/node_modules/**"],
+  "ignores": [".codex/skills/**", "**/node_modules/**", ".tmp/**"],
 }
