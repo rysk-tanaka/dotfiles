@@ -64,6 +64,7 @@ jobs:
             ```text
             <!-- renovate-translate -->
             ## 📋 リリースノート要約
+            @${{ github.repository_owner }}
 
             （日本語の要約内容）
 
@@ -76,4 +77,4 @@ jobs:
             PR番号: ${{ github.event.pull_request.number || github.event.inputs.pr_number }}
 
           allowed_bots: "renovate[bot]"
-          claude_args: '--model claude-sonnet-4-6 --allowed-tools "Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh api:*)"'
+          claude_args: '--model claude-haiku-4-5 --allowed-tools "Bash(gh pr view *),Bash(gh pr comment *),Bash(gh api *)"'
