@@ -1,22 +1,30 @@
 name: mise install
 
-# Ruleset (not branch protection) marks skipped checks as satisfied,
-# so the paths filter does not block PRs that don't touch config.toml.
 on:
   pull_request:
-    paths:
-      - .config/mise/config.toml
 
 jobs:
   mise-install:
     runs-on: macos-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
 
     steps:
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            config:
+              - '.config/mise/config.toml'
+
       - name: Checkout repository
+        if: steps.changes.outputs.config == 'true'
         uses: actions/checkout@v6
 
       - name: Setup mise
+        if: steps.changes.outputs.config == 'true'
         uses: jdx/mise-action@v3
         with:
           cache: true
@@ -24,4 +32,5 @@ jobs:
       # mise reads .config/mise/config.toml relative to the working
       # directory (repo root after checkout), not ~/.config/mise/.
       - name: Verify tool installation
+        if: steps.changes.outputs.config == 'true'
         run: mise install
