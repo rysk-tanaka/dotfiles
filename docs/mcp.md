@@ -40,8 +40,8 @@ GitHub APIへのアクセスを提供します。
 - トランスポート: HTTP（リモートサーバー）
 - スコープ: プロジェクト
 - 機能: リポジトリ管理、Issue/PR操作、GitHub Actions監視、コードセキュリティ分析
-- 認証: `gh auth token` のOAuthトークンを `GITHUB_TOKEN` 環境変数経由で Bearer ヘッダーに設定
-- 前提条件: `gh auth login` 済みの GitHub アカウント、`GITHUB_TOKEN` 環境変数
+- 認証: `gh auth token` のOAuthトークンを `GH_MCP_TOKEN` 環境変数経由で Bearer ヘッダーに設定
+- 前提条件: `gh auth login` 済みの GitHub アカウント、`GH_MCP_TOKEN` 環境変数
 - 参考: <https://github.com/github/github-mcp-server>
 - 備考: `gh` CLIと機能が重複するが、MCPツールとしてLLMが直接利用できる利点がある
 
@@ -142,7 +142,7 @@ MCPサーバーの設定は以下のファイルに保存されます。
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/",
       "headers": {
-        "Authorization": "Bearer ${GITHUB_TOKEN}"
+        "Authorization": "Bearer ${GH_MCP_TOKEN}"
       }
     }
   }
