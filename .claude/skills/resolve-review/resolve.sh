@@ -11,6 +11,8 @@ fi
 failed=0
 
 for id in "$@"; do
+    # Skip non-node-ID arguments (e.g. PR numbers)
+    [[ "$id" =~ ^[0-9]+$ ]] && continue
     echo "Resolving: $id" >&2
     # shellcheck disable=SC2016 # $id is a GraphQL variable, not a shell variable
     gh api graphql -f query='mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { isResolved } } }' -f id="$id" \
