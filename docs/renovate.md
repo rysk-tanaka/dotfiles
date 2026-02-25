@@ -117,12 +117,24 @@ Renovate PRをマージした後、ローカル環境を同期するには以下
 
 ```bash
 git pull
-mise upgrade
+mise install
 ```
 
-`mise upgrade` は新しいバージョンのインストールと旧バージョンのアンインストールを自動で行います。`mise install`（インストールのみ）+ `mise prune`（不要バージョン削除）を個別に実行する必要はありません。
+`mise install` は `config.toml` に記載された新しいバージョンをインストールします。ただし旧バージョンの自動削除は行いません。
 
-`mise prune` は `~/.local/state/mise/tracked-configs` に登録された全リポジトリの設定を参照するため、他リポジトリで使用中のバージョンを誤って削除するリスクがあります。`mise upgrade` は対象ツールのバージョン変更のみを扱うため、この問題が起きません。
+旧バージョンが蓄積した場合は `mise prune -y` でまとめて削除できます。`-y` を付けないと対話的UIが起動します。
+
+```bash
+# 不要なバージョンの確認
+mise ls --prunable
+
+# まとめて削除
+mise prune -y
+```
+
+`mise prune` は `~/.local/state/mise/tracked-configs` に登録された全リポジトリの設定を参照し、いずれのリポジトリからも使われていないバージョンのみを削除します。
+
+なお `mise upgrade` は `latest` のような動的バージョン指定の場合に旧バージョンの自動削除を行いますが、ピン留め運用（`uv = "0.10.6"` 等）では旧バージョンは削除されません。
 
 ## ローカル実行
 
