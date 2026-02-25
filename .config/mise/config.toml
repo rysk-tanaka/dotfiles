@@ -23,7 +23,7 @@ shellcheck = "0.11.0"
 rust = "1.93.1"
 starship = "1.24.2"
 terraform = "1.14.5"
-uv = "0.10.5"
+uv = "0.10.6"
 yarn = "4.9.4"
 zoxide = "0.9.9"
 
