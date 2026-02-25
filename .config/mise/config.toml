@@ -27,10 +27,8 @@ uv = "0.10.6"
 yarn = "4.9.4"
 zoxide = "0.9.9"
 
-# Registry shortname tools (non-npm native binary)
-claude-code = "latest"                     # managed outside Renovate
-
 # aqua: tools
+"aqua:anthropics/claude-code" = "2.1.55"
 "aqua:99designs/aws-vault" = "7.2.0"       # mise registry maps to incorrect aqua:ByteNess/aws-vault
 "aqua:ducaale/xh" = "0.25.3"
 "aqua:google/osv-scanner" = "2.3.3"
