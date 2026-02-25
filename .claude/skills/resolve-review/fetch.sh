@@ -96,7 +96,9 @@ jq -n \
     --argjson bot_authors "$BOT_AUTHORS" \
     --rawfile response "$WORK_DIR/response" \
     '
-    # Strip review-bot metadata noise from comment bodies
+    # Strip review-bot metadata noise from comment bodies.
+    # Applied to all comments (not just bots) for simplicity — HTML comments
+    # stripped here are invisible metadata, not user-visible review content.
     def strip_noise:
       gsub("(?s)<!-- internal state start -->.*?<!-- internal state end -->"; "")
       | gsub("(?s)<!-- tips_start -->.*?<!-- tips_end -->"; "")
