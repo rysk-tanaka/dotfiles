@@ -2,7 +2,7 @@
 # Standard tools
 1password-cli = "2.32.1"
 aws-sam-cli = "1.154.0"
-awscli = "2.33.28"                         # requires rosetta 2
+awscli = "2.33.29"                         # requires rosetta 2
 bat = "0.26.1"
 delta = "0.18.2"
 duckdb = "1.4.4"
