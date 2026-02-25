@@ -96,6 +96,15 @@ jq -n \
     --argjson bot_authors "$BOT_AUTHORS" \
     --rawfile response "$WORK_DIR/response" \
     '
+    # Strip review-bot metadata noise from comment bodies
+    def strip_noise:
+      gsub("(?s)<!-- internal state start -->.*?<!-- internal state end -->"; "")
+      | gsub("(?s)<!-- tips_start -->.*?<!-- tips_end -->"; "")
+      | gsub("(?s)<!-- finishing_touch_checkbox_start -->.*?<!-- finishing_touch_checkbox_end -->"; "")
+      | gsub("(?m)^[ \\t]*<!--.*?-->[ \\t]*$"; "")
+      | gsub("\\n{3,}"; "\n\n")
+      | sub("\\s+$"; "");
+
     ($response | fromjson) as $data |
     $data.data.repository.pullRequest as $pr |
 
@@ -105,7 +114,7 @@ jq -n \
         select(.isMinimized | not) |
         {
             id: .id,
-            body: .body,
+            body: (.body | strip_noise),
             author: (.author.login // "ghost"),
             created_at: .createdAt,
             url: .url
@@ -130,7 +139,7 @@ jq -n \
                 is_outdated: .isOutdated,
                 comments: [
                     .comments.nodes[] | {
-                        body: .body,
+                        body: (.body | strip_noise),
                         author: (.author.login // "ghost"),
                         created_at: .createdAt,
                         path: .path,
