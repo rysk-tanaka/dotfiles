@@ -11,7 +11,7 @@ fi
 failed=0
 
 for id in "$@"; do
-    # Skip non-node-ID arguments (e.g. PR numbers)
+    # Silently skip PR numbers passed alongside node IDs (intentionally no warning)
     [[ "$id" =~ ^[0-9]+$ ]] && continue
     echo "Resolving: $id" >&2
     # shellcheck disable=SC2016 # $id is a GraphQL variable, not a shell variable
