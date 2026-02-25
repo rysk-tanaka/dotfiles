@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#MISE description="Upgrade claude-code to the latest GitHub Release"
+
+set -euo pipefail
+
+if ! command -v gh &>/dev/null; then
+    echo "Error: gh (GitHub CLI) is not installed" >&2
+    exit 1
+fi
+
+LATEST_TAG=$(gh release view --repo anthropics/claude-code --json tagName -q .tagName) || {
+    echo "Error: Failed to fetch latest release" >&2
+    exit 1
+}
+
+LATEST_VERSION="${LATEST_TAG#v}"
+
+if [ -z "$LATEST_VERSION" ]; then
+    echo "Error: latest release tag is empty" >&2
+    exit 1
+fi
+
+CURRENT_VERSION=$(mise ls aqua:anthropics/claude-code --json 2>/dev/null \
+    | python3 -c "import json,sys; print(next(v['version'] for v in json.load(sys.stdin) if v.get('active')))" 2>/dev/null) || CURRENT_VERSION="unknown"
+
+if [ "$CURRENT_VERSION" = "$LATEST_VERSION" ]; then
+    echo "claude-code ${LATEST_VERSION} is already installed."
+    exit 0
+fi
+
+echo "Upgrading claude-code: ${CURRENT_VERSION} -> ${LATEST_VERSION}"
+DOTFILES_PATH="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
+mise use --path "${DOTFILES_PATH}/.config/mise/config.toml" "aqua:anthropics/claude-code@${LATEST_VERSION}"

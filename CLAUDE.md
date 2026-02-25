@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Setup Claude token: `mise run setup-claude-token` (sets `CLAUDE_CODE_OAUTH_TOKEN` secret on current GitHub repo)
 - Setup review label: `mise run setup-review-label` (creates `claude-review` label on current GitHub repo)
 - Suggest branch name: `mise run suggest-branch` (analyzes work and suggests branch names)
+- Upgrade Claude Code: `mise run upgrade-claude` (upgrades to latest GitHub Release, bypassing aqua registry lag)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 
@@ -26,7 +27,7 @@ This is a dotfiles repository that manages macOS configuration files through sym
 
 1. Configuration Storage: All dotfiles are stored in this repository under their respective paths
 2. Symlink Management: Manual creation of symlinks from the repository to their expected system locations
-3. Tool Management: mise handles installation and version management of development tools. Versions are pinned in `.config/mise/config.toml` and updated via Renovate (`renovate.json`). Exceptions: `node` (lts), `claude-code` (latest) are not tracked by Renovate. Renovate PR release notes are automatically summarized in Japanese via `renovate-translate.yml`
+3. Tool Management: mise handles installation and version management of development tools. Versions are pinned in `.config/mise/config.toml` and updated via Renovate (`renovate.json`). Exceptions: `node` (lts), `claude-code` (aqua backend, pinned) are not tracked by Renovate. Renovate PR release notes are automatically summarized in Japanese via `renovate-translate.yml`
 4. Project Integration: The `setup-links` task allows other projects to inherit coding standards and configurations
 5. Documentation: Detailed guides are in `docs/` (claude-code, mcp, renovate, etc.)
 
