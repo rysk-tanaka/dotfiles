@@ -5,6 +5,7 @@ allowed-tools:
   - Bash(brew info *)
   - Bash(brew list *)
   - Bash(brew leaves *)
+  - Bash(brew bundle *)
   - Read
   - Edit
 ---
@@ -74,3 +75,12 @@ Migration required (no auto_updates):
 - 追加したパッケージ名、セクション、auto_updates有無
 - スキップしたパッケージ（重複、未発見など）
 - 移行が必要なパッケージのコマンド一覧
+
+## インストール確認
+
+結果報告の後、AskUserQuestion ツールでインストールを確認する。
+
+- question: `brew bundle でインストールを実行しますか？`
+- options: `["yes", "no"]`
+
+ユーザーが同意した場合のみ `brew bundle` を実行する。
