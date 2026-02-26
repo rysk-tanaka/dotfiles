@@ -36,6 +36,7 @@ cask "claude"
 
 # Development
 cask "coderabbit"
+cask "linear-linear"
 cask "orbstack"
 cask "wakatime"
 
