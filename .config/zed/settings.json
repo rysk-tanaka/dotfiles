@@ -8,6 +8,13 @@
 // command palette
 {
   "agent_servers": {
+    "codex": {
+      "favorite_config_option_values": {
+        "reasoning_effort": [
+          "xhigh"
+        ]
+      }
+    },
     "github-copilot": {
       "favorite_models": [
         "claude-opus-4.6",
