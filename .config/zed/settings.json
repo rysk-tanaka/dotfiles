@@ -7,8 +7,14 @@
 // custom settings, run `zed: open default settings` from the
 // command palette
 {
+  "git_panel": {
+    "tree_view": true
+  },
   "agent_servers": {
     "codex": {
+      "default_config_options": {
+        "reasoning_effort": "xhigh"
+      },
       "favorite_config_option_values": {
         "reasoning_effort": [
           "xhigh"

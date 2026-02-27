@@ -7,6 +7,11 @@
 // from the command palette.
 [
   {
+    "bindings": {
+      "shift-d": "git::Diff"
+    }
+  },
+  {
     "context": "Workspace",
     "bindings": {
       // "shift shift": "file_finder::Toggle"
