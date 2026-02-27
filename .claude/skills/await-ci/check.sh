@@ -156,6 +156,10 @@ while true; do
         sleep "$INTERVAL"
         continue
     elif [[ "$rc" -ne 0 ]]; then
+        if [[ "$elapsed" -ge "$TIMEOUT" ]]; then
+            echo "Timeout after ${elapsed}s (fetch failed)" >&2
+            exit 2
+        fi
         echo "[$(date +%H:%M:%S)] Warning: failed to fetch checks, retrying..." >&2
         sleep "$INTERVAL"
         continue
