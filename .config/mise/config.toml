@@ -28,7 +28,7 @@ yarn = "4.9.4"
 zoxide = "0.9.9"
 
 # aqua: tools
-"aqua:anthropics/claude-code" = "2.1.59"
+"aqua:anthropics/claude-code" = "2.1.62"
 "aqua:99designs/aws-vault" = "7.2.0"       # mise registry maps to incorrect aqua:ByteNess/aws-vault
 "aqua:ducaale/xh" = "0.25.3"
 "aqua:google/osv-scanner" = "2.3.3"
