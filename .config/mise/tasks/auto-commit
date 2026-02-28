@@ -19,6 +19,14 @@ if [[ "$USE_CODEX" == "true" ]]; then
         echo "Error: codex command not found" >&2
         exit 1
     fi
+    if command -v timeout &>/dev/null; then
+        TIMEOUT_CMD="timeout"
+    elif command -v gtimeout &>/dev/null; then
+        TIMEOUT_CMD="gtimeout"
+    else
+        echo "Error: timeout command not found. Run 'brew install coreutils'." >&2
+        exit 1
+    fi
     SKILL_PATH="${DOTFILES}/.codex/skills/auto-commit/SKILL.md"
 else
     if ! command -v claude &>/dev/null; then
@@ -58,7 +66,7 @@ if [[ "$USE_CODEX" == "true" ]]; then
     CODEX_OK=false
     for attempt in 1 2; do
         > "$OUTFILE"
-        if printf '%s\n\n%s' "$(cat "$SKILL_PATH")" "$PROMPT" | timeout -k 5 15 codex exec \
+        if printf '%s\n\n%s' "$(cat "$SKILL_PATH")" "$PROMPT" | "$TIMEOUT_CMD" -k 5 15 codex exec \
             --sandbox read-only \
             -m gpt-5.1-codex-mini \
             -o "$OUTFILE" \
