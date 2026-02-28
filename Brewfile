@@ -13,6 +13,8 @@ brew "zsh-completions"
 brew "zsh-git-prompt"
 
 # Terminal
+tap "manaflow-ai/cmux"
+cask "cmux"
 cask "ghostty"
 
 # Browser
