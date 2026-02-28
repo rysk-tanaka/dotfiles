@@ -59,7 +59,8 @@ if [[ "$USE_CODEX" == "true" ]]; then
     trap 'rm -f "$OUTFILE" "$ERRFILE"' EXIT
     CODEX_OK=false
     for attempt in 1 2; do
-        if printf '%s\n\n%s' "$(cat "$SKILL_PATH")" "$PROMPT" | timeout 15 codex exec \
+        > "$OUTFILE"
+        if printf '%s\n\n%s' "$(cat "$SKILL_PATH")" "$PROMPT" | timeout -k 5 15 codex exec \
             --sandbox read-only \
             -m gpt-5.1-codex-mini \
             -o "$OUTFILE" \
@@ -67,7 +68,7 @@ if [[ "$USE_CODEX" == "true" ]]; then
             CODEX_OK=true
             break
         fi
-        echo "codex exec failed (attempt $attempt/2), retrying..." >&2
+        [[ $attempt -lt 2 ]] && echo "codex exec failed (attempt $attempt/2), retrying..." >&2
     done
     if [[ "$CODEX_OK" != "true" ]]; then
         echo "Error: codex exec failed after retries" >&2
