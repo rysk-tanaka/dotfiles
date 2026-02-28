@@ -168,9 +168,12 @@ Playwright MCP と役割が似ているが、cmux 内蔵ブラウザを使う点
 別ペインのターミナル出力を読み取れる。
 
 ```bash
-cmux read-screen                                  # 現在のサーフェス
-cmux read-screen --surface <id|ref>               # 指定サーフェス
-cmux read-screen --surface <id|ref> --scrollback   # スクロールバック含む
+cmux read-screen                                                          # 現在のサーフェス（ビューポートのみ）
+cmux read-screen --surface <id|ref>                                       # 指定サーフェス
+cmux read-screen --surface <id|ref> --scrollback                          # スクロールバック含む（全量）
+cmux read-screen --surface <id|ref> --lines $(( $(tput lines) + 50 ))    # ビューポート + 50 行
 ```
+
+`--lines` を省略した場合のビューポート行数は `tput lines` で確認できる。`--lines` にはその値を基準に必要な分だけ加算して指定すると調整しやすい。
 
 ユースケース: ペイン1で Claude Code を実行中に、ペイン2の開発サーバーのログやエラー出力を確認する。
