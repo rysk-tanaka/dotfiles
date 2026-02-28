@@ -61,7 +61,8 @@ Located in `.claude/hooks/`, configured in `.claude/settings.json` under `hooks`
 
 - UserPromptSubmit (`suggest-effort.sh`) - Analyzes prompt complexity via keyword scoring and suggests effort level adjustments. Outputs plain text to stdout (not JSON, to avoid claude-code#17550). Must complete in < 100ms.
 - PostToolUse - Auto-lints Python files after Edit/Write (inline command in settings.json)
-- Notification - macOS notification via osascript on idle_prompt/auth_success/elicitation_dialog
+- Stop - cmux claude-hook でセッション完了を通知（cmux 以外のターミナルでは静かにスキップ）
+- Notification - cmux claude-hook で idle_prompt/auth_success/elicitation_dialog を通知（cmux 以外のターミナルでは静かにスキップ）
 
 ## Permission Boundaries
 

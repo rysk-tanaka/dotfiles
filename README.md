@@ -83,6 +83,7 @@ MacOS用の初期セットアップを行います。
 │   └── workflows/                    # GitHub Actions
 │       ├── claude-code-review.yml    # PRの自動レビュー
 │       ├── claude.yml                # @claudeメンション応答
+│       ├── mise-install.yml          # mise install検証（Renovate PR安全弁）
 │       └── renovate-translate.yml    # Renovate PRリリースノート翻訳
 ├── .pre-commit-config.yaml           # pre-commitフック設定
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
@@ -90,6 +91,7 @@ MacOS用の初期セットアップを行います。
 └── docs/                             # ドキュメント
     ├── ccmanager.md                  # ccmanager導入ガイド
     ├── claude-code.md                # Claude Code設定詳細
+    ├── cmux.md                       # cmuxターミナルガイド
     ├── git-worktree-runner.md        # git-worktree-runner導入ガイド
     ├── jujutsu.md                    # Jujutsu (jj) 導入ガイド
     ├── mcp.md                        # MCP設定詳細
@@ -421,6 +423,7 @@ source .venv/bin/activate
 ## 関連ドキュメント
 
 - [Claude Code設定](./docs/claude-code.md) - Claude Code固有の設定とカスタムコマンド
+- [cmux](./docs/cmux.md) - AIコーディングエージェント向けターミナル
 - [git-worktree-runner](./docs/git-worktree-runner.md) - git worktree操作ツールの導入と使い方
 - [MCP設定](./docs/mcp.md) - MCPサーバーの設定
 - [ccmanager](./docs/ccmanager.md) - AIアシスタントセッション管理ツール
