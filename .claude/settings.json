@@ -98,6 +98,10 @@
     "coderabbit@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true
   },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754042613598
