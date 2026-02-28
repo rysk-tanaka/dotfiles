@@ -19,6 +19,14 @@ if [[ "$USE_CODEX" == "true" ]]; then
         echo "Error: codex command not found" >&2
         exit 1
     fi
+    if command -v timeout &>/dev/null; then
+        TIMEOUT_CMD="timeout"
+    elif command -v gtimeout &>/dev/null; then
+        TIMEOUT_CMD="gtimeout"
+    else
+        echo "Error: timeout command not found. Run 'brew install coreutils'." >&2
+        exit 1
+    fi
     SKILL_PATH="${DOTFILES}/.codex/skills/suggest-branch/SKILL.md"
 else
     if ! command -v claude &>/dev/null; then
@@ -57,12 +65,21 @@ if [[ "$USE_CODEX" == "true" ]]; then
     OUTFILE=$(mktemp)
     ERRFILE=$(mktemp)
     trap 'rm -f "$OUTFILE" "$ERRFILE"' EXIT
-    if ! printf '%s\n\n%s' "$(cat "$SKILL_PATH")" "$PROMPT" | codex exec \
-        --sandbox read-only \
-        -m gpt-5.1-codex-mini \
-        -o "$OUTFILE" \
-        - >/dev/null 2>"$ERRFILE"; then
-        echo "Error: codex exec failed" >&2
+    CODEX_OK=false
+    for attempt in 1 2; do
+        > "$OUTFILE"
+        if printf '%s\n\n%s' "$(cat "$SKILL_PATH")" "$PROMPT" | "$TIMEOUT_CMD" -k 5 15 codex exec \
+            --sandbox read-only \
+            -m gpt-5.1-codex-mini \
+            -o "$OUTFILE" \
+            - >/dev/null 2>"$ERRFILE"; then
+            CODEX_OK=true
+            break
+        fi
+        [[ $attempt -lt 2 ]] && echo "codex exec failed (attempt $attempt/2), retrying..." >&2
+    done
+    if [[ "$CODEX_OK" != "true" ]]; then
+        echo "Error: codex exec failed after retries" >&2
         cat "$ERRFILE" >&2
         exit 1
     fi
