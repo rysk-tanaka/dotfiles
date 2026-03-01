@@ -50,6 +50,7 @@ cask "1password"
 cask "1password-cli"
 
 # Utilities
+cask "duet"
 cask "the-unarchiver"
 
 # IME
