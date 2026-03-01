@@ -119,6 +119,12 @@ AI コードレビュープラグイン。40以上の静的解析ツールとAST
 /coderabbit:review --base main
 ```
 
+#### GitHub App（PR 自動レビュー）の注意事項
+
+- bot が作成した PR はデフォルトでレビューがスキップされる（"Review skipped. Bot user detected."）
+- `@coderabbitai review` コマンドも bot（`github-actions[bot]` 等）からの投稿は無視される。人間ユーザーが投稿する必要がある
+- `.coderabbit.yaml` の公式スキーマ（[schema.v2.json](https://coderabbit.ai/integrations/schema.v2.json)）に bot PR の自動レビューを有効化するフィールドは未提供
+
 ## Hooks
 
 ### Notification
