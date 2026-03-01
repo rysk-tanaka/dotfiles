@@ -4,6 +4,10 @@
     "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
     "DISABLE_AUTOUPDATER": "1"
   },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Bash(echo:*)",
@@ -81,7 +85,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cmux claude-hook stop 2>/dev/null || true"
+            "command": "id_out=$(cmux identify 2>/dev/null) && caller=$(echo \"$id_out\" | jq -r '.caller.surface_ref') && focused=$(echo \"$id_out\" | jq -r '.focused.surface_ref') && [[ \"$caller\" == \"$focused\" ]] || cmux claude-hook stop 2>/dev/null; true"
           }
         ]
       }
@@ -107,10 +111,6 @@
     "pr-review-toolkit@claude-plugins-official": true,
     "coderabbit@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true
-  },
-  "attribution": {
-    "commit": "",
-    "pr": ""
   },
   "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
