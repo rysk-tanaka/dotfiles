@@ -37,8 +37,8 @@
   "agent": {
     "default_model": {
       "provider": "copilot_chat",
-      "model": "claude-sonnet-4.6",
-      "enable_thinking": true
+      "model": "gpt-4o",
+      "enable_thinking": false
     },
     "tool_permissions": {
       "default": "allow"
@@ -113,7 +113,7 @@
       ],
       "language_servers": [
         "ty",
-        "basedpyright",
+        "!basedpyright",
         "ruff",
       ],
     },
