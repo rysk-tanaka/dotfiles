@@ -24,14 +24,21 @@ fi
 
 # Idempotency check: skip if a ruleset with copilot_code_review rule already exists
 # The list API does not include rules, so fetch each ruleset's detail to inspect rule types
-RULESET_IDS=$(gh api "repos/${REPO}/rulesets" --paginate --jq '.[].id' 2>/dev/null) || true
-for id in $RULESET_IDS; do
-    HAS_COPILOT=$(gh api "repos/${REPO}/rulesets/${id}" --jq '[.rules[] | select(.type == "copilot_code_review")] | length' 2>/dev/null) || true
-    if [ "$HAS_COPILOT" != "0" ] && [ -n "$HAS_COPILOT" ]; then
+if ! RULESET_IDS=$(gh api "repos/${REPO}/rulesets" --paginate --jq '.[].id' 2>/dev/null); then
+    echo "Error: failed to list rulesets on $REPO" >&2
+    exit 1
+fi
+while IFS= read -r id; do
+    [ -z "$id" ] && continue
+    if ! HAS_COPILOT=$(gh api "repos/${REPO}/rulesets/${id}" --jq '[.rules[] | select(.type == "copilot_code_review")] | length' 2>/dev/null); then
+        echo "Warning: failed to check ruleset ${id}, skipping" >&2
+        continue
+    fi
+    if [ "$HAS_COPILOT" != "0" ]; then
         echo "Copilot Code Review ruleset already exists on $REPO — skipping"
         exit 0
     fi
-done
+done <<< "$RULESET_IDS"
 
 # Create ruleset
 gh api "repos/${REPO}/rulesets" --method POST --input - <<'EOF'
