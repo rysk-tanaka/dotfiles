@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+#MISE description="Enable Copilot Code Review ruleset on current GitHub repo"
+#MISE dir="{{cwd}}"
+
+set -euo pipefail
+
+# Check prerequisites
+if ! command -v gh &>/dev/null; then
+    echo "Error: gh CLI not installed" >&2
+    exit 1
+fi
+
+if ! gh auth status &>/dev/null; then
+    echo "Error: gh CLI not authenticated. Run 'gh auth login' first" >&2
+    exit 1
+fi
+
+# Detect repository
+REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null) || true
+if [ -z "$REPO" ]; then
+    echo "Error: Not in a GitHub repository" >&2
+    exit 1
+fi
+
+# Idempotency check: skip if a ruleset with copilot_code_review rule already exists
+# The list API does not include rules, so fetch each ruleset's detail to inspect rule types
+RULESET_IDS=$(gh api "repos/${REPO}/rulesets" --paginate --jq '.[].id' 2>/dev/null) || true
+for id in $RULESET_IDS; do
+    HAS_COPILOT=$(gh api "repos/${REPO}/rulesets/${id}" --jq '[.rules[] | select(.type == "copilot_code_review")] | length' 2>/dev/null) || true
+    if [ "$HAS_COPILOT" != "0" ] && [ -n "$HAS_COPILOT" ]; then
+        echo "Copilot Code Review ruleset already exists on $REPO — skipping"
+        exit 0
+    fi
+done
+
+# Create ruleset
+gh api "repos/${REPO}/rulesets" --method POST --input - <<'EOF'
+{
+  "name": "Copilot Code Review",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": ["~DEFAULT_BRANCH"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "type": "copilot_code_review",
+      "parameters": {
+        "review_on_push": true,
+        "review_draft_pull_requests": false
+      }
+    }
+  ]
+}
+EOF
+
+echo "Copilot Code Review ruleset created on $REPO"
