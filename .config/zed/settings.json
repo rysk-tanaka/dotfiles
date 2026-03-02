@@ -37,7 +37,7 @@
   "agent": {
     "default_model": {
       "provider": "copilot_chat",
-      "model": "claude-opus-4.6",
+      "model": "claude-sonnet-4.6",
       "enable_thinking": true
     },
     "tool_permissions": {
