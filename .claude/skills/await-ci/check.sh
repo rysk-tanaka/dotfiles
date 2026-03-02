@@ -168,6 +168,12 @@ while true; do
     total=$(check_count)
 
     if [[ "$total" -eq 0 ]]; then
+        no_checks_limit=$(( NO_CHECKS_LIMIT < TIMEOUT ? NO_CHECKS_LIMIT : TIMEOUT ))
+        if [[ "$elapsed" -ge "$no_checks_limit" ]]; then
+            echo "[$(date +%H:%M:%S)] No CI checks configured for PR #$PR_NUMBER" >&2
+            echo '{"pr_number":'"$PR_NUMBER"',"status":"no_checks","elapsed_seconds":'"$elapsed"',"summary":{"total":0,"pass":0,"fail":0,"pending":0,"skipping":0,"cancel":0},"checks":[]}'
+            exit 0
+        fi
         echo "[$(date +%H:%M:%S)] No checks found yet, waiting... (${elapsed}s elapsed)" >&2
     else
         result=$(normalize_output "$elapsed")
