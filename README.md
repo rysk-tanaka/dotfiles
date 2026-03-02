@@ -10,7 +10,7 @@ MacOS用の初期セットアップを行います。
 ├── .zshenv                           # Zsh環境設定（全シェルで読み込み）
 ├── .zprofile                         # Zshログインシェル設定
 ├── .vimrc                            # Vim設定
-├── .gitconfig                        # Git設定
+├── .gitconfig.managed                # Git設定（リポジトリ管理、includeで読み込み）
 ├── .mcp.json                         # MCPサーバー設定（プロジェクトスコープ）
 ├── .claudeignore                     # Claude Codeコンテキスト除外設定（プロジェクトスコープ）
 ├── Brewfile                          # Homebrewパッケージ定義
@@ -155,7 +155,8 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.config/zed/keymap.json ~/.config/zed/keymap.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/zed/settings.json ~/.config/zed/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/starship.toml ~/.config/starship.toml
-    ln -sf ~/Repositories/rysk/dotfiles/.gitconfig ~/.gitconfig
+    ln -sf ~/Repositories/rysk/dotfiles/.gitconfig.managed ~/.gitconfig.managed
+    git config --global include.path ~/.gitconfig.managed
     ln -sf ~/Repositories/rysk/dotfiles/.vimrc ~/.vimrc
     ln -sf ~/Repositories/rysk/dotfiles/.zshrc ~/.zshrc
     ln -sf ~/Repositories/rysk/dotfiles/.zshenv ~/.zshenv
