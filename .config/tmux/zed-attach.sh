@@ -3,6 +3,10 @@ set -uo pipefail
 # Attach to a tmux session for Zed editor terminal integration.
 # Each Zed terminal tab claims a unique tmux window via lock files,
 # preventing display sync and preserving scrollback across restarts.
+
+# Ensure Homebrew PATH is available (Zed launches bash without login profile)
+eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null)" || true
+
 T=$(command -v tmux) || { echo "tmux not found" >&2; exit 1; }
 HASH=$(echo -n "$PWD" | md5 -q | head -c 8)
 BASE="zed-$(basename "$PWD" | tr -dc 'a-zA-Z0-9_-')-${HASH}"
