@@ -17,6 +17,9 @@ BASE="zed-$(basename "$PWD" | tr -dc 'a-zA-Z0-9_-')-${HASH}"
 LOCKDIR="/tmp/tmux-zed-locks"
 mkdir -p "$LOCKDIR"
 
+# Ensure UTF-8 locale for pbcopy/pbpaste with multibyte characters
+export LANG="${LANG:-en_US.UTF-8}"
+
 # Create base session (detached) if it doesn't exist
 if ! "$T" has-session -t "$BASE" 2>/dev/null; then
   "$T" new-session -d -s "$BASE"
@@ -50,12 +53,13 @@ for win_id in $("$T" list-windows -t "$BASE" -F '#{window_id}'); do
   fi
 done
 
-# All windows claimed: create and claim a new one
+# All windows claimed: create a new one and retry claim loop
 new_win_id=$("$T" new-window -t "$BASE" -P -F '#{window_id}')
 lockfile="$LOCKDIR/${BASE}-${new_win_id}"
-if ! (set -C; echo $$ > "$lockfile") 2>/dev/null; then
-  echo "Failed to create lock file '$lockfile'" >&2
-  exit 1
+if (set -C; echo $$ > "$lockfile") 2>/dev/null; then
+  suffix=${new_win_id#@}
+  exec "$T" new-session -t "$BASE" -s "${BASE}-${suffix}" \; select-window -t "$new_win_id"
 fi
-suffix=${new_win_id#@}
-exec "$T" new-session -t "$BASE" -s "${BASE}-${suffix}" \; select-window -t "$new_win_id"
+
+# Lock contention (another process claimed the new window): restart
+exec "$0"
