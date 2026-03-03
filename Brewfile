@@ -13,6 +13,7 @@ brew "zsh-completions"
 brew "zsh-git-prompt"
 
 # Terminal
+brew "tmux"
 tap "manaflow-ai/cmux"
 cask "cmux"
 cask "ghostty"

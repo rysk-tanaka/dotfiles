@@ -30,6 +30,7 @@ This is a dotfiles repository that manages macOS configuration files through sym
 3. Tool Management: mise handles installation and version management of development tools. Versions are pinned in `.config/mise/config.toml` and updated via Renovate (`renovate.json`). Exceptions: `node` (lts), `claude-code` (aqua backend, pinned) are not tracked by Renovate. Renovate PR release notes are automatically summarized in Japanese via `renovate-translate.yml`
 4. Project Integration: The `setup-links` task allows other projects to inherit coding standards and configurations
 5. Documentation: Detailed guides are in `docs/` (claude-code, mcp, renovate, etc.)
+6. Terminal Integration: Zed editor terminals use tmux for session persistence. `.config/tmux/zed-attach.sh` assigns each Zed terminal tab to a unique tmux window via lock files, preserving scrollback across editor restarts
 
 ## Claude Code Custom Skills
 

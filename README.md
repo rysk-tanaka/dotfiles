@@ -66,6 +66,9 @@ MacOS用の初期セットアップを行います。
 ├── .config/                          # 各種アプリケーション設定
 │   ├── ccmanager/                    # ccmanagerセッション管理
 │   │   └── config.json               # ccmanager設定
+│   ├── tmux/                         # tmux設定
+│   │   ├── tmux.conf                 # tmux一般設定
+│   │   └── zed-attach.sh             # Zedターミナル用アタッチスクリプト
 │   ├── zed/                          # Zedエディタ
 │   │   ├── keymap.json               # キーマップ設定
 │   │   └── settings.json             # 一般設定
@@ -135,6 +138,7 @@ MacOS用の初期セットアップを行います。
     mkdir -p ~/.config/ccmanager
     mkdir -p ~/.config/ghostty
     mkdir -p ~/.config/git
+    mkdir -p ~/.config/tmux
     mkdir -p ~/.config/zed
     ```
 
@@ -152,6 +156,8 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.config/ghostty/config ~/.config/ghostty/config
     ln -sf ~/Repositories/rysk/dotfiles/.config/git/ignore ~/.config/git/ignore
     ln -sf ~/Repositories/rysk/dotfiles/.config/mise ~/.config/mise
+    ln -sf ~/Repositories/rysk/dotfiles/.config/tmux/tmux.conf ~/.config/tmux/tmux.conf
+    ln -sf ~/Repositories/rysk/dotfiles/.config/tmux/zed-attach.sh ~/.config/tmux/zed-attach.sh
     ln -sf ~/Repositories/rysk/dotfiles/.config/zed/keymap.json ~/.config/zed/keymap.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/zed/settings.json ~/.config/zed/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/starship.toml ~/.config/starship.toml

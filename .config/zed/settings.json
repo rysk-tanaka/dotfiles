@@ -60,6 +60,12 @@
     "copy_on_select": true,
     "font_family": "Bizin Gothic Discord NF",
     "font_size": 19,
+    "shell": {
+      "with_arguments": {
+        "program": "bash",
+        "args": ["/Users/rysk/.config/tmux/zed-attach.sh"]
+      }
+    },
   },
   "lsp": {
     "pyright": {
