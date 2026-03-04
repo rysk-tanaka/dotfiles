@@ -1,6 +1,7 @@
 ---
 name: codex-review
 description: Codex CLIでコードレビューを実行し指摘内容を取得・対応 (user)
+argument-hint: [base-branch] [--bg]
 allowed-tools:
   # ~ is not expanded in allowed-tools patterns (claude-code#14956)
   - Bash(bash /Users/rysk/.claude/skills/codex-review/review.sh *)

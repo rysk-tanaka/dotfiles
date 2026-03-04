@@ -1,6 +1,7 @@
 ---
 name: claude-process
 description: Claude Codeプロセスの状況確認・クリーンアップ・監視 (user)
+argument-hint: [check | clean | monitor]
 allowed-tools:
   # ~ is not expanded in allowed-tools patterns (claude-code#14956)
   - Bash(bash /Users/rysk/.claude/skills/claude-process/check.sh *)

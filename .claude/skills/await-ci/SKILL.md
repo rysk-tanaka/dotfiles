@@ -1,6 +1,7 @@
 ---
 name: await-ci
 description: CIチェックの状態確認・完了待機 (user)
+argument-hint: [pr-number]
 allowed-tools:
   # ~ is not expanded in allowed-tools patterns (claude-code#14956)
   - Bash(bash /Users/rysk/.claude/skills/await-ci/check.sh *)

@@ -1,6 +1,7 @@
 ---
 name: sync-brew
 description: Brewfileにアプリを追加（セクション自動判定、auto_updates確認）
+argument-hint: <app-name ...>
 allowed-tools:
   - Bash(brew info *)
   - Bash(brew list *)

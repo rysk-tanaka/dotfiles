@@ -1,6 +1,7 @@
 ---
 name: resolve-review
 description: PRレビューコメントを取得し対応が必要な項目を確認 (user)
+argument-hint: [pr-number] [--bg]
 allowed-tools:
   # ~ is not expanded in allowed-tools patterns (claude-code#14956)
   - Bash(bash /Users/rysk/.claude/skills/resolve-review/fetch.sh *)

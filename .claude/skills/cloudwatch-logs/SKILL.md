@@ -1,6 +1,7 @@
 ---
 name: cloudwatch-logs
 description: CloudWatchログの取得・検索（Lambda関数のログ解析、エラー調査）
+argument-hint: <log-group-name>
 allowed-tools:
   - Bash(uv run *)
 ---

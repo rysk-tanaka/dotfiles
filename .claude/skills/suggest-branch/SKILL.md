@@ -1,6 +1,7 @@
 ---
 name: suggest-branch
 description: 作業内容を分析して適切なブランチ名を提案 (user)
+argument-hint: [base-branch]
 allowed-tools:
   # ~ is not expanded in allowed-tools patterns (claude-code#14956)
   # Use space-based pattern (not colon :*); SKILL.md uses a different engine from settings.json
