@@ -4,6 +4,13 @@ set -euo pipefail
 # Each Zed terminal tab claims a unique tmux window via lock files,
 # preventing display sync and preserving scrollback across restarts.
 
+# When Zed loads environment variables at startup, it invokes this script
+# with extra args like: bash zed-attach.sh -i -c "zed --printenv FD"
+# Fall back to a login shell so Zed can read env vars.
+if [ $# -gt 0 ]; then
+  exec zsh "$@"
+fi
+
 # Ensure Homebrew PATH is available (Zed launches bash without login profile)
 if [[ -x /opt/homebrew/bin/brew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
