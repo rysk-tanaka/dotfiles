@@ -149,12 +149,6 @@ MCPサーバーの設定は以下のファイルに保存されます。
 }
 ```
 
-Human-In-the-Loop Discord MCPサーバーはローカル設定で管理されており、以下の環境変数が必要です。
-
-- `DISCORD_TOKEN`: Discord Botトークン
-- `DISCORD_CHANNEL_ID`: 対象のDiscordチャンネルID
-- `DISCORD_USER_ID`: 対象のDiscordユーザーID
-
 ## Claude Desktop設定
 
 Claude DesktopでMCPサーバーを利用する場合は、以下の設定ファイルを編集します。

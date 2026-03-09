@@ -199,7 +199,6 @@ MacOS用の初期セットアップを行います。
     - 1password-cli, awscli, aws-vault, delta, eza, go, jq, node, rust
     - 各種ユーティリティのnpmパッケージ
     - Python 3.12、ripgrep、Starship、Terraformなど
-    - Human-In-the-Loop Discord MCPサーバー（Rustバイナリ）
 
 6. Homebrew未提供フォントのインストール
 
