@@ -39,6 +39,7 @@ cask "claude"
 
 # Development
 cask "coderabbit"
+cask "drawio"
 cask "linear-linear"
 cask "orbstack"
 cask "wakatime"

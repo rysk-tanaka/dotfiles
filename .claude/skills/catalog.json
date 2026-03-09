@@ -51,5 +51,11 @@
     "description": "Codex CLIでコードレビューを実行し指摘内容を取得・対応",
     "category": "Git ワークフロー",
     "example": "/codex-review develop"
+  },
+  {
+    "name": "drawio",
+    "description": "draw.io図表をネイティブ.drawioファイルとして生成（PNG/SVG/PDFエクスポート対応）",
+    "category": "図表作成",
+    "example": "/drawio png login flowchart"
   }
 ]
