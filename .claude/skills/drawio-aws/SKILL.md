@@ -2,6 +2,7 @@
 name: drawio-aws
 description: draw.io で AWS アーキテクチャ図を作成（AWS 4 アイコン、カテゴリ別カラー指定付き）
 allowed-tools: Bash, Write
+# Bash, Write are inherited from /drawio skill (CLI export, open command, file operations)
 ---
 
 # draw.io AWS Architecture Diagram Skill

@@ -2,6 +2,7 @@
 name: drawio
 description: Generate draw.io diagrams as .drawio files, optionally export to PNG/SVG/PDF with embedded XML
 allowed-tools: Bash, Write
+# Bash is required for: draw.io CLI export (path is platform-dependent), open/xdg-open, file cleanup after export
 ---
 
 # Draw.io Diagram Skill
@@ -85,7 +86,7 @@ Key flags:
 
 ## XML format
 
-A `.drawio` file is native mxGraphModel XML. Always generate XML directly — Mermaid and CSV formats require server-side conversion and cannot be saved as native files.
+A `.drawio` file is XML. The formal schema uses an `<mxfile>` wrapper, but `<mxGraphModel>` alone also works and is simpler to generate. Always generate XML directly — Mermaid and CSV formats require server-side conversion and cannot be saved as native files.
 
 ### Basic structure
 
@@ -100,6 +101,8 @@ Every diagram must have this structure:
   </root>
 </mxGraphModel>
 ```
+
+Note: draw.io's formal file format wraps this in `<mxfile><diagram>...</diagram></mxfile>`, but `<mxGraphModel>` alone is accepted by both the editor and CLI.
 
 - Cell `id="0"` is the root layer
 - Cell `id="1"` is the default parent layer
