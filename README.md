@@ -27,7 +27,8 @@ MacOS用の初期セットアップを行います。
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── rules/                        # 条件付きルール（pathsフロントマターでスコープ）
 │   │   ├── python.md                 # Pythonルール（*.py, pyproject.toml等）
-│   │   └── markdown.md               # Markdownルール（*.md, *.mdx）
+│   │   ├── markdown.md               # Markdownルール（*.md, *.mdx）
+│   │   └── design-decisions.md       # 設計判断記録方針（CLAUDE.md, docs/）
 │   ├── settings.json                 # グローバル設定
 │   ├── hooks/                        # フックスクリプト
 │   │   └── suggest-effort.sh         # effortレベル提案（UserPromptSubmit）
