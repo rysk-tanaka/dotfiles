@@ -49,6 +49,8 @@
       "Bash(git add -A:*)",
       "Bash(git add --all:*)",
       "Bash(git add .)",
+      "Bash(git commit --no-verify:*)",
+      "Bash(git push --no-verify:*)",
       "Bash(rm -rf:*)",
       "Read(**/.env*)",
       "Read(~/.aws/credentials)",
