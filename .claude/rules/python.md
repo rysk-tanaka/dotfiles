@@ -2,7 +2,6 @@
 paths:
   - "**/*.py"
   - "**/pyproject.toml"
-  - "**/uv.lock"
   - "**/requirements*.txt"
 ---
 
@@ -21,14 +20,15 @@ paths:
 
 ## Type Hints
 
-- For dictionaries, use `dict` without type parameters (e.g., `dict` instead of `Dict[str, Any]`)
-  - Rationale: Dictionaries are typically used for flexible, general-purpose data structures
+- For dictionaries, prefer built-in generics with explicit key/value types (e.g., `dict[str, Any]`)
+  - Use `Mapping[...]` / `MutableMapping[...]` when only the interface matters
+  - Rationale: Bare `dict` weakens static type checking and obscures the expected shape
 - Union types: Use pipe operator (`X | Y`) instead of `Optional[X]` or `Union[X, Y]`
   - Example: `str | None` instead of `Optional[str]`
   - Rationale: PEP 604 syntax is more concise and readable (available since Python 3.10)
-- Python 3.14+: Do NOT use `from __future__ import annotations`
-  - Rationale: PEP 649 makes deferred evaluation the default behavior
-- Python 3.10-3.13: Only needed for forward references (e.g., class referencing itself)
+- Python 3.10-3.13 (current baseline: 3.12/3.13): Use `from __future__ import annotations` only when you need forward references (e.g., a class referencing itself)
+- Python 3.14+ (future): Do NOT use `from __future__ import annotations`
+  - Rationale: From Python 3.14 onward, PEP 649 makes deferred evaluation the default behavior
 - `__init__.py` files: Keep empty by default (only trailing newline)
   - Rationale: Modern Python doesn't require explicit exports in `__init__.py`
 
@@ -69,4 +69,4 @@ paths:
   - Rationale: `json_encoders` is deprecated in Pydantic V2
 - datetime handling: Use `datetime.now(UTC)` instead of deprecated `datetime.utcnow()`
   - Example: `Field(default_factory=lambda: datetime.now(UTC))`
-  - Rationale: `datetime.utcnow()` is deprecated in Python 3.12+
+  - Rationale: タイムゾーン情報付きのUTC datetimeを優先し、タイムゾーン無しUTC（`datetime.utcnow()`）によるバグを防ぐため

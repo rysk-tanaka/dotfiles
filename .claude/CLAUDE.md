@@ -19,7 +19,7 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
   - Example: `is_eligible = user.is_active and user.age >= MIN_AGE`
 - コメントは「何をするか」ではなく「なぜ必要か」を記述する
 - ブール変数は肯定形で命名する（`is_active` ○ / `is_not_deleted` ✗）
-- Always end files with a trailing newline (空行を末尾に追加)
+- Always end files with a trailing newline (改行を末尾に追加)
 
 ## Version Control
 
