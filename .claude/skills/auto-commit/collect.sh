@@ -15,13 +15,23 @@ STAGED_FILES=$(git diff --cached --name-only)
 LOG=$(git log --oneline -10 2>/dev/null || true)
 STAT=$(git diff --cached --stat)
 
-# Identify large files (>500 changed lines) to exclude from detailed diff
+# Identify large files to exclude from detailed diff
+# Criteria: >500 changed lines OR single-file diff >50KB (e.g. minified SVG)
 LARGE_FILE_EXCLUDES=()
 EXCLUDED_LARGE_FILES=""
 while IFS=$'\t' read -r added removed file; do
     [[ "$added" == "-" || "$removed" == "-" ]] && continue  # binary
     total=$((added + removed))
+    exclude=false
     if [[ $total -gt 500 ]]; then
+        exclude=true
+    else
+        diff_bytes=$(git diff --cached -- "$file" | wc -c | tr -d ' ')
+        if [[ $diff_bytes -gt 51200 ]]; then
+            exclude=true
+        fi
+    fi
+    if [[ "$exclude" == "true" ]]; then
         LARGE_FILE_EXCLUDES+=(":!$file")
         EXCLUDED_LARGE_FILES+="$file"$'\n'
     fi
