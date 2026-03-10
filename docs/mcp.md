@@ -45,6 +45,20 @@ GitHub APIへのアクセスを提供します。
 - 参考: <https://github.com/github/github-mcp-server>
 - 備考: `gh` CLIと機能が重複するが、MCPツールとしてLLMが直接利用できる利点がある
 
+### Draw.io MCP Server
+
+draw.io図表の作成・編集機能を提供します。
+
+- コマンド: `pnpm dlx @drawio/mcp@1.1.6`
+- スコープ: プロジェクト
+- 機能: draw.ioエディタでXML/CSV/Mermaid形式の図表を生成・表示
+- 前提条件: Node.js >= 18、pnpm
+- 参考: <https://github.com/jgraph/drawio-mcp>
+- ツール
+  - `open_drawio_xml` - draw.io XML形式で図表を開く
+  - `open_drawio_csv` - CSVデータを図表に変換（組織図、フローチャート等）
+  - `open_drawio_mermaid` - Mermaid.js記法を編集可能な図表に変換
+
 ### Human-In-the-Loop Discord MCP Server
 
 Discord経由で人間とのやり取りを提供します。
@@ -144,6 +158,12 @@ MCPサーバーの設定は以下のファイルに保存されます。
       "headers": {
         "Authorization": "Bearer ${GH_MCP_TOKEN}"
       }
+    },
+    "drawio": {
+      "type": "stdio",
+      "command": "pnpm",
+      "args": ["dlx", "@drawio/mcp@1.1.6"],
+      "env": {}
     }
   }
 }

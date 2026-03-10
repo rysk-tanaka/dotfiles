@@ -31,6 +31,8 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - `/await-ci` - CIチェックの状態確認・完了待機
 - `/claude-process` - プロセスの状況確認・クリーンアップ・監視（サブコマンド: check, clean, monitor）
 - `/codex-review` - Codex CLIによるコードレビュー（フォアグラウンドデフォルト、`--bg` でバックグラウンド実行）
+- `/drawio` - draw.io図表をネイティブ.drawioファイルとして生成（PNG/SVG/PDFエクスポート対応）
+- `/drawio-aws` - draw.ioでAWSアーキテクチャ図を作成（AWS 4アイコン、カテゴリ別カラー指定付き）
 
 ## Codex CLI との共用スキル
 

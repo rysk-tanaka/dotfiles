@@ -29,6 +29,12 @@
       "headers": {
         "Authorization": "Bearer ${GH_MCP_TOKEN}"
       }
+    },
+    "drawio": {
+      "type": "stdio",
+      "command": "pnpm",
+      "args": ["dlx", "@drawio/mcp@1.1.6"],
+      "env": {}
     }
   }
 }

@@ -51,5 +51,17 @@
     "description": "Codex CLIでコードレビューを実行し指摘内容を取得・対応",
     "category": "Git ワークフロー",
     "example": "/codex-review develop"
+  },
+  {
+    "name": "drawio",
+    "description": "draw.io図表をネイティブ.drawioファイルとして生成（PNG/SVG/PDFエクスポート対応）",
+    "category": "図表作成",
+    "example": "/drawio png login flowchart"
+  },
+  {
+    "name": "drawio-aws",
+    "description": "draw.ioでAWSアーキテクチャ図を作成（AWS 4アイコン、カテゴリ別カラー指定付き）",
+    "category": "図表作成",
+    "example": "/drawio-aws Lambda + DynamoDB のサーバーレス構成図"
   }
 ]
