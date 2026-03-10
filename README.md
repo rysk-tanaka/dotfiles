@@ -25,6 +25,9 @@ MacOS用の初期セットアップを行います。
 │       └── cloudwatch-logs/          # CloudWatchログ取得
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
+│   ├── rules/                        # 条件付きルール（pathsフロントマターでスコープ）
+│   │   ├── python.md                 # Pythonルール（*.py, pyproject.toml等）
+│   │   └── markdown.md               # Markdownルール（*.md, *.mdx）
 │   ├── settings.json                 # グローバル設定
 │   ├── hooks/                        # フックスクリプト
 │   │   └── suggest-effort.sh         # effortレベル提案（UserPromptSubmit）
@@ -151,6 +154,7 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.claude/settings.json ~/.claude/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.claude/CLAUDE.md ~/.claude/CLAUDE.md
     ln -sf ~/Repositories/rysk/dotfiles/.claude/commands ~/.claude/commands
+    ln -sf ~/Repositories/rysk/dotfiles/.claude/rules ~/.claude/rules
     ln -sf ~/Repositories/rysk/dotfiles/.claude/skills ~/.claude/skills
     ln -sf ~/Repositories/rysk/dotfiles/.config/ccmanager/config.json ~/.config/ccmanager/config.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/ghostty/config ~/.config/ghostty/config
