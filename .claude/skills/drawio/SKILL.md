@@ -61,14 +61,14 @@ Key flags:
 
 - `-x` / `--export`: export mode
 - `-f` / `--format`: output format (png, svg, pdf)
-- `-e` / `--embed-diagram`: embed diagram XML in the output
+- `-e` / `--embed-diagram`: embed diagram XML in the output (PNG/SVG/PDF only)
 - `-o` / `--output`: output file path
 - `-b` / `--border`: border width around diagram (default: 0)
 - `-t` / `--transparent`: transparent background (PNG only)
 - `-s` / `--scale`: scale the diagram size
 - `--width` / `--height`: fit into specified dimensions (preserves aspect ratio)
 - `-a` / `--all-pages`: export all pages (PDF only)
-- `-p` / `--page-index`: select a specific page (1-based)
+- `-p` / `--page-index`: select a specific page (0-based)
 
 ### Opening the result
 
