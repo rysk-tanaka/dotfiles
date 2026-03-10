@@ -12,8 +12,9 @@ Generate draw.io diagrams as native `.drawio` files. Optionally export to PNG, S
 
 1. Generate draw.io XML in mxGraphModel format for the requested diagram
 2. Write the XML to a `.drawio` file in the current working directory using the Write tool
-3. If the user requested an export format (png, svg, pdf), export using the draw.io CLI with `--embed-diagram`, then delete the source `.drawio` file
-4. Open the result — the exported file if exported, or the `.drawio` file otherwise
+3. If the user requested an export format (png, svg, pdf), export using the draw.io CLI with `--embed-diagram`
+4. Only after the export succeeds and the output file exists, delete the source `.drawio` file
+5. Open the result — the exported file if exported, or the `.drawio` file otherwise
 
 ## Choosing the output format
 
@@ -33,9 +34,8 @@ If no format is mentioned, just write the `.drawio` file and open it in draw.io.
 | `png` | Yes (`-e`) | Viewable everywhere, editable in draw.io |
 | `svg` | Yes (`-e`) | Scalable, editable in draw.io |
 | `pdf` | Yes (`-e`) | Printable, editable in draw.io |
-| `jpg` | No | Lossy, no embedded XML support |
 
-PNG, SVG, and PDF all support `--embed-diagram` — the exported file contains the full diagram XML, so opening it in draw.io recovers the editable diagram.
+All three formats support `--embed-diagram` — the exported file contains the full diagram XML, so opening it in draw.io recovers the editable diagram.
 
 ## draw.io CLI
 
@@ -60,8 +60,8 @@ drawio -x -f <format> -e -b 10 -o <output> <input.drawio>
 Key flags:
 
 - `-x` / `--export`: export mode
-- `-f` / `--format`: output format (png, svg, pdf, jpg)
-- `-e` / `--embed-diagram`: embed diagram XML in the output (PNG, SVG, PDF only)
+- `-f` / `--format`: output format (png, svg, pdf)
+- `-e` / `--embed-diagram`: embed diagram XML in the output
 - `-o` / `--output`: output file path
 - `-b` / `--border`: border width around diagram (default: 0)
 - `-t` / `--transparent`: transparent background (PNG only)

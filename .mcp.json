@@ -33,7 +33,7 @@
     "drawio": {
       "type": "stdio",
       "command": "pnpm",
-      "args": ["dlx", "@drawio/mcp"],
+      "args": ["dlx", "@drawio/mcp@1.1.6"],
       "env": {}
     }
   }

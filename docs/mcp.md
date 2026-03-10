@@ -49,10 +49,10 @@ GitHub APIへのアクセスを提供します。
 
 draw.io図表の作成・編集機能を提供します。
 
-- コマンド: `pnpm dlx @drawio/mcp`
+- コマンド: `pnpm dlx @drawio/mcp@1.1.6`
 - スコープ: プロジェクト
 - 機能: draw.ioエディタでXML/CSV/Mermaid形式の図表を生成・表示
-- 前提条件: なし
+- 前提条件: Node.js >= 18、pnpm
 - 参考: <https://github.com/jgraph/drawio-mcp>
 - ツール
   - `open_drawio_xml` - draw.io XML形式で図表を開く
@@ -162,7 +162,7 @@ MCPサーバーの設定は以下のファイルに保存されます。
     "drawio": {
       "type": "stdio",
       "command": "pnpm",
-      "args": ["dlx", "@drawio/mcp"],
+      "args": ["dlx", "@drawio/mcp@1.1.6"],
       "env": {}
     }
   }
