@@ -110,7 +110,8 @@
     "claude-code-wakatime@wakatime": true,
     "pr-review-toolkit@claude-plugins-official": true,
     "coderabbit@claude-plugins-official": true,
-    "pyright-lsp@claude-plugins-official": true
+    "pyright-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
