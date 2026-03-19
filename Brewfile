@@ -3,6 +3,7 @@ brew "coreutils"
 brew "fastfetch"
 brew "gnu-sed"
 brew "gnupg"
+brew "mas"
 brew "mise"
 brew "telnet"
 cask "codex"
@@ -43,6 +44,7 @@ cask "drawio"
 cask "linear-linear"
 cask "orbstack"
 cask "wakatime"
+mas "Xcode", id: 497799835
 
 # Launcher
 cask "raycast"
