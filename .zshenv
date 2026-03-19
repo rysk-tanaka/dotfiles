@@ -1,6 +1,10 @@
 # mise shims (loaded for all zsh sessions including non-interactive)
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
+# Editor (vim for git commit, Zed for gitu file viewer)
+export GIT_EDITOR="vim"
+export GITU_SHOW_EDITOR="zed"
+
 # GitHub token for MCP server (gh auth token via OAuth, not PAT)
 # - MCP-specific var to avoid interfering with gh CLI's own token resolution
 # - No --hostname flag: returns active account's token, respects `gh auth switch`

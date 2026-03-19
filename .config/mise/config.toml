@@ -10,6 +10,7 @@ duckdb = "1.4.4"
 eza = "0.23.4"
 fzf = "0.68.0"                             # required for zoxide interactive (cdi)
 gh = "2.74.0"
+gitu = "0.41.0"
 go = "1.26.1"
 jq = "1.8.1"
 jujutsu = "0.38.0"
@@ -29,7 +30,7 @@ zoxide = "0.9.9"
 
 # aqua: tools
 "aqua:99designs/aws-vault" = "7.2.0"       # mise registry maps to incorrect aqua:ByteNess/aws-vault
-"aqua:anthropics/claude-code" = "2.1.75"
+"aqua:anthropics/claude-code" = "2.1.79"
 "aqua:ducaale/xh" = "0.25.3"
 "aqua:google/osv-scanner" = "2.3.3"
 "aqua:j178/prek" = "0.3.4"
