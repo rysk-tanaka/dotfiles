@@ -4,6 +4,10 @@
     "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
     "DISABLE_AUTOUPDATER": "1"
   },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Bash(echo:*)",
@@ -111,10 +115,6 @@
     "rust-analyzer-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  },
   "feedbackSurveyState": {
     "lastShownTime": 1754042613598
   }
