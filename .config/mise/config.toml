@@ -33,7 +33,7 @@ zoxide = "0.9.9"
 "aqua:anthropics/claude-code" = "2.1.80"
 "aqua:ducaale/xh" = "0.25.3"
 "aqua:google/osv-scanner" = "2.3.3"
-"aqua:j178/prek" = "0.3.4"
+"aqua:j178/prek" = "0.3.6"
 "aqua:sxyazi/yazi" = "26.1.22"
 
 # cargo: tools
