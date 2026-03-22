@@ -36,8 +36,8 @@ This is a dotfiles repository that manages macOS configuration files through sym
 
 Located in `.claude/rules/` with `paths` frontmatter for file-pattern scoping.
 
-- `python.md` - Python type hints, error handling, pytest, Pydantic V2 conventions (applies to `**/*.py`)
-- `markdown.md` - No colons before lists, no bold, code block language specs, Mermaid placeholder rules (applies to `**/*.md`)
+- `python.md` - Python type hints, error handling, pytest, Pydantic V2 conventions (applies to `**/*.py`, `**/pyproject.toml`, `**/requirements*.txt`)
+- `markdown.md` - No colons before lists, no bold, code block language specs, Mermaid placeholder rules (applies to `**/*.md`, `**/*.mdx`)
 - `design-decisions.md` - Design decision recording priorities: deterministic tools > tests > CLAUDE.md > code comments (applies to `**/CLAUDE.md`, `**/AGENTS.md`, `**/docs/**`)
 
 ## Claude Code Custom Skills
@@ -59,7 +59,7 @@ Located in `.claude/commands/`. Lightweight prompts that don't need a full skill
 
 ## Pull Request Guidelines
 
-PR template is at `.github/pull_request_template.md`. Key conventions:
+PR template is at `.github/pull_request_template.md`. Key conventions are as follows.
 
 - Title: concise Japanese (technical terms in English are OK)
 - Body: ですます調, sections: 変更の概要 / 主な変更点 / 変更の背景 / 補足
