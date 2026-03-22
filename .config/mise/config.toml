@@ -34,6 +34,7 @@ zoxide = "0.9.9"
 "aqua:ducaale/xh" = "0.25.3"
 "aqua:google/osv-scanner" = "2.3.3"
 "aqua:j178/prek" = "0.3.6"
+"aqua:suzuki-shunsuke/pinact" = "3.9.0"
 "aqua:sxyazi/yazi" = "26.1.22"
 
 # cargo: tools
