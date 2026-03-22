@@ -33,6 +33,7 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - `/codex-review` - Codex CLIによるコードレビュー（フォアグラウンドデフォルト、`--bg` でバックグラウンド実行）
 - `/drawio` - draw.io図表をネイティブ.drawioファイルとして生成（PNG/SVG/PDFエクスポート対応）
 - `/drawio-aws` - draw.ioでAWSアーキテクチャ図を作成（AWS 4アイコン、カテゴリ別カラー指定付き）
+- `/setup-workflows` - rysk-tanaka/workflows の reusable workflow を呼び出すラッパーワークフローを対話的に生成
 
 ## Codex CLI との共用スキル
 

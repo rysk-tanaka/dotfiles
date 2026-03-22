@@ -63,5 +63,11 @@
     "description": "draw.ioでAWSアーキテクチャ図を作成（AWS 4アイコン、カテゴリ別カラー指定付き）",
     "category": "図表作成",
     "example": "/drawio-aws Lambda + DynamoDB のサーバーレス構成図"
+  },
+  {
+    "name": "setup-workflows",
+    "description": "rysk-tanaka/workflows の reusable workflow を呼び出すラッパーワークフローを対話的に生成",
+    "category": "GitHub ワークフロー",
+    "example": "/setup-workflows"
   }
 ]

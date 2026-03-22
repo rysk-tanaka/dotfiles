@@ -32,6 +32,14 @@ This is a dotfiles repository that manages macOS configuration files through sym
 5. Documentation: Detailed guides are in `docs/` (claude-code, mcp, renovate, etc.)
 6. Terminal Integration: Zed editor terminals use tmux for session persistence. `.config/tmux/zed-attach.sh` assigns each Zed terminal tab to a unique tmux window via lock files, preserving scrollback across editor restarts
 
+## Claude Code Rules
+
+Located in `.claude/rules/` with `paths` frontmatter for file-pattern scoping.
+
+- `python.md` - Python type hints, error handling, pytest, Pydantic V2 conventions (applies to `**/*.py`, `**/pyproject.toml`, `**/requirements*.txt`)
+- `markdown.md` - No colons before lists, no bold, code block language specs, Mermaid placeholder rules (applies to `**/*.md`, `**/*.mdx`)
+- `design-decisions.md` - Design decision recording priorities: deterministic tools > tests > CLAUDE.md > code comments (applies to `**/CLAUDE.md`, `**/AGENTS.md`, `**/docs/**`)
+
 ## Claude Code Custom Skills
 
 Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/catalog.json`. When adding or updating skills, update catalog.json as well. Skills with shell scripts require permission entries in two places with different pattern formats.
@@ -44,6 +52,18 @@ Note: These use different pattern engines. The `~` home directory shorthand is n
 Skills that also run as mise tasks (auto-commit, suggest-branch) use the collect.sh pattern: a shell script pre-collects git data as JSON, which is passed to the LLM in a single API call via `<git-data>` tags. The SKILL.md includes a fallback to run collect.sh when data is not provided in the prompt.
 
 Dual-mode skills (resolve-review, codex-review) support foreground (default) and background (`--bg` flag) execution. Foreground mode runs synchronously and processes results immediately. Background mode uses a two-phase pattern: the launch phase starts the shell script with `run_in_background` and returns immediately, while the result processing phase triggers automatically when a background task completion system-reminder is detected (or when the user explicitly requests results). Background mode allows multiple skills to run concurrently. Results are cached to `~/.cache/claude-bg/` for session loss recovery (e.g., `codex-review-{session-id}.txt`).
+
+## Claude Code Commands
+
+Located in `.claude/commands/`. Lightweight prompts that don't need a full skill directory. Invoked via `/command-name`.
+
+## Pull Request Guidelines
+
+PR template is at `.github/pull_request_template.md`. Key conventions are as follows.
+
+- Title: concise Japanese (technical terms in English are OK)
+- Body: ですます調, sections: 変更の概要 / 主な変更点 / 変更の背景 / 補足
+- Add `claude-review` label to request Claude Code Action review
 
 ## Project Integration
 
@@ -75,12 +95,12 @@ The following operations are blocked in `.claude/settings.json` deny rules.
 
 ## GitHub Workflows
 
-- `claude-code-review.yml` - `claude-review` ラベル付きPRでClaude Code Reviewを実行（PR作成・更新・ラベル付与・reopenで発火）
+- `claude-code-review.yml` - `claude-review` ラベル付きPRでClaude Code Reviewを実行（PR作成・更新・ラベル付与・ドラフト解除・reopenで発火）
 - `claude.yml` - Issue/PRコメント・PRレビュー・Issue作成で `@claude` メンションすると汎用Claude Codeが応答
 - `mise-install.yml` - `.config/mise/config.toml` 変更PRで `mise install` を実行（Renovate automergeの安全弁、Rulesetで必須チェック化）
 - `renovate-translate.yml` - Renovate BotのPRリリースノートを日本語に要約してコメント投稿
 
-Note: ワークフロー内の `actions/checkout@v6` は正しいバージョン。v6 は 2025年にリリース済み（知識カットオフによる誤検知に注意）。
+Note: ワークフロー内の `actions/checkout@v6`, `actions/setup-node@v6` は正しいバージョン。v6 は 2025年にリリース済み（知識カットオフによる誤検知に注意）。
 
 ## Code Style
 
