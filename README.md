@@ -44,7 +44,8 @@ MacOS用の初期セットアップを行います。
 │   │   ├── sync-brew/                # Brewfileアプリ追加
 │   │   │   └── SKILL.md              # スキル定義
 │   │   ├── auto-commit/              # コミットメッセージ自動生成
-│   │   │   └── SKILL.md              # スキル定義
+│   │   │   ├── SKILL.md              # スキル定義
+│   │   │   └── collect.sh            # データ収集スクリプト
 │   │   ├── await-ci/                 # CIチェック状態確認・完了待機
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   └── check.sh              # CIチェック取得スクリプト
@@ -61,12 +62,20 @@ MacOS用の初期セットアップを行います。
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   └── review.sh             # レビュー実行スクリプト
 │   │   ├── suggest-branch/           # ブランチ名提案
+│   │   │   ├── SKILL.md              # スキル定義
+│   │   │   └── collect.sh            # データ収集スクリプト
+│   │   ├── claude-process/           # プロセス状況確認・クリーンアップ・監視
+│   │   │   ├── SKILL.md              # スキル定義
+│   │   │   ├── common.sh             # 共通関数
+│   │   │   ├── check.sh              # プロセス状況確認スクリプト
+│   │   │   ├── clean.sh              # プロセスクリーンアップスクリプト
+│   │   │   └── monitor.sh            # プロセス監視スクリプト
+│   │   ├── drawio/                   # draw.io図表生成
 │   │   │   └── SKILL.md              # スキル定義
-│   │   └── claude-process/           # プロセス状況確認・クリーンアップ・監視
-│   │       ├── SKILL.md              # スキル定義
-│   │       ├── check.sh              # プロセス状況確認スクリプト
-│   │       ├── clean.sh              # プロセスクリーンアップスクリプト
-│   │       └── monitor.sh            # プロセス監視スクリプト
+│   │   ├── drawio-aws/               # AWSアーキテクチャ図生成
+│   │   │   └── SKILL.md              # スキル定義
+│   │   └── setup-workflows/          # GitHub Actionsワークフロー生成
+│   │       └── SKILL.md              # スキル定義
 ├── .config/                          # 各種アプリケーション設定
 │   ├── ccmanager/                    # ccmanagerセッション管理
 │   │   └── config.json               # ccmanager設定
