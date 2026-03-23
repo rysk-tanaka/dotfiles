@@ -58,7 +58,6 @@
       "Read(~/.ssh/**)"
     ]
   },
-  "model": "opus",
   "hooks": {
     "UserPromptSubmit": [
       {

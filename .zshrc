@@ -58,8 +58,8 @@ fi
 # fi
 
 # mise exec aliases (version-specific commands)
-alias python="mise exec python@3.12.8 -- python"
-alias pip="mise exec python@3.12.8 -- pip"
+alias python="mise exec -- python"
+alias pip="mise exec -- pip"
 alias terraform="mise exec -- terraform"
 
 # pbcopy
