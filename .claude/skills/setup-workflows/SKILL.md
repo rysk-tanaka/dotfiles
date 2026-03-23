@@ -505,7 +505,8 @@ jobs:
 - [ ] （Action 選択時）`PUBLISH_ACTION` リポジトリ変数を `true` に設定
 
 ### Issue 自動対応フロー（Issue Scan + Implement 選択時のみ表示）
-- [ ] GitHub Labels を作成: `claude-scanned`, `difficulty/easy`, `difficulty/medium`, `difficulty/hard`, `claude-implement`, `claude-review`
+- [ ] `mise run setup-review-label` を実行して `claude-review` ラベルを作成
+- 他のラベル（`claude-scanned`, `difficulty/*`, `claude-implement`）は Issue Scan 初回実行時に自動作成されます
 ```
 
 ## 重要事項
