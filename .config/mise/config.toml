@@ -41,7 +41,7 @@ zoxide = "0.9.9"
 "cargo:treemd" = "0.5.6"
 
 # github: tools
-"github:rysk-tanaka/csvr" = "0.1.0"
+"github:rysk-tanaka/csvr" = "0.2.0"
 
 # npm: tools
 "npm:aws-cdk" = "2.1107.0"
