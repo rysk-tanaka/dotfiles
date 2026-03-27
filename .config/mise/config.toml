@@ -30,7 +30,7 @@ zoxide = "0.9.9"
 
 # aqua: tools
 "aqua:99designs/aws-vault" = "7.2.0"       # mise registry maps to incorrect aqua:ByteNess/aws-vault
-"aqua:anthropics/claude-code" = "2.1.81"
+"aqua:anthropics/claude-code" = "2.1.85"
 "aqua:ducaale/xh" = "0.25.3"
 "aqua:google/osv-scanner" = "2.3.5"
 "aqua:j178/prek" = "0.3.8"
