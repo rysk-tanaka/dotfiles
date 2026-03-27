@@ -23,6 +23,6 @@ jobs:
       issues: write
       actions: read
       id-token: write
-    uses: rysk-tanaka/workflows/.github/workflows/claude.yml@main
+    uses: rysk-tanaka/workflows/.github/workflows/claude.yml@5ad31c81990e2ea288cd938d9ef28db8f32c2359 # main
     secrets:
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
