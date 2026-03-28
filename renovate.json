@@ -19,6 +19,10 @@
       "matchManagers": ["mise"],
       "matchDepNames": ["npm:ccusage", "npm:@ccusage/codex"],
       "groupName": "ccusage"
+    },
+    {
+      "matchDepNames": ["rysk-tanaka/workflows"],
+      "enabled": false
     }
   ]
 }
