@@ -1,6 +1,7 @@
 [tools]
 # Standard tools
 1password-cli = "2.32.1"
+actionlint = "1.7.11"
 aws-sam-cli = "1.154.0"
 awscli = "2.33.31"                         # requires rosetta 2
 bat = "0.26.1"
@@ -34,8 +35,10 @@ zoxide = "0.9.9"
 "aqua:ducaale/xh" = "0.25.3"
 "aqua:google/osv-scanner" = "2.3.5"
 "aqua:j178/prek" = "0.3.8"
+"aqua:suzuki-shunsuke/ghalint" = "1.5.5"
 "aqua:suzuki-shunsuke/pinact" = "3.9.0"
 "aqua:sxyazi/yazi" = "26.1.22"
+"aqua:zizmorcore/zizmor" = "1.23.1"
 
 # cargo: tools
 "cargo:treemd" = "0.5.6"
