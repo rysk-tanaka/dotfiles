@@ -1,24 +1,27 @@
 # uvでPythonプロジェクトを作成
 
-uvを使用して新しいPythonプロジェクトを初期化し、pyproject.tomlにツール設定を自動追加してください。
+uvを使用して新しいPythonプロジェクトを `src/` レイアウトで初期化し、pyproject.tomlにツール設定を自動追加してください。
 
 ## ステップ1: 対話的に情報収集
 
 以下をユーザーに質問する（AskUserQuestionを使用）。
 
-1. Pythonバージョン（選択肢: 3.12 / 3.13）
+1. Pythonバージョン（選択肢: 3.13 / 3.14）
 2. ruffのルールセット（選択肢: 基本 / モダン / ALL）
    - 基本: B, BLE, C4, E, F, W
    - モダン: E, W, F, UP, B, I, C90, PLR
    - ALL: 全ルール有効化（個別除外）
-3. AWS SDK (boto3) を使用するか（はい / いいえ）
-4. Pydantic を使用するか（はい / いいえ）
+3. 型チェッカー（選択肢: ty / mypy）
+4. AWS SDK (boto3) を使用するか（はい / いいえ）
+5. Pydantic を使用するか（はい / いいえ）
 
 ## ステップ2: プロジェクト初期化
 
 1. 既にpyproject.tomlが存在する場合は警告して中止
-2. `uv init <project-name> --python <version>` でプロジェクト作成（引数なしなら現在ディレクトリで `uv init --python <version>`）
+2. `uv init <project-name> --python <version> --package --build-backend hatch` でプロジェクト作成（引数なしなら現在ディレクトリで `uv init --python <version> --package --build-backend hatch`）
 3. `uv venv` で仮想環境を作成
+
+`--package --build-backend hatch` により `src/<project>/` レイアウト・`[build-system]`・`[tool.hatch.build.targets.wheel]` が自動生成される。
 
 ## ステップ3: pyproject.toml に設定セクションを追記
 
@@ -44,7 +47,8 @@ select = [
     "W",    # pycodestyle warnings
 ]
 ignore = [
-    "B008",  # Do not perform function calls in argument defaults
+    "B008",  # Do not perform function calls in argument defaults (typer pattern)
+    "B027",  # Empty method in abstract base class without abstract decorator (optional hooks)
     "E501",  # Line too long
 ]
 ```
@@ -67,6 +71,8 @@ select = [
     "PLR",  # Pylint refactoring
 ]
 ignore = [
+    "B008",    # Do not perform function calls in argument defaults (typer pattern)
+    "B027",    # Empty method in abstract base class without abstract decorator (optional hooks)
     "PLR2004", # Magic value comparison
 ]
 
@@ -94,7 +100,8 @@ ignore = [
     "COM812", # missing-trailing-comma
     "INP001", # Add an `__init__.py`
     "ISC001", # single-line-implicit-string-concatenation
-    "B008",   # Do not perform function calls in argument defaults
+    "B008",   # Do not perform function calls in argument defaults (typer pattern)
+    "B027",   # Empty method in abstract base class without abstract decorator (optional hooks)
     "E501",   # Line too long
 ]
 
@@ -102,9 +109,11 @@ ignore = [
 "tests/**" = ["S101"]
 ```
 
-### mypy設定
+### 型チェッカー設定
 
-共通設定。
+tyを選択した場合、dev依存にtyを追加する（設定セクションは不要）。
+
+mypyを選択した場合、以下の共通設定を追加する。
 
 ```toml
 [tool.mypy]
@@ -124,6 +133,15 @@ AWS SDK使用時のみ追加。
 [[tool.mypy.overrides]]
 module = ["boto3", "boto3.*", "botocore", "botocore.*"]
 ignore_missing_imports = true
+```
+
+### coverage設定
+
+`src/` レイアウトでcoverageがパッケージを正しく検出するために必要。
+
+```toml
+[tool.coverage.run]
+source = ["<project-name>"]
 ```
 
 ### pytest設定
@@ -147,6 +165,14 @@ filterwarnings = ["ignore:datetime.datetime.utcnow:DeprecationWarning:botocore"]
 
 ## ステップ4: 開発用パッケージの追加
 
+tyを選択した場合。
+
+```bash
+uv add --group dev pytest pytest-cov ruff ty
+```
+
+mypyを選択した場合。
+
 ```bash
 uv add --group dev pytest pytest-cov ruff mypy
 ```
@@ -155,12 +181,21 @@ uv add --group dev pytest pytest-cov ruff mypy
 
 - `tests/` ディレクトリを作成
 - `tests/__init__.py` を作成（空ファイル、末尾改行のみ）
+- `tests/test_placeholder.py` を作成（`uv run pytest` が即座に動作するように）
+
+`tests/test_placeholder.py` の内容:
+
+```python
+def test_placeholder():
+    assert True
+```
 
 ## ステップ6: 同期と完了
 
 1. `uv sync --all-extras` で依存関係同期
-2. 作成されたプロジェクト構成を表示
-3. 次のステップとして `uv run pytest` や `uv run ruff check .` の実行方法を案内
+2. `uv run pytest` を実行してテストが通ることを確認
+3. 作成されたプロジェクト構成を表示
+4. 次のステップとして `uv run pytest` や `uv run ruff check .` の実行方法を案内
 
 ## 重要事項
 
@@ -168,5 +203,6 @@ uv add --group dev pytest pytest-cov ruff mypy
 - エラーが発生した場合は適切にハンドリングして報告
 - pyproject.tomlの追記はEditツールで末尾に追加する（uv initが生成した内容を壊さない）
 - pytest設定の `--cov=` にはプロジェクト名（ハイフンをアンダースコアに変換）を指定する
+- `src/` レイアウトを使用する（`uv init --package` が自動生成）
 
 $ARGUMENTS
