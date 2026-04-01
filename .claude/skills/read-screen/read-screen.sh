@@ -23,6 +23,9 @@ while [[ $# -gt 0 ]]; do
             if [[ $# -lt 2 ]]; then
                 echo "Error: --lines requires a value" >&2; exit 1
             fi
+            if ! [[ "$2" =~ ^[1-9][0-9]*$ ]]; then
+                echo "Error: --lines must be a positive integer" >&2; exit 1
+            fi
             LINES="$2"; shift 2 ;;
         -*)      echo "Error: unknown flag: $1" >&2; exit 1 ;;
         *)
@@ -47,19 +50,19 @@ fi
 # --- List mode ---
 
 if [[ "$LIST_MODE" == true ]]; then
-    cmux list-workspaces
-    echo ""
     if [[ -n "$WORKSPACE" ]]; then
         cmux list-pane-surfaces "${ws_args[@]}"
     else
-        # Show surfaces for all workspaces
+        ws_output=$(cmux list-workspaces)
+        echo "$ws_output"
+        echo ""
         while IFS= read -r line; do
-            ws_ref=$(echo "$line" | grep -oE 'workspace:[0-9]+')
+            ws_ref=$(echo "$line" | grep -oE 'workspace:[0-9]+' || true)
             [[ -z "$ws_ref" ]] && continue
             echo "=== $ws_ref ==="
             cmux list-pane-surfaces --workspace "$ws_ref"
             echo ""
-        done < <(cmux list-workspaces)
+        done <<< "$ws_output"
     fi
     exit 0
 fi
