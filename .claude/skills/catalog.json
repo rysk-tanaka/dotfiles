@@ -65,6 +65,12 @@
     "example": "/drawio-aws Lambda + DynamoDB のサーバーレス構成図"
   },
   {
+    "name": "read-screen",
+    "description": "cmuxの別ペインのターミナル出力を読み取る",
+    "category": "ターミナル",
+    "example": "/read-screen s:2"
+  },
+  {
     "name": "setup-workflows",
     "description": "rysk-tanaka/workflows の reusable workflow を呼び出すラッパーワークフローを対話的に生成",
     "category": "GitHub ワークフロー",
