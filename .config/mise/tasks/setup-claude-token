@@ -39,4 +39,15 @@ fi
 # Set secret
 echo "$TOKEN" | gh secret set CLAUDE_CODE_OAUTH_TOKEN --repo "$REPO"
 
-echo "CLAUDE_CODE_OAUTH_TOKEN set on $REPO"
+# Verify secret exists
+if gh secret list --repo "$REPO" | grep -q "^CLAUDE_CODE_OAUTH_TOKEN"; then
+    echo "✓ CLAUDE_CODE_OAUTH_TOKEN set on $REPO"
+else
+    echo "Error: Secret was not found after setting. Check your permissions." >&2
+    exit 1
+fi
+
+echo ""
+echo "To verify the token works, trigger a Claude workflow:"
+echo "  gh workflow run issue-scan.yml"
+echo "  gh run watch"
