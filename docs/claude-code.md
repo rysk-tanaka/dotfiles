@@ -128,6 +128,74 @@ AI コードレビュープラグイン。40以上の静的解析ツールとAST
 - `@coderabbitai review` コマンドも bot（`github-actions[bot]` 等）からの投稿は無視される。人間ユーザーが投稿する必要がある
 - `.coderabbit.yaml` の公式スキーマ（[schema.v2.json](https://coderabbit.ai/integrations/schema.v2.json)）に bot PR の自動レビューを有効化するフィールドは未提供
 
+### Codex (openai-codex)
+
+OpenAI Codex CLI を Claude Code から呼び出すプラグイン。コードレビューやタスク委譲を提供する。
+
+#### 前提条件
+
+- Codex CLI のインストール（`brew install --cask codex`、Brewfile管理済み）
+- `codex login` で認証
+
+#### インストール
+
+```bash
+/plugin marketplace add openai/codex-plugin-cc
+/plugin install codex@openai-codex
+```
+
+#### セットアップ確認
+
+```bash
+/codex:setup
+```
+
+#### 使い方
+
+```bash
+# コードレビュー（規模に応じて実行モードを提案）
+/codex:review
+
+# フォアグラウンドで即座にレビュー
+/codex:review --wait
+
+# バックグラウンドでレビュー
+/codex:review --background
+
+# ブランチ全体の差分をレビュー
+/codex:review --scope branch
+
+# 特定ブランチとの差分をレビュー
+/codex:review --base develop
+
+# 敵対的レビュー（設計判断・トレードオフを問う）
+/codex:adversarial-review
+
+# フォーカス指定付き敵対的レビュー
+/codex:adversarial-review 認証周りを重点的に
+
+# タスク委譲（調査・修正を Codex に依頼）
+/codex:rescue このバグの原因を調査して
+```
+
+#### review と adversarial-review の違い
+
+- `/codex:review` -- 実装の品質チェック（バグ、一般的な問題の検出）
+- `/codex:adversarial-review` -- 設計判断への挑戦（セキュリティ、データ損失、レースコンディション等の実害リスクに特化）
+
+#### review のスコープオプション
+
+| オプション | 動作 |
+| --- | --- |
+| `--scope auto`（デフォルト） | working tree が dirty なら作業差分、クリーンならブランチ差分 |
+| `--scope working-tree` | staged + unstaged + untracked の全変更 |
+| `--scope branch` | デフォルトブランチからの全コミット差分 |
+| `--base <ref>` | 指定した ref との差分（scope より優先） |
+
+#### Review Gate
+
+stop 前に Codex レビューを必須にする機能。`/codex:setup --enable-review-gate` で有効化。設定は `$TMPDIR` 配下の `state.json` に保存されるため、OS 再起動で初期化される。
+
 ## Hooks
 
 ### Notification
