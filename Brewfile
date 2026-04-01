@@ -47,7 +47,8 @@ cask "drawio"
 cask "linear-linear"
 cask "orbstack"
 cask "wakatime"
-mas "Xcode", id: 497799835
+# Xcode: App Store auto-updates, large download blocks brew bundle
+# mas "Xcode", id: 497799835
 
 # Launcher
 cask "raycast"
