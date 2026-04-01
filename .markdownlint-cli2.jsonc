@@ -1,9 +1,14 @@
 {
   "config": {
-    "MD024": false,
     "MD013": false,
+    "MD024": false,
     "MD033": false,
     "MD162": false,
   },
-  "ignores": [".codex/skills/**", "**/node_modules/**", ".tmp/**"],
+  "ignores": [
+    "**/node_modules/**",
+    "**/target/**",
+    ".codex/skills/**",
+    ".tmp/**",
+  ],
 }
