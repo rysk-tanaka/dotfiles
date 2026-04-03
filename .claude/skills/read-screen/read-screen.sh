@@ -40,18 +40,23 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# --- Build workspace args ---
+# --- Normalize refs ---
+# cmux accepts "surface:N" but not bare "N" for --surface.
+# cmux accepts both "N" and "workspace:N" for --workspace.
 
-ws_args=()
-if [[ -n "$WORKSPACE" ]]; then
-    ws_args+=(--workspace "$WORKSPACE")
+if [[ -n "$SURFACE" && "$SURFACE" =~ ^[0-9]+$ ]]; then
+    SURFACE="surface:${SURFACE}"
+fi
+
+if [[ -n "$WORKSPACE" && "$WORKSPACE" =~ ^[0-9]+$ ]]; then
+    WORKSPACE="workspace:${WORKSPACE}"
 fi
 
 # --- List mode ---
 
 if [[ "$LIST_MODE" == true ]]; then
     if [[ -n "$WORKSPACE" ]]; then
-        cmux list-pane-surfaces "${ws_args[@]}"
+        cmux list-pane-surfaces --workspace "$WORKSPACE"
     else
         ws_output=$(cmux list-workspaces)
         echo "$ws_output"
@@ -76,4 +81,9 @@ if [[ -z "$SURFACE" ]]; then
     exit 1
 fi
 
-cmux read-screen "${ws_args[@]}" --surface "$SURFACE" --lines "$LINES"
+cmd=(cmux read-screen --surface "$SURFACE" --lines "$LINES")
+if [[ -n "$WORKSPACE" ]]; then
+    cmd+=(--workspace "$WORKSPACE")
+fi
+
+"${cmd[@]}"
