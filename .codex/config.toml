@@ -26,3 +26,6 @@ model_verbosity = "low"
 model_reasoning_effort = "high"
 model_reasoning_summary = "detailed"
 model_verbosity = "high"
+
+[plugins."github@openai-curated"]
+enabled = true
