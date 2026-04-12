@@ -43,6 +43,7 @@ cask "claude"
 
 # Development
 cask "coderabbit"
+cask "devpod"
 cask "drawio"
 cask "linear-linear"
 cask "orbstack"

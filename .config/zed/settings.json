@@ -7,42 +7,51 @@
 // custom settings, run `zed: open default settings` from the
 // command palette
 {
+  "project_panel": {
+    "dock": "left",
+  },
+  "outline_panel": {
+    "dock": "left",
+  },
+  "collaboration_panel": {
+    "dock": "left",
+  },
   "git_panel": {
-    "tree_view": true
+    "dock": "left",
+    "tree_view": true,
   },
   "agent_servers": {
     "codex-acp": {
       "type": "registry",
       "default_config_options": {
-        "reasoning_effort": "xhigh"
+        "reasoning_effort": "xhigh",
       },
       "favorite_config_option_values": {
-        "reasoning_effort": [
-          "xhigh"
-        ]
-      }
+        "reasoning_effort": ["xhigh"],
+      },
     },
     "github-copilot": {
       "default_model": "claude-opus-4.6",
       "favorite_models": [
         "claude-opus-4.6",
         "claude-sonnet-4.6",
-        "gpt-5.2-codex"
+        "gpt-5.2-codex",
       ],
-      "type": "registry"
-    }
+      "type": "registry",
+    },
   },
   "edit_predictions": {
-    "provider": "copilot"
+    "provider": "copilot",
   },
   "agent": {
+    "dock": "right",
     "default_model": {
       "provider": "copilot_chat",
       "model": "gpt-4o",
-      "enable_thinking": false
+      "enable_thinking": false,
     },
     "tool_permissions": {
-      "default": "allow"
+      "default": "allow",
     },
     "model_parameters": [],
   },
@@ -64,8 +73,8 @@
     "shell": {
       "with_arguments": {
         "program": "bash",
-        "args": ["/Users/rysk/.config/tmux/zed-attach.sh"]
-      }
+        "args": ["/Users/rysk/.config/tmux/zed-attach.sh"],
+      },
     },
   },
   "lsp": {
@@ -118,11 +127,7 @@
           },
         },
       ],
-      "language_servers": [
-        "ty",
-        "!basedpyright",
-        "ruff",
-      ],
+      "language_servers": ["ty", "!basedpyright", "ruff"],
     },
   },
 }
