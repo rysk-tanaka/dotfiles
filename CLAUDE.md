@@ -25,7 +25,7 @@ Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual
 
 This is a dotfiles repository that manages macOS configuration files through symlinks. The architecture consists of:
 
-1. Configuration Storage: All dotfiles are stored in this repository under their respective paths
+1. Configuration Storage: All dotfiles are stored in this repository under their respective paths. Codex CLI 関連は `.codex/` 配下（`config.toml`, `skills/`）。`~/.codex/AGENTS.md` は `~/.claude/CLAUDE.md` へのシンボリックリンクで共通化
 2. Symlink Management: Manual creation of symlinks from the repository to their expected system locations
 3. Tool Management: mise handles installation and version management of development tools. Versions are pinned in `.config/mise/config.toml` and updated via Renovate (`renovate.json`). Exceptions: `node` (lts), `claude-code` (aqua backend, pinned) are not tracked by Renovate. Renovate PR release notes are automatically summarized in Japanese via `renovate-translate.yml`
 4. Project Integration: The `setup-links` task allows other projects to inherit coding standards and configurations
@@ -42,7 +42,7 @@ Located in `.claude/rules/` with `paths` frontmatter for file-pattern scoping.
 
 ## Claude Code Custom Skills
 
-Located in `.claude/skills/`. Skill metadata is maintained in `.claude/skills/catalog.json`. When adding or updating skills, update catalog.json as well. Skills with shell scripts require permission entries in two places with different pattern formats.
+Located in `.claude/skills/`. 現在定義されている skill 一覧とメタデータは `.claude/skills/catalog.json` が単一の情報源。skill を追加・更新する際は catalog.json も必ず更新する。Skills with shell scripts require permission entries in two places with different pattern formats.
 
 - `.claude/settings.json` `permissions.allow` → colon format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`
 - SKILL.md `allowed-tools` → space format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script> *)`
@@ -56,6 +56,14 @@ Dual-mode skills (resolve-review, codex-review) support foreground (default) and
 ## Claude Code Commands
 
 Located in `.claude/commands/`. Lightweight prompts that don't need a full skill directory. Invoked via `/command-name`.
+
+- `check-bg` - バックグラウンドタスク結果確認
+- `permalink` - GitHub パーマリンク生成
+- `uv-init` - uv で Python プロジェクト初期化
+
+## Shell Functions
+
+カスタムシェル関数は `.config/mise/shell-functions.sh` に集約。`mdlint`（markdownlint-cli2 ラッパー）, `mermaidlint`（Mermaid 構文チェック）, `build_lambda`（Docker 用 SSH 設定切替付き Lambda ビルド）, `teleport`（SSH Host Alias 環境向け `claude --teleport` ラッパー）等。追加・編集はこのファイルで行う。
 
 ## Pull Request Guidelines
 
