@@ -15,6 +15,11 @@ writable_roots = ["~/Library/Application Support/zoxide"]
 parallel = true  # デフォルト(true)
 shell_snapshot = true  # ベータ機能
 
+# 軽量テキスト生成用（コミットメッセージ・ブランチ名など）
+[profiles.lite]
+model = "gpt-5.4-mini"
+model_reasoning_effort = "low"
+
 # 高速レビュー用（簡単な変更）
 [profiles.quick]
 model_reasoning_effort = "low"
