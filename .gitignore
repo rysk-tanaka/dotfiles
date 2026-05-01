@@ -2,6 +2,7 @@
 !.claude
 !.claudeignore
 !CLAUDE.md
+!.claude/skills/.markdownlint-cli2.jsonc
 
 # Claude Code local settings
 .claude/settings.local.json

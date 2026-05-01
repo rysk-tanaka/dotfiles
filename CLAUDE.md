@@ -44,7 +44,7 @@ Located in `.claude/rules/` with `paths` frontmatter for file-pattern scoping.
 
 Located in `.claude/skills/`. `~/.claude/skills` はこのディレクトリへの symlink (`~/.claude/{CLAUDE.md,commands,rules,scripts}` も同様)。**user スコープと project スコープが同一パスに解決される** ため、`gh skill install --scope user` でも dotfiles に書き込まれる。catalog.json への追記もセットで必要。
 
-現在定義されている skill 一覧とメタデータは `.claude/skills/catalog.json` が単一の情報源。skill を追加・更新する際は catalog.json も必ず更新する。外部 skill (`mizchi/skills` 等) を `gh skill install <repo> <name> --agent claude-code` で導入する場合も catalog.json への登録が必要 (frontmatter の `metadata.github-*` で `gh skill update` 追従可能)。Skills with shell scripts require permission entries in two places with different pattern formats.
+現在定義されている skill 一覧とメタデータは `.claude/skills/catalog.json` が単一の情報源。skill を追加・更新する際は catalog.json も必ず更新する。外部 skill (`mizchi/skills` 等) を `gh skill install <repo> <name> --agent claude-code` で導入する場合も catalog.json への登録が必要 (frontmatter の `metadata.github-*` で `gh skill update` 追従可能)。markdownlint がエラーを出す外部 skill は `.claude/skills/.markdownlint-cli2.jsonc` の `ignores` に追記する (root の `.markdownlint-cli2.jsonc` は他リポジトリへの symlink 元なので汚さない)。Skills with shell scripts require permission entries in two places with different pattern formats.
 
 - `.claude/settings.json` `permissions.allow` → colon format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`
 - SKILL.md `allowed-tools` → space format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script> *)`

@@ -1,0 +1,6 @@
+{
+  "extends": "../../.markdownlint-cli2.jsonc",
+  "ignores": [
+    "empirical-prompt-tuning/**",
+  ],
+}
