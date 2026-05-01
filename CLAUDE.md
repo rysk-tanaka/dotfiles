@@ -26,7 +26,7 @@ Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual
 This is a dotfiles repository that manages macOS configuration files through symlinks. The architecture consists of:
 
 1. Configuration Storage: All dotfiles are stored in this repository under their respective paths. Codex CLI 関連は `.codex/` 配下（`config.toml`, `skills/`）。`~/.codex/AGENTS.md` は `~/.claude/CLAUDE.md` へのシンボリックリンクで共通化
-2. Symlink Management: Manual creation of symlinks from the repository to their expected system locations
+2. Symlink Management: Manual creation of symlinks from the repository to their expected system locations. `~/.claude/{CLAUDE.md,commands,rules,scripts,skills}` is symlinked to `.claude/*` here, so global Claude Code state lives in this repo
 3. Tool Management: mise handles installation and version management of development tools. Versions are pinned in `.config/mise/config.toml` and updated via Renovate (`renovate.json`). Exceptions: `node` (lts), `claude-code` (aqua backend, pinned) are not tracked by Renovate. Renovate PR release notes are automatically summarized in Japanese via `renovate-translate.yml`
 4. Project Integration: The `setup-links` task allows other projects to inherit coding standards and configurations
 5. Documentation: Detailed guides are in `docs/` (claude-code, mcp, renovate, etc.)
@@ -42,7 +42,9 @@ Located in `.claude/rules/` with `paths` frontmatter for file-pattern scoping.
 
 ## Claude Code Custom Skills
 
-Located in `.claude/skills/`. 現在定義されている skill 一覧とメタデータは `.claude/skills/catalog.json` が単一の情報源。skill を追加・更新する際は catalog.json も必ず更新する。Skills with shell scripts require permission entries in two places with different pattern formats.
+Located in `.claude/skills/`. `~/.claude/skills` はこのディレクトリへの symlink (`~/.claude/{CLAUDE.md,commands,rules,scripts}` も同様)。**user スコープと project スコープが同一パスに解決される** ため、`gh skill install --scope user` でも dotfiles に書き込まれる。catalog.json への追記もセットで必要。
+
+現在定義されている skill 一覧とメタデータは `.claude/skills/catalog.json` が単一の情報源。skill を追加・更新する際は catalog.json も必ず更新する。外部 skill (`mizchi/skills` 等) を `gh skill install <repo> <name> --agent claude-code` で導入する場合も catalog.json への登録が必要 (frontmatter の `metadata.github-*` で `gh skill update` 追従可能)。Skills with shell scripts require permission entries in two places with different pattern formats.
 
 - `.claude/settings.json` `permissions.allow` → colon format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`
 - SKILL.md `allowed-tools` → space format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script> *)`
