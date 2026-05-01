@@ -75,5 +75,10 @@
     "description": "rysk-tanaka/workflows の reusable workflow を呼び出すラッパーワークフローを対話的に生成",
     "category": "GitHub ワークフロー",
     "example": "/setup-workflows"
+  },
+  {
+    "name": "empirical-prompt-tuning",
+    "description": "サブエージェントによる実証的プロンプトチューニング（評価→反復改善）",
+    "category": "プロンプト改善"
   }
 ]
