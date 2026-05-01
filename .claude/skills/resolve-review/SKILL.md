@@ -129,6 +129,13 @@ fetch.sh の出力を「共通分析ステップ」に従って処理する。
     - `path` - 対象ファイルパス
     - `line` - 対象行番号
     - `diff_hunk` - 差分コンテキスト
+- `reviews` - サマリー本文付きレビューの配列（`PENDING` と空 body は除外済み）
+  - `id` - レビューID
+  - `author` - レビュアー
+  - `state` - レビュー種別（`APPROVED` / `CHANGES_REQUESTED` / `COMMENTED` / `DISMISSED`）
+  - `body` - レビュー本文
+  - `created_at` - 投稿日時
+  - `url` - レビューURL
 - `comments` - 一般コメントの配列（minimized 除外済み、ボットは最新1件のみ）
   - `id` - コメントID
   - `body` - コメント本文
@@ -144,6 +151,13 @@ fetch.sh の出力を「共通分析ステップ」に従って処理する。
 
 - `is_resolved == true` → 対応済み（表示をスキップ）
 - `is_resolved == false` → 要対応
+
+レビュー（サマリー本文付き）。
+
+- `state == CHANGES_REQUESTED` → 要対応（本文中の各指摘を個別の対応項目として整理する）
+- `state == COMMENTED` → 内容から要対応かどうかを判断する
+- `state == APPROVED` → 対応不要（本文があれば情報提供として簡潔に紹介）
+- `state == DISMISSED` → 対応不要
 
 一般コメント。内容から要対応かどうかを判断する。
 
@@ -162,6 +176,9 @@ fetch.sh の出力を「共通分析ステップ」に従って処理する。
   - 指摘内容（最初のコメント）
   - 議論の経緯（返信コメントがある場合）
   - `is_outdated == true` の場合は「コード変更済み」と注記
+- 要対応レビューの詳細
+  - レビュアーと `state`（CHANGES_REQUESTED 等）と URL
+  - 指摘内容（本文中で複数指摘がある場合は箇条書きに分解する）
 - 要対応の一般コメントの詳細
   - 投稿者とコメントURL
   - 指摘内容

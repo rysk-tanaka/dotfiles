@@ -58,6 +58,17 @@ query($owner: String!, $repo: String!, $number: Int!) {
           url
         }
       }
+      reviews(first: 50) {
+        pageInfo { hasNextPage }
+        nodes {
+          id
+          author { login }
+          state
+          body
+          createdAt
+          url
+        }
+      }
     }
   }
 }
@@ -84,6 +95,9 @@ jq -e '[.data.repository.pullRequest.reviewThreads.nodes[].comments.pageInfo.has
 
 jq -e '.data.repository.pullRequest.comments.pageInfo.hasNextPage' "$WORK_DIR/response" > /dev/null 2>&1 \
     && echo "Warning: PR comments exceeded 100, some comments may be missing." >&2
+
+jq -e '.data.repository.pullRequest.reviews.pageInfo.hasNextPage' "$WORK_DIR/response" > /dev/null 2>&1 \
+    && echo "Warning: PR reviews exceeded 50, some reviews may be missing." >&2
 
 # --- Bot authors (keep only latest comment per author) ---
 
@@ -130,6 +144,22 @@ jq -n \
     # Keep only latest comment per bot author
     ([$bot | group_by(.author)[] | sort_by(.created_at) | last]) as $bot_latest |
 
+    # Reviews with substantive content (excludes drafts and pure approval/comment signals).
+    # Pure inline-only reviews appear in review_threads; this captures only the summary body.
+    [
+        $pr.reviews.nodes[] |
+        select(.state != "PENDING") |
+        select((.body // "") | strip_noise | length > 0) |
+        {
+            id: .id,
+            author: (.author.login // "ghost"),
+            state: .state,
+            body: (.body | strip_noise),
+            created_at: .createdAt,
+            url: .url
+        }
+    ] as $reviews |
+
     {
         pr_number: $number,
         title: $pr.title,
@@ -151,6 +181,7 @@ jq -n \
                 ]
             }
         ],
+        reviews: ($reviews | sort_by(.created_at)),
         comments: ($human + $bot_latest | sort_by(.created_at)),
         bot_comments_omitted: (($bot | length) - ($bot_latest | length)),
         bot_comments_to_minimize: (($bot | map(.id)) - ($bot_latest | map(.id)))
