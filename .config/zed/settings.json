@@ -10,16 +10,6 @@
   "project_panel": {
     "dock": "left",
   },
-  "outline_panel": {
-    "dock": "left",
-  },
-  "collaboration_panel": {
-    "dock": "left",
-  },
-  "git_panel": {
-    "dock": "left",
-    "tree_view": true,
-  },
   "agent_servers": {
     "codex-acp": {
       "type": "registry",
