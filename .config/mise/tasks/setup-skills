@@ -3,9 +3,9 @@
 #MISE dir="{{config_root}}"
 set -euo pipefail
 
-SKILLS_REPO_URL="git@github.com-rysk-tanaka:rysk-tanaka/skills.git"
+SKILLS_REPO_URL="${SKILLS_REPO_URL:-https://github.com/rysk-tanaka/skills.git}"
 SKILLS_REPO_DIR="${SKILLS_REPO_DIR:-${HOME}/Repositories/rysk/skills}"
-DOTFILES_PATH="${DOTFILES_PATH:-${HOME}/Repositories/rysk/dotfiles}"
+DOTFILES_PATH="${DOTFILES_PATH:-${PWD}}"
 TARGET_DIR="${DOTFILES_PATH}/.claude/skills"
 
 if [[ ! -d "${SKILLS_REPO_DIR}/.git" ]]; then
