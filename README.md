@@ -36,7 +36,7 @@ MacOS用の初期セットアップを行います。
 │   │   ├── check-bg.md               # バックグラウンドタスク結果確認
 │   │   ├── permalink.md              # パーマリンクコマンド
 │   │   └── uv-init.md                # Pythonプロジェクト初期化
-│   ├── skills/                       # カスタムスキル
+│   ├── skills/                       # カスタムスキル（symlink 表記の項目は mise run setup-skills 実行後に配置）
 │   │   ├── catalog.json              # スキルメタデータ（単一の情報源）
 │   │   ├── .markdownlint-cli2.jsonc  # markdownlint設定
 │   │   ├── auto-commit/              # コミットメッセージ自動生成（symlink: rysk-tanaka/skills）
@@ -216,6 +216,8 @@ MacOS用の初期セットアップを行います。
     2. `~/Repositories/rysk/skills/skills/<name>/` を列挙し、`dotfiles/.claude/skills/<name>` への symlink を作成
 
     このステップを飛ばすと `/auto-commit` `/pr` `/resolve-review` などの Claude Code skill や、Codex の `cloudwatch-logs` (`~/.claude/skills/cloudwatch-logs/cloudwatch_logs.py` を参照) が失敗します。
+
+    第三者がこの dotfiles を fork して利用する場合、`.claude/settings.json` の `permissions.allow` 絶対パス (`/Users/rysk/.claude/skills/...` 形式) を各自の HOME パスに書き換えてください。claude-code#14956 の制約で `~` 展開が効かないため、絶対パス指定が必須です。
 
 7. Homebrew未提供フォントのインストール
 
