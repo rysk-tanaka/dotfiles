@@ -47,4 +47,17 @@ for skill_dir in "${SKILLS_REPO_DIR}/skills"/*/; do
   linked=$((linked + 1))
 done
 
+# skills repo から削除された skill の broken symlink を除去 (`-L && ! -e` で検出)
+removed=0
+for link_path in "${TARGET_DIR}"/*; do
+  if [[ -L "${link_path}" && ! -e "${link_path}" ]]; then
+    echo "Removing stale symlink: $(basename "${link_path}")"
+    unlink "${link_path}"
+    removed=$((removed + 1))
+  fi
+done
+
 echo "Linked ${linked} skill(s) into ${TARGET_DIR}/"
+if (( removed > 0 )); then
+  echo "Removed ${removed} stale symlink(s)"
+fi
