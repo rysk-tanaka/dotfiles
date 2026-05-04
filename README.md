@@ -215,7 +215,7 @@ MacOS用の初期セットアップを行います。
     1. `~/Repositories/rysk/skills` が無ければ `https://github.com/rysk-tanaka/skills.git` から `git clone` (`SKILLS_REPO_URL` 環境変数で URL 上書き可)
     2. `~/Repositories/rysk/skills/skills/<name>/` を列挙し、`dotfiles/.claude/skills/<name>` への symlink を作成
 
-    このステップを飛ばすと `/auto-commit` `/pr` `/resolve-review` などの Claude Code skill や、Codex の `cloudwatch-logs` (`~/.claude/skills/cloudwatch-logs/cloudwatch_logs.py` を参照) が失敗します。
+    このステップを飛ばすと `/auto-commit` `/pr` `/resolve-review` などの Claude Code skill、`mise run auto-commit` / `mise run suggest-branch` (`.claude/skills/{auto-commit,suggest-branch}/collect.sh` を呼ぶ)、Codex の `cloudwatch-logs` (`~/.claude/skills/cloudwatch-logs/cloudwatch_logs.py` を参照) が失敗します。
 
     第三者がこの dotfiles を fork して利用する場合、`.claude/settings.json` の `permissions.allow` 絶対パス (`/Users/rysk/.claude/skills/...` 形式) を各自の HOME パスに書き換えてください。claude-code#14956 の制約で `~` 展開が効かないため、絶対パス指定が必須です。
 
