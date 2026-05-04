@@ -6,3 +6,14 @@
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Skills managed in rysk-tanaka/skills (placed by `mise run setup-skills`)
+.claude/skills/auto-commit
+.claude/skills/await-ci
+.claude/skills/pr
+.claude/skills/resolve-review
+.claude/skills/suggest-branch
+.claude/skills/codex-review
+.claude/skills/drawio
+.claude/skills/drawio-aws
+.claude/skills/cloudwatch-logs

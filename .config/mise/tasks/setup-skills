@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+#MISE description="Clone rysk-tanaka/skills if missing and create per-skill symlinks"
+#MISE dir="{{config_root}}"
+set -euo pipefail
+
+SKILLS_REPO_URL="git@github.com-rysk-tanaka:rysk-tanaka/skills.git"
+SKILLS_REPO_DIR="${SKILLS_REPO_DIR:-${HOME}/Repositories/rysk/skills}"
+DOTFILES_PATH="${DOTFILES_PATH:-${HOME}/Repositories/rysk/dotfiles}"
+TARGET_DIR="${DOTFILES_PATH}/.claude/skills"
+
+if [[ ! -d "${SKILLS_REPO_DIR}/.git" ]]; then
+  echo "Cloning skills repo to ${SKILLS_REPO_DIR}..."
+  mkdir -p "$(dirname "${SKILLS_REPO_DIR}")"
+  git clone "${SKILLS_REPO_URL}" "${SKILLS_REPO_DIR}"
+fi
+
+if [[ ! -d "${SKILLS_REPO_DIR}/skills" ]]; then
+  echo "ERROR: ${SKILLS_REPO_DIR}/skills not found" >&2
+  exit 1
+fi
+
+mkdir -p "${TARGET_DIR}"
+
+linked=0
+for skill_dir in "${SKILLS_REPO_DIR}/skills"/*/; do
+  skill_name="$(basename "${skill_dir}")"
+  link_path="${TARGET_DIR}/${skill_name}"
+
+  if [[ -e "${link_path}" && ! -L "${link_path}" ]]; then
+    echo "WARN: ${link_path} exists as a real path, skipping" >&2
+    continue
+  fi
+
+  ln -sfn "${skill_dir%/}" "${link_path}"
+  linked=$((linked + 1))
+done
+
+echo "Linked ${linked} skill(s) into ${TARGET_DIR}/"

@@ -2,5 +2,14 @@
   "extends": "../../.markdownlint-cli2.jsonc",
   "ignores": [
     "empirical-prompt-tuning/**",
+    "auto-commit/**",
+    "await-ci/**",
+    "pr/**",
+    "resolve-review/**",
+    "suggest-branch/**",
+    "codex-review/**",
+    "drawio/**",
+    "drawio-aws/**",
+    "cloudwatch-logs/**",
   ],
 }

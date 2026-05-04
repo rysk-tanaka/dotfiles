@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Setup Claude token: `mise run setup-claude-token` (sets `CLAUDE_CODE_OAUTH_TOKEN` secret on current GitHub repo)
 - Setup review label: `mise run setup-review-label` (creates `claude-review` label on current GitHub repo)
 - Suggest branch name: `mise run suggest-branch` (analyzes work and suggests branch names)
+- Setup skills symlinks: `mise run setup-skills` (clones `rysk-tanaka/skills` if missing and creates per-skill symlinks under `.claude/skills/`)
 - Upgrade Claude Code: `mise run upgrade-claude` (upgrades to latest GitHub Release, bypassing aqua registry lag)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
@@ -26,7 +27,7 @@ Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual
 This is a dotfiles repository that manages macOS configuration files through symlinks. The architecture consists of:
 
 1. Configuration Storage: All dotfiles are stored in this repository under their respective paths. Codex CLI 関連は `.codex/` 配下（`config.toml`, `skills/`）。`~/.codex/AGENTS.md` は `~/.claude/CLAUDE.md` へのシンボリックリンクで共通化
-2. Symlink Management: Manual creation of symlinks from the repository to their expected system locations. `~/.claude/{CLAUDE.md,commands,rules,scripts,skills}` is symlinked to `.claude/*` here, so global Claude Code state lives in this repo
+2. Symlink Management: Manual creation of symlinks from the repository to their expected system locations. `~/.claude/{CLAUDE.md,commands,rules,scripts,skills}` is symlinked to `.claude/*` here, so global Claude Code state lives in this repo. Note: `.claude/skills/` itself contains a mix of real directories (env-dependent skills) and per-skill symlinks to `rysk-tanaka/skills` (publishable skills), created by `mise run setup-skills`
 3. Tool Management: mise handles installation and version management of development tools. Versions are pinned in `.config/mise/config.toml` and updated via Renovate (`renovate.json`). Exceptions: `node` (lts), `claude-code` (aqua backend, pinned) are not tracked by Renovate. Renovate PR release notes are automatically summarized in Japanese via `renovate-translate.yml`
 4. Project Integration: The `setup-links` task allows other projects to inherit coding standards and configurations
 5. Documentation: Detailed guides are in `docs/` (claude-code, mcp, renovate, etc.)
@@ -44,12 +45,16 @@ Located in `.claude/rules/` with `paths` frontmatter for file-pattern scoping.
 
 Located in `.claude/skills/`. `~/.claude/skills` はこのディレクトリへの symlink (`~/.claude/{CLAUDE.md,commands,rules,scripts}` も同様)。**user スコープと project スコープが同一パスに解決される** ため、`gh skill install --scope user` でも dotfiles に書き込まれる。catalog.json への追記もセットで必要。
 
-現在定義されている skill 一覧とメタデータは `.claude/skills/catalog.json` が単一の情報源。skill を追加・更新する際は catalog.json も必ず更新する。外部 skill (`mizchi/skills` 等) を `gh skill install <repo> <name> --agent claude-code` で導入する場合も catalog.json への登録が必要 (frontmatter の `metadata.github-*` で `gh skill update` 追従可能)。markdownlint がエラーを出す外部 skill は `.claude/skills/.markdownlint-cli2.jsonc` の `ignores` に追記する (root の `.markdownlint-cli2.jsonc` は他リポジトリへの symlink 元なので汚さない)。Skills with shell scripts require permission entries in two places with different pattern formats.
+公開可能な skill 群 (現状 9 個: auto-commit, await-ci, pr, resolve-review, suggest-branch, codex-review, drawio, drawio-aws, cloudwatch-logs) は `rysk-tanaka/skills` リポジトリで canonical 管理。`mise run setup-skills` が `~/Repositories/rysk/skills/skills/<name>` を `.claude/skills/<name>` に per-skill symlink で配置し、`.gitignore` 済みのため dotfiles からは tracked にならない。日常編集は skills repo 側で行い、公開は `gh skill publish --tag vX.Y.Z`。skills repo の SKILL.md は `${CLAUDE_SKILL_DIR}` で portable 化済み。dotfiles 残留 skill (claude-process, sync-brew, read-screen, setup-workflows, empirical-prompt-tuning) は実体ディレクトリのまま管理。
 
-- `.claude/settings.json` `permissions.allow` → colon format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`
-- SKILL.md `allowed-tools` → space format: `Bash(bash /Users/rysk/.claude/skills/<name>/<script> *)`
+現在定義されている skill 一覧とメタデータは `.claude/skills/catalog.json` が単一の情報源。skill を追加・更新する際は catalog.json も必ず更新する。外部 skill (`mizchi/skills` 等) を `gh skill install <repo> <name> --agent claude-code` で導入する場合も catalog.json への登録が必要 (frontmatter の `metadata.github-*` で `gh skill update` 追従可能)。markdownlint がエラーを出す外部 skill や symlink 経由の skill (skills repo 側で独立に lint されるため重複させない) は `.claude/skills/.markdownlint-cli2.jsonc` の `ignores` に追記する (root の `.markdownlint-cli2.jsonc` は他リポジトリへの symlink 元なので汚さない)。
 
-Note: These use different pattern engines. The `~` home directory shorthand is not expanded in `allowed-tools` patterns (claude-code#14956), so absolute paths are required. For `Read` permissions in settings.json, the `//` prefix is the correct format (e.g., `Read(//Users/rysk/.cache/claude-bg/**)`) — this is not a typo.
+shell script を含む skill の権限管理は **`.claude/settings.json` `permissions.allow` の絶対パスエントリが actual gate**。SKILL.md `allowed-tools` は claude-code#14956 のバグで Bash permission を granular に grant せず、現状は intent 表明 + ドキュメントの役割。書き分けは以下。
+
+- `.claude/settings.json` `permissions.allow` → colon format で絶対パス: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`
+- SKILL.md `allowed-tools` → space-delimited string で広い command 名 pattern: `Bash(bash *) BashOutput` (`${CLAUDE_SKILL_DIR}` は body のみで pre-render され frontmatter では literal 比較になるため、path 付き pattern にしても意味がない)
+
+settings.json での `~` 展開も効かないため絶対パスが必須。`Read` permissions では `//` prefix が正しい format (例: `Read(//Users/rysk/.cache/claude-bg/**)`)、typo ではない。
 
 Skills that also run as mise tasks (auto-commit, suggest-branch) use the collect.sh pattern: a shell script pre-collects git data as JSON, which is passed to the LLM in a single API call via `<git-data>` tags. The SKILL.md includes a fallback to run collect.sh when data is not provided in the prompt.
 
