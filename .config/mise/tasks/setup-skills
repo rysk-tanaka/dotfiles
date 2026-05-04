@@ -5,7 +5,7 @@ set -euo pipefail
 
 # Initial clone only — `git pull` is intentionally not invoked. Users edit the
 # skills repo directly there, so unattended pulls would risk disrupting
-# in-progress work. Update manually with `git -C ~/Repositories/rysk/skills pull`.
+# in-progress work. Update manually with `git -C "${SKILLS_REPO_DIR}" pull`.
 SKILLS_REPO_URL="${SKILLS_REPO_URL:-https://github.com/rysk-tanaka/skills.git}"
 SKILLS_REPO_DIR="${SKILLS_REPO_DIR:-${HOME}/Repositories/rysk/skills}"
 DOTFILES_PATH="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
