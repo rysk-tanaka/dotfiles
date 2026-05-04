@@ -11,6 +11,12 @@ SKILLS_REPO_DIR="${SKILLS_REPO_DIR:-${HOME}/Repositories/rysk/skills}"
 DOTFILES_PATH="${DOTFILES_PATH:-${PWD}}"
 TARGET_DIR="${DOTFILES_PATH}/.claude/skills"
 
+if [[ -e "${SKILLS_REPO_DIR}" && ! -d "${SKILLS_REPO_DIR}/.git" ]]; then
+  echo "ERROR: ${SKILLS_REPO_DIR} exists but is not a git repository" >&2
+  echo "       Remove it or convert to a clone of ${SKILLS_REPO_URL}" >&2
+  exit 1
+fi
+
 if [[ ! -d "${SKILLS_REPO_DIR}/.git" ]]; then
   echo "Cloning skills repo to ${SKILLS_REPO_DIR}..."
   mkdir -p "$(dirname "${SKILLS_REPO_DIR}")"
