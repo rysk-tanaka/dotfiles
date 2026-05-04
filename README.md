@@ -214,7 +214,22 @@ MacOS用の初期セットアップを行います。
     - 各種ユーティリティのnpmパッケージ
     - Python 3.12、ripgrep、Starship、Terraformなど
 
-6. Homebrew未提供フォントのインストール
+6. Claude Code Skills のセットアップ
+
+    公開可能な skill 群は別リポジトリ [`rysk-tanaka/skills`](https://github.com/rysk-tanaka/skills) で canonical 管理されており、dotfiles 側では symlink として配置します。`.claude/skills/` 配下の publishable skill ディレクトリ (auto-commit, pr, resolve-review 等) は `.gitignore` 済みのため、初回 clone 直後はファイルが存在しません。以下を実行して symlink を作成します。
+
+    ```bash
+    mise run setup-skills
+    ```
+
+    動作
+
+    1. `~/Repositories/rysk/skills` が無ければ `https://github.com/rysk-tanaka/skills.git` から `git clone` (`SKILLS_REPO_URL` 環境変数で URL 上書き可)
+    2. `~/Repositories/rysk/skills/skills/<name>/` を列挙し、`dotfiles/.claude/skills/<name>` への symlink を作成
+
+    このステップを飛ばすと `/auto-commit` `/pr` `/resolve-review` などの skill が参照する script が見つからず失敗します。
+
+7. Homebrew未提供フォントのインストール
 
     Bizin Gothic NF（Ghostty/Zedで使用）をGitHub Releasesからインストールします。
 
@@ -228,7 +243,7 @@ MacOS用の初期セットアップを行います。
     bash .config/mise/tasks/setup-fonts
     ```
 
-7. WakaTime設定の生成
+8. WakaTime設定の生成
 
     1PasswordからAPIキーを取得してWakaTime設定ファイルを生成します。
 
@@ -256,7 +271,7 @@ MacOS用の初期セットアップを行います。
 
     Zed用のWakaTimeプラグインは、Zed内の Extensions パネルから「wakatime」を検索してインストールします。
 
-8. git-worktree-runnerのインストール
+9. git-worktree-runnerのインストール
 
     複数のAIエージェントが異なるブランチで並行作業する場合に便利なツールです。
 
