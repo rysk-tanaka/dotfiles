@@ -19,10 +19,10 @@ MacOS用の初期セットアップを行います。
 │   └── config_docker.template        # Docker用SSH設定テンプレート
 ├── .codex/                           # Codex CLI設定
 │   ├── config.toml                   # ユーザーレベル設定（AGENTS.mdは~/.claude/CLAUDE.mdへのsymlink）
-│   └── skills/                       # Codex用スキル（Claude Codeスキルから移植した独立実装）
+│   └── skills/                       # Codex用スキル（auto-commit / suggest-branch は独立実装、cloudwatch-logs は Claude側 symlink に依存）
 │       ├── auto-commit/              # コミットメッセージ自動生成
 │       ├── suggest-branch/           # ブランチ名提案
-│       └── cloudwatch-logs/          # CloudWatchログ取得
+│       └── cloudwatch-logs/          # CloudWatchログ取得（~/.claude/skills/cloudwatch-logs/cloudwatch_logs.py を呼び出す）
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── rules/                        # 条件付きルール（pathsフロントマターでスコープ）
@@ -215,7 +215,7 @@ MacOS用の初期セットアップを行います。
     1. `~/Repositories/rysk/skills` が無ければ `https://github.com/rysk-tanaka/skills.git` から `git clone` (`SKILLS_REPO_URL` 環境変数で URL 上書き可)
     2. `~/Repositories/rysk/skills/skills/<name>/` を列挙し、`dotfiles/.claude/skills/<name>` への symlink を作成
 
-    このステップを飛ばすと `/auto-commit` `/pr` `/resolve-review` などの skill が参照する script が見つからず失敗します。
+    このステップを飛ばすと `/auto-commit` `/pr` `/resolve-review` などの Claude Code skill や、Codex の `cloudwatch-logs` (`~/.claude/skills/cloudwatch-logs/cloudwatch_logs.py` を参照) が失敗します。
 
 7. Homebrew未提供フォントのインストール
 
