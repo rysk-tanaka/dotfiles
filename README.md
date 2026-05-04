@@ -37,42 +37,30 @@ MacOS用の初期セットアップを行います。
 │   │   ├── permalink.md              # パーマリンクコマンド
 │   │   └── uv-init.md                # Pythonプロジェクト初期化
 │   ├── skills/                       # カスタムスキル
-│   │   ├── catalog.json              # スキルメタデータ
-│   │   ├── cloudwatch-logs/          # CloudWatchログ取得
+│   │   ├── catalog.json              # スキルメタデータ（単一の情報源）
+│   │   ├── .markdownlint-cli2.jsonc  # markdownlint設定
+│   │   ├── auto-commit/              # コミットメッセージ自動生成（symlink: rysk-tanaka/skills）
+│   │   ├── await-ci/                 # CIチェック状態確認・完了待機（symlink: rysk-tanaka/skills）
+│   │   ├── cloudwatch-logs/          # CloudWatchログ取得（symlink: rysk-tanaka/skills）
+│   │   ├── codex-review/             # Codex CLIコードレビュー（symlink: rysk-tanaka/skills）
+│   │   ├── drawio/                   # draw.io図表生成（symlink: rysk-tanaka/skills）
+│   │   ├── drawio-aws/               # AWSアーキテクチャ図生成（symlink: rysk-tanaka/skills）
+│   │   ├── pr/                       # プルリクエスト作成（symlink: rysk-tanaka/skills）
+│   │   ├── resolve-review/           # PRレビュー指摘対応（symlink: rysk-tanaka/skills）
+│   │   ├── suggest-branch/           # ブランチ名提案（symlink: rysk-tanaka/skills）
+│   │   ├── empirical-prompt-tuning/  # mizchi/skillsから導入（gh skill install）
 │   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── cloudwatch_logs.py    # Pythonスクリプト（PEP 723）
-│   │   ├── sync-brew/                # Brewfileアプリ追加
-│   │   │   └── SKILL.md              # スキル定義
-│   │   ├── auto-commit/              # コミットメッセージ自動生成
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── collect.sh            # データ収集スクリプト
-│   │   ├── await-ci/                 # CIチェック状態確認・完了待機
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── check.sh              # CIチェック取得スクリプト
-│   │   ├── pr/                       # プルリクエスト作成
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   ├── collect.sh            # データ収集スクリプト
-│   │   │   └── pull_request_template.md  # フォールバック用PRテンプレート
-│   │   ├── resolve-review/           # PRレビュー指摘対応
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   ├── fetch.sh              # レビューデータ取得スクリプト
-│   │   │   ├── minimize.sh           # botコメント折りたたみスクリプト
-│   │   │   └── resolve.sh            # レビュースレッド解決スクリプト
-│   │   ├── codex-review/             # Codex CLIコードレビュー
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── review.sh             # レビュー実行スクリプト
-│   │   ├── suggest-branch/           # ブランチ名提案
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── collect.sh            # データ収集スクリプト
+│   │   │   └── SKILL-ja.md           # 日本語版
 │   │   ├── claude-process/           # プロセス状況確認・クリーンアップ・監視
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   ├── common.sh             # 共通関数
 │   │   │   ├── check.sh              # プロセス状況確認スクリプト
 │   │   │   ├── clean.sh              # プロセスクリーンアップスクリプト
 │   │   │   └── monitor.sh            # プロセス監視スクリプト
-│   │   ├── drawio/                   # draw.io図表生成
-│   │   │   └── SKILL.md              # スキル定義
-│   │   ├── drawio-aws/               # AWSアーキテクチャ図生成
+│   │   ├── read-screen/              # cmuxペイン読み取り
+│   │   │   ├── SKILL.md              # スキル定義
+│   │   │   └── read-screen.sh        # ペイン読み取りスクリプト
+│   │   ├── sync-brew/                # Brewfileアプリ追加
 │   │   │   └── SKILL.md              # スキル定義
 │   │   └── setup-workflows/          # GitHub Actionsワークフロー生成
 │   │       └── SKILL.md              # スキル定義
