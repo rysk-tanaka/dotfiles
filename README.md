@@ -19,7 +19,7 @@ MacOS用の初期セットアップを行います。
 │   └── config_docker.template        # Docker用SSH設定テンプレート
 ├── .codex/                           # Codex CLI設定
 │   ├── config.toml                   # ユーザーレベル設定（AGENTS.mdは~/.claude/CLAUDE.mdへのsymlink）
-│   └── skills/                       # Codex用スキル（Claude Codeスキルから移植）
+│   └── skills/                       # Codex用スキル（Claude Codeスキルから移植した独立実装）
 │       ├── auto-commit/              # コミットメッセージ自動生成
 │       ├── suggest-branch/           # ブランチ名提案
 │       └── cloudwatch-logs/          # CloudWatchログ取得
