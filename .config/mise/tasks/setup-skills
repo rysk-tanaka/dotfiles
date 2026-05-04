@@ -3,6 +3,9 @@
 #MISE dir="{{config_root}}"
 set -euo pipefail
 
+# Initial clone only — `git pull` is intentionally not invoked. Users edit the
+# skills repo directly there, so unattended pulls would risk disrupting
+# in-progress work. Update manually with `git -C ~/Repositories/rysk/skills pull`.
 SKILLS_REPO_URL="${SKILLS_REPO_URL:-https://github.com/rysk-tanaka/skills.git}"
 SKILLS_REPO_DIR="${SKILLS_REPO_DIR:-${HOME}/Repositories/rysk/skills}"
 DOTFILES_PATH="${DOTFILES_PATH:-${PWD}}"
@@ -20,6 +23,9 @@ if [[ ! -d "${SKILLS_REPO_DIR}/skills" ]]; then
 fi
 
 mkdir -p "${TARGET_DIR}"
+
+# 子ディレクトリが無い場合の literal `*/` 展開で broken symlink を作らないため。
+shopt -s nullglob
 
 linked=0
 for skill_dir in "${SKILLS_REPO_DIR}/skills"/*/; do
