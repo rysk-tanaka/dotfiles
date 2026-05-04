@@ -24,6 +24,9 @@ if [[ ! -d "${SKILLS_REPO_DIR}" ]]; then
   git clone "${SKILLS_REPO_URL}" "${SKILLS_REPO_DIR}"
 fi
 
+# 相対パス上書き時に symlink target が `.claude/skills/` 基準で壊れないよう絶対パス化。
+SKILLS_REPO_DIR="$(cd "${SKILLS_REPO_DIR}" && pwd -P)"
+
 if [[ ! -d "${SKILLS_REPO_DIR}/skills" ]]; then
   echo "ERROR: ${SKILLS_REPO_DIR}/skills not found" >&2
   exit 1
