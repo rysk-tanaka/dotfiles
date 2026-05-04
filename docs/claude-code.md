@@ -19,21 +19,34 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 
 ## カスタムスキル
 
+公開可能な skill は `rysk-tanaka/skills` リポジトリで canonical 管理し、`mise run setup-skills` が `.claude/skills/<name>` に symlink として配置します。
+環境依存の skill のみ dotfiles 内で実体ディレクトリとして管理します。
+
 スキルの追加・更新時は `.claude/skills/catalog.json` も合わせて更新してください。
 シェルスクリプトを含むスキルは `.claude/settings.json` の `permissions.allow` にも実行パターンの追加が必要です（例: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`）。
 
-- `/cloudwatch-logs` - CloudWatchログの取得・検索（boto3ベースのPythonスクリプトで実装）
-- `/sync-brew` - Brewfileにアプリを追加（セクション自動判定、auto_updates確認）
+### 公開可能なスキル（rysk-tanaka/skills 経由の symlink）
+
 - `/auto-commit` - ステージ済みの変更からConventional Commits形式のコミットメッセージを自動生成してコミット
-- `/suggest-branch` - 作業内容を分析して適切なブランチ名（`feature/` or `fix/`）を提案
-- `/pr` - ブランチの変更を分析してプルリクエストを作成
-- `/resolve-review` - PRレビューコメントを取得し未解決の指摘に対応
 - `/await-ci` - CIチェックの状態確認・完了待機
-- `/claude-process` - プロセスの状況確認・クリーンアップ・監視（サブコマンド: check, clean, monitor）
+- `/cloudwatch-logs` - CloudWatchログの取得・検索（boto3ベースのPythonスクリプト）
 - `/codex-review` - Codex CLIによるコードレビュー（フォアグラウンドデフォルト、`--bg` でバックグラウンド実行）
 - `/drawio` - draw.io図表をネイティブ.drawioファイルとして生成（PNG/SVG/PDFエクスポート対応）
 - `/drawio-aws` - draw.ioでAWSアーキテクチャ図を作成（AWS 4アイコン、カテゴリ別カラー指定付き）
+- `/pr` - ブランチの変更を分析してプルリクエストを作成
+- `/resolve-review` - PRレビューコメントを取得し未解決の指摘に対応
+- `/suggest-branch` - 作業内容を分析して適切なブランチ名（`feature/` or `fix/`）を提案
+
+### 環境依存（dotfiles で実体管理）
+
+- `/claude-process` - プロセスの状況確認・クリーンアップ・監視（サブコマンド: check, clean, monitor）
+- `/read-screen` - cmuxペインの出力を読み取る（cmux 前提）
 - `/setup-workflows` - rysk-tanaka/workflows の reusable workflow を呼び出すラッパーワークフローを対話的に生成
+- `/sync-brew` - Brewfileにアプリを追加（セクション自動判定、auto_updates確認）
+
+### 外部スキル
+
+- `empirical-prompt-tuning` - mizchi/skills 由来（`gh skill install` で導入、`metadata.github-*` で `gh skill update` 追従）
 
 ## Codex CLI との共用スキル
 
