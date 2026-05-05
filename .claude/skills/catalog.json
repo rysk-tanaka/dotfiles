@@ -2,37 +2,43 @@
   {
     "name": "auto-commit",
     "description": "ステージ済みの変更からコミットメッセージ候補を生成し対話的に選択",
-    "category": "Git ワークフロー"
+    "category": "Git ワークフロー",
+    "source": "rysk-tanaka/skills"
   },
   {
     "name": "await-ci",
     "description": "CIチェックの状態確認・完了待機",
     "category": "Git ワークフロー",
-    "example": "/await-ci 20"
+    "example": "/await-ci 20",
+    "source": "rysk-tanaka/skills"
   },
   {
     "name": "cloudwatch-logs",
     "description": "CloudWatchログの取得・検索（Lambda関数のログ解析、エラー調査）",
     "category": "AWS",
-    "example": "/cloudwatch-logs /aws/lambda/my-function"
+    "example": "/cloudwatch-logs /aws/lambda/my-function",
+    "source": "rysk-tanaka/skills"
   },
   {
     "name": "pr",
     "description": "ブランチの変更を分析してプルリクエストを作成",
     "category": "Git ワークフロー",
-    "example": "/pr develop"
+    "example": "/pr develop",
+    "source": "rysk-tanaka/skills"
   },
   {
     "name": "resolve-review",
     "description": "PRレビューコメントを取得し対応が必要な項目を確認",
     "category": "Git ワークフロー",
-    "example": "/resolve-review 20"
+    "example": "/resolve-review 20",
+    "source": "rysk-tanaka/skills"
   },
   {
     "name": "suggest-branch",
     "description": "作業内容を分析してブランチ名候補を生成し対話的に選択",
     "category": "Git ワークフロー",
-    "example": "/suggest-branch develop"
+    "example": "/suggest-branch develop",
+    "source": "rysk-tanaka/skills"
   },
   {
     "name": "sync-brew",
@@ -50,19 +56,22 @@
     "name": "codex-review",
     "description": "Codex CLIでコードレビューを実行し指摘内容を取得・対応",
     "category": "Git ワークフロー",
-    "example": "/codex-review develop"
+    "example": "/codex-review develop",
+    "source": "rysk-tanaka/skills"
   },
   {
     "name": "drawio",
     "description": "draw.io図表をネイティブ.drawioファイルとして生成（PNG/SVG/PDFエクスポート対応）",
     "category": "図表作成",
-    "example": "/drawio png login flowchart"
+    "example": "/drawio png login flowchart",
+    "source": "rysk-tanaka/skills"
   },
   {
     "name": "drawio-aws",
     "description": "draw.ioでAWSアーキテクチャ図を作成（AWS 4アイコン、カテゴリ別カラー指定付き）",
     "category": "図表作成",
-    "example": "/drawio-aws Lambda + DynamoDB のサーバーレス構成図"
+    "example": "/drawio-aws Lambda + DynamoDB のサーバーレス構成図",
+    "source": "rysk-tanaka/skills"
   },
   {
     "name": "read-screen",
@@ -79,6 +88,7 @@
   {
     "name": "empirical-prompt-tuning",
     "description": "サブエージェントによる実証的プロンプトチューニング（評価→反復改善）",
-    "category": "プロンプト改善"
+    "category": "プロンプト改善",
+    "source": "mizchi/skills"
   }
 ]

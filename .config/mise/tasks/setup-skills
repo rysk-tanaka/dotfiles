@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+#MISE description="Clone rysk-tanaka/skills if missing and create per-skill symlinks"
+#MISE dir="{{config_root}}"
+set -euo pipefail
+
+# Initial clone only — `git pull` is intentionally not invoked. Users edit the
+# skills repo directly there, so unattended pulls would risk disrupting
+# in-progress work. Update manually with `git -C "${SKILLS_REPO_DIR}" pull`.
+SKILLS_REPO_URL="${SKILLS_REPO_URL:-https://github.com/rysk-tanaka/skills.git}"
+SKILLS_REPO_DIR="${SKILLS_REPO_DIR:-${HOME}/Repositories/rysk/skills}"
+DOTFILES_PATH="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
+TARGET_DIR="${DOTFILES_PATH}/.claude/skills"
+
+# `git rev-parse` で git worktree (`.git` がファイル形式) も正しく扱う。
+if [[ -e "${SKILLS_REPO_DIR}" ]] && ! git -C "${SKILLS_REPO_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "ERROR: ${SKILLS_REPO_DIR} exists but is not a git repository" >&2
+  echo "       Remove it or convert to a clone of ${SKILLS_REPO_URL}" >&2
+  exit 1
+fi
+
+if [[ ! -d "${SKILLS_REPO_DIR}" ]]; then
+  echo "Cloning skills repo to ${SKILLS_REPO_DIR}..."
+  mkdir -p "$(dirname "${SKILLS_REPO_DIR}")"
+  git clone "${SKILLS_REPO_URL}" "${SKILLS_REPO_DIR}"
+fi
+
+# 相対パス上書き時に symlink target が `.claude/skills/` 基準で壊れないよう絶対パス化。
+SKILLS_REPO_DIR="$(cd "${SKILLS_REPO_DIR}" && pwd -P)"
+
+if [[ ! -d "${SKILLS_REPO_DIR}/skills" ]]; then
+  echo "ERROR: ${SKILLS_REPO_DIR}/skills not found" >&2
+  exit 1
+fi
+
+mkdir -p "${TARGET_DIR}"
+
+# 子ディレクトリが無い場合の literal `*/` 展開で broken symlink を作らないため。
+shopt -s nullglob
+
+linked=0
+for skill_dir in "${SKILLS_REPO_DIR}/skills"/*/; do
+  skill_name="$(basename "${skill_dir}")"
+  link_path="${TARGET_DIR}/${skill_name}"
+
+  if [[ -e "${link_path}" && ! -L "${link_path}" ]]; then
+    echo "WARN: ${link_path} exists as a real path, skipping" >&2
+    continue
+  fi
+
+  ln -sfn "${skill_dir%/}" "${link_path}"
+  linked=$((linked + 1))
+done
+
+# skills repo から削除された skill の broken symlink を除去 (`-L && ! -e` で検出)
+removed=0
+for link_path in "${TARGET_DIR}"/*; do
+  if [[ -L "${link_path}" && ! -e "${link_path}" ]]; then
+    echo "Removing stale symlink: $(basename "${link_path}")"
+    unlink "${link_path}"
+    removed=$((removed + 1))
+  fi
+done
+
+echo "Linked ${linked} skill(s) into ${TARGET_DIR}/"
+if (( removed > 0 )); then
+  echo "Removed ${removed} stale symlink(s)"
+fi

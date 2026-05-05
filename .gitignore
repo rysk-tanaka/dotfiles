@@ -2,7 +2,18 @@
 !.claude
 !.claudeignore
 !CLAUDE.md
-!.claude/skills/.markdownlint-cli2.jsonc
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Skills under .claude/skills/ default to ignored. Publishable skills live in
+# rysk-tanaka/skills and are placed as symlinks by `mise run setup-skills`.
+# Re-include the metadata files and environment-dependent skills tracked here.
+.claude/skills/*
+!.claude/skills/.markdownlint-cli2.jsonc
+!.claude/skills/catalog.json
+!.claude/skills/claude-process/
+!.claude/skills/empirical-prompt-tuning/
+!.claude/skills/read-screen/
+!.claude/skills/setup-workflows/
+!.claude/skills/sync-brew/

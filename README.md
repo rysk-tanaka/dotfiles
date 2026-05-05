@@ -19,10 +19,10 @@ MacOS用の初期セットアップを行います。
 │   └── config_docker.template        # Docker用SSH設定テンプレート
 ├── .codex/                           # Codex CLI設定
 │   ├── config.toml                   # ユーザーレベル設定（AGENTS.mdは~/.claude/CLAUDE.mdへのsymlink）
-│   └── skills/                       # Codex用スキル（Claude Codeスキルから移植）
+│   └── skills/                       # Codex用スキル（auto-commit / suggest-branch は独立実装、cloudwatch-logs は Claude側 symlink に依存）
 │       ├── auto-commit/              # コミットメッセージ自動生成
 │       ├── suggest-branch/           # ブランチ名提案
-│       └── cloudwatch-logs/          # CloudWatchログ取得
+│       └── cloudwatch-logs/          # CloudWatchログ取得（~/.claude/skills/cloudwatch-logs/cloudwatch_logs.py を呼び出す）
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── rules/                        # 条件付きルール（pathsフロントマターでスコープ）
@@ -36,43 +36,31 @@ MacOS用の初期セットアップを行います。
 │   │   ├── check-bg.md               # バックグラウンドタスク結果確認
 │   │   ├── permalink.md              # パーマリンクコマンド
 │   │   └── uv-init.md                # Pythonプロジェクト初期化
-│   ├── skills/                       # カスタムスキル
-│   │   ├── catalog.json              # スキルメタデータ
-│   │   ├── cloudwatch-logs/          # CloudWatchログ取得
+│   ├── skills/                       # カスタムスキル（symlink 表記の項目は mise run setup-skills 実行後に配置）
+│   │   ├── catalog.json              # スキルメタデータ（単一の情報源）
+│   │   ├── .markdownlint-cli2.jsonc  # markdownlint設定
+│   │   ├── auto-commit/              # コミットメッセージ自動生成（symlink: rysk-tanaka/skills）
+│   │   ├── await-ci/                 # CIチェック状態確認・完了待機（symlink: rysk-tanaka/skills）
+│   │   ├── cloudwatch-logs/          # CloudWatchログ取得（symlink: rysk-tanaka/skills）
+│   │   ├── codex-review/             # Codex CLIコードレビュー（symlink: rysk-tanaka/skills）
+│   │   ├── drawio/                   # draw.io図表生成（symlink: rysk-tanaka/skills）
+│   │   ├── drawio-aws/               # AWSアーキテクチャ図生成（symlink: rysk-tanaka/skills）
+│   │   ├── pr/                       # プルリクエスト作成（symlink: rysk-tanaka/skills）
+│   │   ├── resolve-review/           # PRレビュー指摘対応（symlink: rysk-tanaka/skills）
+│   │   ├── suggest-branch/           # ブランチ名提案（symlink: rysk-tanaka/skills）
+│   │   ├── empirical-prompt-tuning/  # mizchi/skillsから導入（gh skill install）
 │   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── cloudwatch_logs.py    # Pythonスクリプト（PEP 723）
-│   │   ├── sync-brew/                # Brewfileアプリ追加
-│   │   │   └── SKILL.md              # スキル定義
-│   │   ├── auto-commit/              # コミットメッセージ自動生成
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── collect.sh            # データ収集スクリプト
-│   │   ├── await-ci/                 # CIチェック状態確認・完了待機
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── check.sh              # CIチェック取得スクリプト
-│   │   ├── pr/                       # プルリクエスト作成
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   ├── collect.sh            # データ収集スクリプト
-│   │   │   └── pull_request_template.md  # フォールバック用PRテンプレート
-│   │   ├── resolve-review/           # PRレビュー指摘対応
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   ├── fetch.sh              # レビューデータ取得スクリプト
-│   │   │   ├── minimize.sh           # botコメント折りたたみスクリプト
-│   │   │   └── resolve.sh            # レビュースレッド解決スクリプト
-│   │   ├── codex-review/             # Codex CLIコードレビュー
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── review.sh             # レビュー実行スクリプト
-│   │   ├── suggest-branch/           # ブランチ名提案
-│   │   │   ├── SKILL.md              # スキル定義
-│   │   │   └── collect.sh            # データ収集スクリプト
+│   │   │   └── SKILL-ja.md           # 日本語版
 │   │   ├── claude-process/           # プロセス状況確認・クリーンアップ・監視
 │   │   │   ├── SKILL.md              # スキル定義
 │   │   │   ├── common.sh             # 共通関数
 │   │   │   ├── check.sh              # プロセス状況確認スクリプト
 │   │   │   ├── clean.sh              # プロセスクリーンアップスクリプト
 │   │   │   └── monitor.sh            # プロセス監視スクリプト
-│   │   ├── drawio/                   # draw.io図表生成
-│   │   │   └── SKILL.md              # スキル定義
-│   │   ├── drawio-aws/               # AWSアーキテクチャ図生成
+│   │   ├── read-screen/              # cmuxペイン読み取り
+│   │   │   ├── SKILL.md              # スキル定義
+│   │   │   └── read-screen.sh        # ペイン読み取りスクリプト
+│   │   ├── sync-brew/                # Brewfileアプリ追加
 │   │   │   └── SKILL.md              # スキル定義
 │   │   └── setup-workflows/          # GitHub Actionsワークフロー生成
 │   │       └── SKILL.md              # スキル定義
@@ -214,7 +202,24 @@ MacOS用の初期セットアップを行います。
     - 各種ユーティリティのnpmパッケージ
     - Python 3.12、ripgrep、Starship、Terraformなど
 
-6. Homebrew未提供フォントのインストール
+6. Claude Code Skills のセットアップ
+
+    公開可能な skill 群は別リポジトリ [`rysk-tanaka/skills`](https://github.com/rysk-tanaka/skills) で canonical 管理されており、dotfiles 側では symlink として配置します。`.claude/skills/` 配下の publishable skill ディレクトリ (auto-commit, pr, resolve-review 等) は `.gitignore` 済みのため、初回 clone 直後はファイルが存在しません。以下を実行して symlink を作成します。
+
+    ```bash
+    mise run setup-skills
+    ```
+
+    動作
+
+    1. `~/Repositories/rysk/skills` が無ければ `https://github.com/rysk-tanaka/skills.git` から `git clone` (`SKILLS_REPO_URL` 環境変数で URL 上書き可)
+    2. `~/Repositories/rysk/skills/skills/<name>/` を列挙し、`dotfiles/.claude/skills/<name>` への symlink を作成
+
+    このステップを飛ばすと `/auto-commit` `/pr` `/resolve-review` などの Claude Code skill、`mise run auto-commit` / `mise run suggest-branch` (`.claude/skills/{auto-commit,suggest-branch}/collect.sh` を呼ぶ)、Codex の `cloudwatch-logs` (`~/.claude/skills/cloudwatch-logs/cloudwatch_logs.py` を参照) が失敗します。
+
+    第三者がこの dotfiles を fork して利用する場合、`.claude/settings.json` の `permissions.allow` 絶対パス (`/Users/rysk/.claude/skills/...` 形式) を各自の HOME パスに書き換えてください。claude-code#14956 の制約で `~` 展開が効かないため、絶対パス指定が必須です。
+
+7. Homebrew未提供フォントのインストール
 
     Bizin Gothic NF（Ghostty/Zedで使用）をGitHub Releasesからインストールします。
 
@@ -228,7 +233,7 @@ MacOS用の初期セットアップを行います。
     bash .config/mise/tasks/setup-fonts
     ```
 
-7. WakaTime設定の生成
+8. WakaTime設定の生成
 
     1PasswordからAPIキーを取得してWakaTime設定ファイルを生成します。
 
@@ -256,7 +261,7 @@ MacOS用の初期セットアップを行います。
 
     Zed用のWakaTimeプラグインは、Zed内の Extensions パネルから「wakatime」を検索してインストールします。
 
-8. git-worktree-runnerのインストール
+9. git-worktree-runnerのインストール
 
     複数のAIエージェントが異なるブランチで並行作業する場合に便利なツールです。
 
