@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+#MISE description="Update all Claude Code plugin marketplaces and show version changes"
+
+set -euo pipefail
+
+if ! command -v claude &>/dev/null; then
+    echo "Error: claude (Claude Code CLI) is not installed" >&2
+    exit 1
+fi
+
+if ! command -v python3 &>/dev/null; then
+    echo "Error: python3 is not installed" >&2
+    exit 1
+fi
+
+TMPDIR_PATH=$(mktemp -d)
+trap 'rm -rf "$TMPDIR_PATH"' EXIT
+
+before_file="${TMPDIR_PATH}/before.json"
+after_file="${TMPDIR_PATH}/after.json"
+
+# Session-start auto-sync only does `git fetch` (anthropics/claude-code#41885),
+# but explicit `marketplace update` performs `git pull` and bumps installed plugins.
+claude plugin list --json > "$before_file"
+claude plugin marketplace update
+claude plugin list --json > "$after_file"
+
+python3 - "$before_file" "$after_file" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1]) as f:
+    before = {p["id"]: p["version"] for p in json.load(f)}
+with open(sys.argv[2]) as f:
+    after = {p["id"]: p["version"] for p in json.load(f)}
+
+changes = []
+for plugin_id in sorted(before.keys() | after.keys()):
+    bv = before.get(plugin_id, "(new)")
+    av = after.get(plugin_id, "(removed)")
+    if bv != av:
+        changes.append(f"  {plugin_id}: {bv} -> {av}")
+
+print()
+if changes:
+    print("Plugin version changes:")
+    for line in changes:
+        print(line)
+    print()
+    print("Restart Claude Code or run /reload-plugins to apply.")
+else:
+    print("All plugins are up to date.")
+PY

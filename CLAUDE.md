@@ -19,6 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Suggest branch name: `mise run suggest-branch` (analyzes work and suggests branch names)
 - Setup skills symlinks: `mise run setup-skills` (clones `rysk-tanaka/skills` if missing and creates per-skill symlinks under `.claude/skills/`). dotfiles 初回 clone 直後に必須。未実行だと `/auto-commit` `/pr` `/resolve-review` 等の参照先 script が無く失敗する
 - Upgrade Claude Code: `mise run upgrade-claude` (upgrades to latest GitHub Release, bypassing aqua registry lag)
+- Update Claude Code plugins: `mise run upgrade-plugins` (runs `claude plugin marketplace update` to force `git pull` and reports version diff; works around session-start auto-sync only doing `git fetch` per anthropics/claude-code#41885)
 
 Note: Python files are auto-linted via PostToolUse hook after Edit/Write. Manual lint is only needed for final verification.
 
@@ -95,6 +96,7 @@ Symlinks are tracked in `~/.config/mise/linked-repos/` for bulk management.
 
 Located in `.claude/hooks/`, configured in `.claude/settings.json` under `hooks`.
 
+- SessionStart (`check-plugin-updates.sh`) - Detects outdated plugin marketplaces by comparing HEAD to local upstream ref, then fires a detached `git fetch` so the next session has fresh state. Needed because session-start auto-sync is broken (anthropics/claude-code#41885) and `DISABLE_AUTOUPDATER=1` turns it off entirely. 1-session lag on first detection, zero startup latency. Skips non-git marketplaces (e.g. `claude-plugins-official` uses GCS).
 - UserPromptSubmit (`suggest-effort.sh`) - Analyzes prompt complexity via keyword scoring and suggests effort level adjustments. Outputs plain text to stdout (not JSON, to avoid claude-code#17550). Must complete in < 100ms.
 - PostToolUse - Auto-lints Python files after Edit/Write (inline command in settings.json)
 - Stop - cmux claude-hook でセッション完了を通知（cmux 以外のターミナルでは静かにスキップ）
