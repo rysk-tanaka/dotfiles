@@ -129,8 +129,8 @@
   "editorMode": "vim",
   "verbose": true,
   "preferredNotifChannel": "terminal_bell",
+  "skipAutoPermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754042613598
-  },
-  "skipAutoPermissionPrompt": true
+  }
 }

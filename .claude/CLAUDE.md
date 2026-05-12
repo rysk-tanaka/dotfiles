@@ -40,3 +40,9 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - When removing symlinks, use `unlink` command instead of `rm`
 - When removing directories, prefer specific paths over wildcards
 - Always verify the target path before destructive operations
+
+## Documentation Portability
+
+- ドキュメントやワークフローを別リポジトリへコピーする際は、コピー元固有の文脈（リポジトリ名・URL・他環境展開を前提とした節）を配置先の構造と運用前提に合わせて書き換える
+- 相対リンクは配置先のディレクトリ構造に合わせて修正する
+- 配置先では既に導入済みであることを前提に、運用手順（ローテーション・更新・トラブル対応など）を主役に据える
