@@ -18,6 +18,10 @@ if [ -z "$GH_MCP_TOKEN" ] && command -v gh >/dev/null 2>&1; then
   unset _gh_token
 fi
 
+# Clone Claude Code plugin marketplaces over HTTPS instead of SSH
+# Avoids 1Password SSH-key approval prompts at session start (claude-code#14485)
+export CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1
+
 # zoxide (required for non-interactive shells like Claude Code)
 if command -v zoxide >/dev/null 2>&1; then
   eval "$(zoxide init zsh --cmd cd)"

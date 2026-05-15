@@ -33,10 +33,6 @@
 [init]
     defaultBranch = main
 
-# URL handling
-[url "ssh://git@github.com/"]
-    insteadOf = https://github.com/
-
 # Personal settings (kept separately)
 [include]
     path = ~/.gitconfig.local
