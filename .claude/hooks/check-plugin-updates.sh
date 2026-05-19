@@ -15,8 +15,9 @@ MARKETPLACES_DIR="${HOME}/.claude/plugins/marketplaces"
 behind_lines=()
 
 for mp in "$MARKETPLACES_DIR"/*/; do
-    [[ -d "${mp}.git" ]] || continue
-
+    # `rev-parse @{u}` naturally fails for non-git dirs and for git dirs without
+    # an upstream — so it doubles as our "is this a git marketplace?" filter
+    # while also handling gitfile-based repos (worktrees, submodules) correctly.
     git -C "$mp" rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1 || continue
 
     behind=$(git -C "$mp" rev-list HEAD..'@{u}' --count 2>/dev/null || echo 0)
