@@ -25,8 +25,9 @@ for mp in "$MARKETPLACES_DIR"/*/; do
         behind_lines+=("  - ${name} is ${behind} commits behind upstream")
     fi
 
-    # Detached subshell so the hook returns immediately even if fetch is slow.
-    ( git -C "$mp" fetch --quiet --no-tags >/dev/null 2>&1 & )
+    # nohup detaches from the hook's process group so the fetch survives even
+    # if Claude Code SIGHUPs the hook on exit.
+    nohup git -C "$mp" fetch --quiet --no-tags >/dev/null 2>&1 &
 done
 
 [[ ${#behind_lines[@]} -gt 0 ]] || exit 0
