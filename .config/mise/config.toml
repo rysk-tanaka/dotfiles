@@ -57,7 +57,7 @@ zoxide = "0.9.9"
 "npm:markdownlint-cli2" = "0.21.0"
 "npm:md-mermaid-lint" = "1.0.1"
 "npm:opencommit" = "3.2.19"
-"npm:pyright" = "1.1.408"
+"npm:pyright" = "1.1.410"
 
 [env]
 DOTFILES_PATH = "/Users/rysk/Repositories/rysk/dotfiles"
