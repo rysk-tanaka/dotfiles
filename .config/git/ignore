@@ -24,6 +24,7 @@ CLAUDE.md
 .playwright-mcp
 .tmp/
 memory-bank
+scripts/.local/
 
 # Environment directories (root only)
 /adev/
