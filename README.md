@@ -19,6 +19,9 @@ MacOS用の初期セットアップを行います。
 │   └── config_docker.template        # Docker用SSH設定テンプレート
 ├── .codex/                           # Codex CLI設定
 │   ├── config.toml                   # ユーザーレベル設定（AGENTS.mdは~/.claude/CLAUDE.mdへのsymlink）
+│   ├── lite.config.toml              # 軽量プロファイル（codex --profile lite、gpt-5.4-mini）
+│   ├── quick.config.toml             # 高速レビュープロファイル（codex --profile quick）
+│   ├── important.config.toml         # 重要レビュープロファイル（codex --profile important）
 │   └── skills/                       # Codex用スキル（auto-commit / suggest-branch は独立実装、cloudwatch-logs は Claude側 symlink に依存）
 │       ├── auto-commit/              # コミットメッセージ自動生成
 │       ├── suggest-branch/           # ブランチ名提案
@@ -147,6 +150,9 @@ MacOS用の初期セットアップを行います。
 
     ```bash
     ln -sf ~/Repositories/rysk/dotfiles/.codex/config.toml ~/.codex/config.toml
+    ln -sf ~/Repositories/rysk/dotfiles/.codex/lite.config.toml ~/.codex/lite.config.toml
+    ln -sf ~/Repositories/rysk/dotfiles/.codex/quick.config.toml ~/.codex/quick.config.toml
+    ln -sf ~/Repositories/rysk/dotfiles/.codex/important.config.toml ~/.codex/important.config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.codex/skills ~/.codex/skills
     ln -sf ~/.claude/CLAUDE.md ~/.codex/AGENTS.md
     ln -sf ~/Repositories/rysk/dotfiles/.claude/settings.json ~/.claude/settings.json
