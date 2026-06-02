@@ -15,22 +15,8 @@ writable_roots = ["~/Library/Application Support/zoxide"]
 parallel = true  # デフォルト(true)
 shell_snapshot = true  # ベータ機能
 
-# 軽量テキスト生成用（コミットメッセージ・ブランチ名など）
-[profiles.lite]
-model = "gpt-5.4-mini"
-model_reasoning_effort = "low"
-
-# 高速レビュー用（簡単な変更）
-[profiles.quick]
-model_reasoning_effort = "low"
-model_reasoning_summary = "concise"
-model_verbosity = "low"
-
-# 重要なレビュー用（リリース前など）
-[profiles.important]
-model_reasoning_effort = "high"
-model_reasoning_summary = "detailed"
-model_verbosity = "high"
+# プロファイルは codex 0.134+ で別ファイル方式へ移行
+# (lite/quick/important は .codex/<name>.config.toml に分離し ~/.codex/ へ symlink)
 
 [plugins."github@openai-curated"]
 enabled = true

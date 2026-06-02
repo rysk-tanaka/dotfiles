@@ -1,0 +1,5 @@
+# 重要なレビュー用（リリース前など）
+# `codex --profile important` で base config に上書き
+model_reasoning_effort = "high"
+model_reasoning_summary = "detailed"
+model_verbosity = "high"
