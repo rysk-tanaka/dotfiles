@@ -54,8 +54,8 @@ else
 fi
 
 # 3b. configured model がカタログに在るか（撤去検知）
-# TOML はダブルクォートとシングルクォートの両方を許容するため、いずれの引用符にも対応する
-conf_model=$(grep -m1 '^model[[:space:]]*=' "${DOTFILES_PATH}/.codex/config.toml" 2>/dev/null | sed -nE 's/[^"'\'']*["'\'']([^"'\'']*).*/\1/p' || true)
+# config.toml を tomllib でパースして top-level model を取得（Python 3.11+ stdlib、引用符の差異を正しく処理）
+conf_model=$(python3 -c "import tomllib,sys; print(tomllib.load(open(sys.argv[1],'rb')).get('model',''))" "${DOTFILES_PATH}/.codex/config.toml" 2>/dev/null || true)
 if [ -z "$conf_model" ]; then
     echo "  - model check skipped (config に model 指定なし)"
     exit 0
@@ -66,11 +66,22 @@ fi
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 if catalog=$(cd "$tmp" && codex debug models 2>/dev/null) && [ -n "$catalog" ]; then
-    if printf '%s' "$catalog" | python3 -c "import sys,json; slug=sys.argv[1]; d=json.load(sys.stdin); sys.exit(0 if any(m.get('slug')==slug for m in d.get('models',[])) else 1)" "$conf_model"; then
-        echo "  ✓ configured model '$conf_model' is available"
-    else
-        echo "  ⚠ configured model '$conf_model' not in catalog — 撤去された可能性。config.toml の model を見直してください"
-    fi
+    # codex が非 JSON を exit 0 で返すケースを「撤去」と誤判定しないよう、解析失敗(2)を分離する
+    py_exit=0
+    printf '%s' "$catalog" | python3 -c "
+import sys, json
+try:
+    slug = sys.argv[1]
+    d = json.load(sys.stdin)
+    sys.exit(0 if any(m.get('slug') == slug for m in d.get('models', [])) else 1)
+except (json.JSONDecodeError, ValueError):
+    sys.exit(2)
+" "$conf_model" 2>/dev/null || py_exit=$?
+    case $py_exit in
+        0) echo "  ✓ configured model '$conf_model' is available" ;;
+        1) echo "  ⚠ configured model '$conf_model' not in catalog — 撤去された可能性。config.toml の model を見直してください" ;;
+        *) echo "  - model check skipped (カタログ形式を解析できませんでした)" ;;
+    esac
 else
     echo "  - model check skipped (codex auth/network unavailable)"
 fi
