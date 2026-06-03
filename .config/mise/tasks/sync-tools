@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+#MISE description="Sync mise tools after Renovate pull: install, prune unused versions, check Codex health"
+#USAGE flag "--yes" help="Skip prune confirmation prompt"
+
+set -euo pipefail
+
+DOTFILES_PATH="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
+
+# 1. install new pinned versions (Renovate が更新した config.toml を反映)
+echo "==> Installing tools (mise install)..."
+cd "$DOTFILES_PATH"
+mise install
+
+# 2. prune unused versions (confirm)
+echo ""
+echo "==> Prunable versions:"
+# mise prune は全 tracked-configs 横断のグローバル操作（登録済み全リポジトリで未使用のものを削除）
+prunable=$(mise ls --prunable 2>/dev/null || true)
+if [ -z "$prunable" ]; then
+    echo "  (none)"
+else
+    echo "$prunable" | sed 's/^/  /'
+    echo ""
+    echo "Note: mise prune は登録済み全リポジトリで未使用のバージョンを削除します（グローバル操作）"
+    if [ "${usage_yes:-false}" = "true" ]; then
+        mise prune -y
+    else
+        printf "削除しますか？ [y/N]: "
+        read -r answer || answer=""
+        case "$answer" in
+            [yY]) mise prune -y ;;
+            *) echo "スキップしました" ;;
+        esac
+    fi
+fi
+
+# 3. Codex health checks (best-effort, non-fatal)
+echo ""
+echo "==> Codex health:"
+if ! command -v codex &>/dev/null; then
+    echo "  - skipped (codex not installed)"
+    exit 0
+fi
+
+# 3a. CLI version lag (brew のキャッシュ状態を参照)
+if command -v brew &>/dev/null; then
+    if brew outdated --cask codex 2>/dev/null | grep -q '^codex'; then
+        echo "  ⚠ codex is outdated — run: brew upgrade --cask codex"
+    else
+        echo "  ✓ codex up to date ($(codex --version 2>/dev/null))"
+    fi
+else
+    echo "  - version check skipped (brew not available)"
+fi
+
+# 3b. configured model がカタログに在るか（撤去検知）
+# config.toml を tomllib でパースして top-level model を取得（Python 3.11+ stdlib、引用符の差異を正しく処理）
+conf_model=$(python3 -c "import tomllib,sys; print(tomllib.load(open(sys.argv[1],'rb')).get('model',''))" "${DOTFILES_PATH}/.codex/config.toml" 2>/dev/null || true)
+if [ -z "$conf_model" ]; then
+    echo "  - model check skipped (config に model 指定なし)"
+    exit 0
+fi
+
+# codex debug models をリポジトリ内で実行すると config.toml に trust ブロックが追記される副作用があるため、
+# git リポジトリ外の一時ディレクトリから実行する（~/.codex/config.toml は symlink 経由で読まれるため設定は有効）
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+if catalog=$(cd "$tmp" && codex debug models 2>/dev/null) && [ -n "$catalog" ]; then
+    # codex が非 JSON を exit 0 で返すケースを「撤去」と誤判定しないよう、解析失敗(2)を分離する
+    py_exit=0
+    printf '%s' "$catalog" | python3 -c "
+import sys, json
+try:
+    slug = sys.argv[1]
+    d = json.load(sys.stdin)
+    sys.exit(0 if any(m.get('slug') == slug for m in d.get('models', [])) else 1)
+except (json.JSONDecodeError, ValueError):
+    sys.exit(2)
+" "$conf_model" 2>/dev/null || py_exit=$?
+    case $py_exit in
+        0) echo "  ✓ configured model '$conf_model' is available" ;;
+        1) echo "  ⚠ configured model '$conf_model' not in catalog — 撤去された可能性。config.toml の model を見直してください" ;;
+        *) echo "  - model check skipped (カタログ形式を解析できませんでした)" ;;
+    esac
+else
+    echo "  - model check skipped (codex auth/network unavailable)"
+fi
