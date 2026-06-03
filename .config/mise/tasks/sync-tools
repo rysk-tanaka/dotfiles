@@ -26,7 +26,7 @@ else
         mise prune -y
     else
         printf "削除しますか？ [y/N]: "
-        read -r answer
+        read -r answer || answer=""
         case "$answer" in
             [yY]) mise prune -y ;;
             *) echo "スキップしました" ;;
@@ -49,10 +49,13 @@ if command -v brew &>/dev/null; then
     else
         echo "  ✓ codex up to date ($(codex --version 2>/dev/null))"
     fi
+else
+    echo "  - version check skipped (brew not available)"
 fi
 
 # 3b. configured model がカタログに在るか（撤去検知）
-conf_model=$(grep -m1 '^model[[:space:]]*=' "${DOTFILES_PATH}/.codex/config.toml" 2>/dev/null | sed -n 's/.*"\(.*\)".*/\1/p' || true)
+# TOML はダブルクォートとシングルクォートの両方を許容するため、いずれの引用符にも対応する
+conf_model=$(grep -m1 '^model[[:space:]]*=' "${DOTFILES_PATH}/.codex/config.toml" 2>/dev/null | sed -nE 's/[^"'\'']*["'\'']([^"'\'']*).*/\1/p' || true)
 if [ -z "$conf_model" ]; then
     echo "  - model check skipped (config に model 指定なし)"
     exit 0
@@ -63,7 +66,7 @@ fi
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 if catalog=$(cd "$tmp" && codex debug models 2>/dev/null) && [ -n "$catalog" ]; then
-    if printf '%s' "$catalog" | python3 -c "import sys,json; d=json.load(sys.stdin); sys.exit(0 if any(m.get('slug')=='$conf_model' for m in d.get('models',[])) else 1)"; then
+    if printf '%s' "$catalog" | python3 -c "import sys,json; slug=sys.argv[1]; d=json.load(sys.stdin); sys.exit(0 if any(m.get('slug')==slug for m in d.get('models',[])) else 1)" "$conf_model"; then
         echo "  ✓ configured model '$conf_model' is available"
     else
         echo "  ⚠ configured model '$conf_model' not in catalog — 撤去された可能性。config.toml の model を見直してください"
