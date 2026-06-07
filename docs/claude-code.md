@@ -269,6 +269,35 @@ mise exec -- python -m playwright install firefox
 printf '%s\n' 'final_runs/' 'outputs/' 'plan.md' >> .git/info/exclude
 ```
 
+#### 認証情報の扱い
+
+skill 自体に認証機構は無く、毎回まっさらなセッションで起動する（`There is NO persistent browser state`）。ログインが必要なサイトの自動化では、エージェントが書く Playwright スクリプト側で認証を組む必要がある。安全な順に以下の方針を取る。
+
+1. 手動ログイン + `storage_state`（推奨）。表示あり（`headless=False`）で起動して人間がログインし、`context.storage_state(path=...)` で cookie / localStorage / sessionStorage を保存。以降の run は `new_context(storage_state=...)` で認証済み状態から開始する。認証情報がエージェント・チャット・コードのどこにも残らず、SSO / Cognito / MFA でもそのまま通る（Cognito トークンは localStorage 保存なので捕捉される）
+2. CDP アタッチ。ログイン済みの実 Chrome/Edge を `--remote-debugging-port` で起動し `connect_over_cdp` で接続。普段使いのプロファイル資産を使え、やはり認証情報を渡さない
+3. シークレットからプログラム的ログイン（完全自動が必須な CI 等のみ）。実行時に env や `op read` で取得し、`final_script.py` には埋め込まない
+
+```python
+# 1回目: 手動ログイン捕捉（headless=False）
+browser = await pw.firefox.launch(headless=False)
+ctx = await browser.new_context()
+page = await ctx.new_page()
+await page.goto("http://localhost:3000/login")
+await page.wait_for_url(lambda u: "/login" not in u, timeout=300_000)  # 人間のログイン待ち
+await ctx.storage_state(path="outputs/.auth/state.json")
+
+# 2回目以降: 認証済みで検証（headless=True 可）
+ctx = await browser.new_context(storage_state="outputs/.auth/state.json")
+```
+
+衛生ルール。
+
+- `storage_state` ファイルは bearer トークン相当。コミット・チャット貼り付け禁止。`outputs/.auth/` など ignore 済みディレクトリに置く
+- `final_script.py` に認証情報を埋め込まない（ディスク保存される成果物のため）。env / `op read` 経由で渡す
+- 専用テストアカウントを使い、個人 / admin アカウントは使わない
+- `storage_state` は失効するため、期限切れたら手動ログイン step をやり直す
+- ログイン捕捉だけ headed、検証は headless に分けると人手は最初の 1 回で済む
+
 ## Hooks
 
 ### Notification
