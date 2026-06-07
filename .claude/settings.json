@@ -147,6 +147,12 @@
         "source": "github",
         "repo": "openai/codex-plugin-cc"
       }
+    },
+    "webwright": {
+      "source": {
+        "source": "github",
+        "repo": "microsoft/Webwright"
+      }
     }
   },
   "alwaysThinkingEnabled": true,
