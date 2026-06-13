@@ -20,8 +20,8 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 ## カスタムスキル
 
 公開可能な skill は `rysk-tanaka/skills` リポジトリで canonical 管理し、`mise run setup-skills` が `.claude/skills/<name>` に symlink として配置します。
-pristine な外部 skill（`anthropics/skills` の skill-creator 等）は実体を dotfiles に持たず gitignore し、同じ `mise run setup-skills` が catalog.json の `source` を見て `gh skill install` で復元します。
-環境依存の skill と、ローカル改変を加えた外部 skill（後述の empirical-prompt-tuning 等）のみ dotfiles 内で実体ディレクトリとして管理します。
+外部 skill（`anthropics/skills` の skill-creator、`mizchi/skills` の empirical-prompt-tuning 等）は実体を dotfiles に持たず gitignore し、同じ `mise run setup-skills` が catalog.json の `source` を見て `gh skill install` で復元します。
+環境依存の自作 skill のみ dotfiles 内で実体ディレクトリとして管理します。
 
 スキルの追加・更新時は `.claude/skills/catalog.json` も合わせて更新してください。
 シェルスクリプトを含むスキルは `.claude/settings.json` の `permissions.allow` にも実行パターンの追加が必要です（例: `Bash(bash /Users/rysk/.claude/skills/<name>/<script>:*)`）。
@@ -50,10 +50,7 @@ pristine な外部 skill（`anthropics/skills` の skill-creator 等）は実体
 dotfiles には実体を持たず、`mise run setup-skills` が catalog.json の `source`（`owner/repo`）を見て `gh skill install --dir .claude/skills` で復元します（実体が既に在れば skip）。既定は最新追従で、固定したい場合のみ catalog.json エントリに `"pin": "<tag/commit-sha>"` を足すと `--pin` で固定されます。更新は手動 `gh skill update`（`metadata.github-*` で追従）。
 
 - `skill-creator` - anthropics/skills 由来。新規 skill の作成・既存 skill の改善・eval による性能測定を支援
-
-#### ローカル改変済み外部スキル（実体管理）
-
-- `empirical-prompt-tuning` - mizchi/skills 由来。ローカル限定の `SKILL-ja.md`（日本語訳）を持ち、上流もパス移動・drift しているため再インストールには載せず実体を tracked で維持。出自は catalog.json の `source` に記録（更新時は手動で差分確認）
+- `empirical-prompt-tuning` - mizchi/skills 由来。バイアスを排した実行者による実証的プロンプトチューニング（評価→反復改善）
 
 ## Codex CLI との共用スキル
 
