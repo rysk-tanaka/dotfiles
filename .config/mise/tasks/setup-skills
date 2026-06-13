@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="Clone rysk-tanaka/skills if missing and create per-skill symlinks"
+#MISE description="Symlink rysk-tanaka/skills and restore external skills via gh skill install"
 #MISE dir="{{config_root}}"
 set -euo pipefail
 
@@ -64,4 +64,40 @@ done
 echo "Linked ${linked} skill(s) into ${TARGET_DIR}/"
 if (( removed > 0 )); then
   echo "Removed ${removed} stale symlink(s)"
+fi
+
+# 外部 skill (catalog.json の source が owner/repo 形式) を gh skill install で復元。
+# 実体は gitignore されるため、初回 clone 直後やマシン移行時にここで復元する。
+# rysk-tanaka/skills は上の symlink で扱うため除外。pin が在れば --pin で固定する。
+CATALOG="${TARGET_DIR}/catalog.json"
+
+if [[ ! -f "${CATALOG}" ]]; then
+  echo "catalog.json not found, skipping external skill restore" >&2
+elif ! command -v gh >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
+  echo "WARN: gh and jq are required to restore external skills, skipping" >&2
+else
+  installed=0
+  skipped=0
+  while IFS=$'\t' read -r name source pin; do
+    [[ -z "${name}" ]] && continue
+
+    # 既存 (SKILL.md が在る) skill は再 install しない (更新は手動 gh skill update に委ねる)。
+    if [[ -f "${TARGET_DIR}/${name}/SKILL.md" ]]; then
+      skipped=$((skipped + 1))
+      continue
+    fi
+
+    pin_args=()
+    [[ -n "${pin}" ]] && pin_args=(--pin "${pin}")
+
+    echo "Installing external skill: ${name} (${source}${pin:+@${pin}})"
+    # ${arr[@]+...} guards empty-array expansion under `set -u` on bash 3.2 (macOS).
+    gh skill install "${source}" "${name}" ${pin_args[@]+"${pin_args[@]}"} \
+      --agent claude-code --dir "${TARGET_DIR}" --force
+    installed=$((installed + 1))
+  done < <(jq -r '.[]
+    | select(.source != null and (.source | test("/")) and .source != "rysk-tanaka/skills")
+    | [.name, .source, (.pin // "")] | @tsv' "${CATALOG}")
+
+  echo "External skills: ${installed} installed, ${skipped} already present"
 fi

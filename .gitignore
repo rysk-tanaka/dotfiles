@@ -8,6 +8,10 @@
 
 # Skills under .claude/skills/ default to ignored. Publishable skills live in
 # rysk-tanaka/skills and are placed as symlinks by `mise run setup-skills`.
+# Pristine external skills (catalog.json source = owner/repo, no local edits)
+# are restored by the same task via `gh skill install`, so their bodies stay
+# ignored. Customized external skills (e.g. empirical-prompt-tuning carries a
+# local SKILL-ja.md and tracks a drifted upstream) stay re-included below.
 # Re-include the metadata files and environment-dependent skills tracked here.
 .claude/skills/*
 !.claude/skills/.markdownlint-cli2.jsonc
@@ -16,5 +20,4 @@
 !.claude/skills/empirical-prompt-tuning/
 !.claude/skills/read-screen/
 !.claude/skills/setup-workflows/
-!.claude/skills/skill-creator/
 !.claude/skills/sync-brew/
