@@ -39,8 +39,8 @@ fi
 # 上の prune で旧バージョンが消えると helper が壊れる。PATH 解決形に書き換えて再発を防ぐ。
 echo ""
 echo "==> Normalizing gh credential helpers..."
-broken_keys=$(git config --global --get-regexp 'credential\..*\.helper' \
-    | awk '/aqua-cli-cli\/[0-9]/ {print $1}' | sort -u)
+broken_keys=$(git config --global --get-regexp 'credential\..*\.helper' 2>/dev/null \
+    | awk '/aqua-cli-cli\/[0-9]/ {print $1}' | sort -u || true)
 if [ -z "$broken_keys" ]; then
     echo "  ✓ no version-pinned paths"
 else
