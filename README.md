@@ -253,19 +253,7 @@ MacOS用の初期セットアップを行います。
     - 1Passwordの「work」vaultに「WakaTime」アイテムが登録済み
     - `op signin`で1Passwordに認証済み
 
-    Claude Code用のWakaTimeプラグインをインストールします。
-
-    ```bash
-    # マーケットプレイスを追加
-    claude plugin marketplace add https://github.com/wakatime/claude-code-wakatime.git
-
-    # プラグインをインストール
-    claude plugin i claude-code-wakatime@wakatime
-    ```
-
-    インストール後、Claude Code内で `/plugin` を実行してプラグインの状態を確認できます。
-
-    Zed用のWakaTimeプラグインは、Zed内の Extensions パネルから「wakatime」を検索してインストールします。
+    Claude Code用のWakaTimeプラグインの導入手順は [docs/claude-code.md](./docs/claude-code.md) を参照してください。Zed用のWakaTimeプラグインは、Zed内の Extensions パネルから「wakatime」を検索してインストールします。
 
 9. git-worktree-runnerのインストール
 
