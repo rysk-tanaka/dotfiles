@@ -34,7 +34,23 @@ else
     fi
 fi
 
-# 3. Codex health checks (best-effort, non-fatal)
+# 3. normalize gh credential helper (version-pinned path → PATH-resolved)
+# gh auth setup-git は gh の絶対パス（バージョン固定）を helper に焼き込むため、
+# 上の prune で旧バージョンが消えると helper が壊れる。PATH 解決形に書き換えて再発を防ぐ。
+echo ""
+echo "==> Normalizing gh credential helpers..."
+broken_keys=$(git config --global --get-regexp 'credential\..*\.helper' \
+    | awk '/aqua-cli-cli\/[0-9]/ {print $1}' | sort -u)
+if [ -z "$broken_keys" ]; then
+    echo "  ✓ no version-pinned paths"
+else
+    while IFS= read -r key; do
+        git config --global --replace-all "$key" '!gh auth git-credential' 'aqua-cli-cli/[0-9]'
+        echo "  fixed: $key"
+    done <<< "$broken_keys"
+fi
+
+# 4. Codex health checks (best-effort, non-fatal)
 echo ""
 echo "==> Codex health:"
 if ! command -v codex &>/dev/null; then
@@ -42,7 +58,7 @@ if ! command -v codex &>/dev/null; then
     exit 0
 fi
 
-# 3a. CLI version lag (brew のキャッシュ状態を参照)
+# 4a. CLI version lag (brew のキャッシュ状態を参照)
 if command -v brew &>/dev/null; then
     if brew outdated --cask codex 2>/dev/null | grep -q '^codex'; then
         echo "  ⚠ codex is outdated — run: brew upgrade --cask codex"
@@ -53,7 +69,7 @@ else
     echo "  - version check skipped (brew not available)"
 fi
 
-# 3b. configured model がカタログに在るか（撤去検知）
+# 4b. configured model がカタログに在るか（撤去検知）
 # config.toml を tomllib でパースして top-level model を取得（Python 3.11+ stdlib、引用符の差異を正しく処理）
 conf_model=$(python3 -c "import tomllib,sys; print(tomllib.load(open(sys.argv[1],'rb')).get('model',''))" "${DOTFILES_PATH}/.codex/config.toml" 2>/dev/null || true)
 if [ -z "$conf_model" ]; then
