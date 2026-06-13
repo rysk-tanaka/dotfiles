@@ -90,5 +90,11 @@
     "description": "サブエージェントによる実証的プロンプトチューニング（評価→反復改善）",
     "category": "プロンプト改善",
     "source": "mizchi/skills"
+  },
+  {
+    "name": "skill-creator",
+    "description": "新規 skill の作成・既存 skill の改善・eval による性能測定",
+    "category": "スキル開発",
+    "source": "anthropics/skills"
   }
 ]

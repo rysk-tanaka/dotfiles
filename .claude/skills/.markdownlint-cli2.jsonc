@@ -11,5 +11,6 @@
     "drawio/**",
     "drawio-aws/**",
     "cloudwatch-logs/**",
+    "skill-creator/**",
   ],
 }

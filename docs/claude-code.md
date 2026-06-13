@@ -47,6 +47,7 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 ### 外部スキル
 
 - `empirical-prompt-tuning` - mizchi/skills 由来（`gh skill install` で導入、`metadata.github-*` で `gh skill update` 追従）
+- `skill-creator` - anthropics/skills 由来（`gh skill install` で導入、`metadata.github-*` で `gh skill update` 追従）。新規 skill の作成・既存 skill の改善・eval による性能測定を支援
 
 ## Codex CLI との共用スキル
 
