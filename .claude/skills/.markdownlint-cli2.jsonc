@@ -11,6 +11,7 @@
     "drawio/**",
     "drawio-aws/**",
     "cloudwatch-logs/**",
+    "review-router/**",
     "skill-creator/**",
   ],
 }

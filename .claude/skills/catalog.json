@@ -60,6 +60,13 @@
     "source": "rysk-tanaka/skills"
   },
   {
+    "name": "review-router",
+    "description": "差分を分析して規模・観点に応じたレビューを自動振り分け",
+    "category": "Git ワークフロー",
+    "example": "/review-router develop",
+    "source": "rysk-tanaka/skills"
+  },
+  {
     "name": "drawio",
     "description": "draw.io図表をネイティブ.drawioファイルとして生成（PNG/SVG/PDFエクスポート対応）",
     "category": "図表作成",
