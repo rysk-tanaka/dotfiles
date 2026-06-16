@@ -27,11 +27,6 @@ This file provides global guidance to Claude Code (claude.ai/code) across all pr
 - Follow Conventional Commits when specified
 - Single-line commit messages preferred
 
-## Code Review
-
-- コードレビューはユーザーが明示的に依頼した時のみ実行する。レビューが必要そうでも自律的に起動しない
-- CodeRabbit（`coderabbit` プラグインの `/code-review` skill）を自律的に起動しない。CodeRabbit を使う場合は `/coderabbit:coderabbit-review` を明示呼び出しする
-
 ## Important Instructions
 
 - Do what has been asked; nothing more, nothing less
