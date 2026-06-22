@@ -93,6 +93,13 @@
     "example": "/setup-workflows"
   },
   {
+    "name": "design-doc-yaml",
+    "description": "設計内容をYAMLに集約し診断レビューを経て肥大化しないMarkdown設計書を作成",
+    "category": "設計ドキュメント",
+    "example": "/design-doc-yaml 認証フローの設計",
+    "source": "rysk-tanaka/skills"
+  },
+  {
     "name": "empirical-prompt-tuning",
     "description": "サブエージェントによる実証的プロンプトチューニング（評価→反復改善）",
     "category": "プロンプト改善",

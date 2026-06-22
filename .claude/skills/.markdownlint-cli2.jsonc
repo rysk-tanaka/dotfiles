@@ -12,6 +12,7 @@
     "drawio-aws/**",
     "cloudwatch-logs/**",
     "review-router/**",
+    "design-doc-yaml/**",
     "skill-creator/**",
   ],
 }
