@@ -162,5 +162,6 @@
   "preferredNotifChannel": "terminal_bell",
   "feedbackSurveyState": {
     "lastShownTime": 1754042613598
-  }
+  },
+  "tui": "fullscreen"
 }
