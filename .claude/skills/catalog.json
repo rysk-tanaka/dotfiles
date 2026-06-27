@@ -100,6 +100,13 @@
     "source": "rysk-tanaka/skills"
   },
   {
+    "name": "fix-prose",
+    "description": "コードコメント・ドキュメント内の語彙や言い回しを辞書ルールに従って自動で直す",
+    "category": "文章校正",
+    "example": "/fix-prose docs/ --profile docs",
+    "source": "rysk-tanaka/skills"
+  },
+  {
     "name": "empirical-prompt-tuning",
     "description": "サブエージェントによる実証的プロンプトチューニング（評価→反復改善）",
     "category": "プロンプト改善",

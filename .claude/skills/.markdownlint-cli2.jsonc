@@ -13,6 +13,7 @@
     "cloudwatch-logs/**",
     "review-router/**",
     "design-doc-yaml/**",
+    "fix-prose/**",
     "skill-creator/**",
   ],
 }
