@@ -94,3 +94,15 @@ alias cp="gcp"
 # gnu utils
 # alias sed="gsed"
 # alias grep="ggrep --exclude-dir={venv,node_modules,dist}"
+
+# git: switch/checkout で無視対象ファイルを警告なく上書きさせない
+# （無視対象でも切替先が追跡しているファイルがあると、デフォルトは黙って上書きする）
+# 上書きして通したい時: command git switch --overwrite-ignore <branch>
+git() {
+  if [[ "$1" == "switch" || "$1" == "checkout" ]]; then
+    local sub="$1"; shift
+    command git "$sub" --no-overwrite-ignore "$@"
+  else
+    command git "$@"
+  fi
+}
