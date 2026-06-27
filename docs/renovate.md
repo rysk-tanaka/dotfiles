@@ -43,7 +43,7 @@
 
 各フィールドの説明。
 
-- `extends` - `config:recommended` で推奨プリセットを適用（range更新なし等）
+- `extends` - `config:recommended` で推奨プリセットを適用（range更新なし等）。`group:allNonMajor` で minor / patch / digest 更新を 1 PR に集約し、major のみ個別 PR とする（`prHourlyLimit` のデフォルト 2 件/時に小粒な更新が詰まって後回しになるのを防ぐ）
 - `enabledManagers` - 有効にするマネージャを限定。対応しているマネージャは以下の3つ
   - `github-actions` - `.github/workflows/` 内のアクションバージョン
   - `mise` - `.config/mise/config.toml` のツールバージョン
