@@ -44,6 +44,9 @@ zoxide = "0.9.9"
 
 # github: tools
 "github:rysk-tanaka/csvr" = "0.2.0"
+# Apple Intelligence backend for auto-commit/suggest-branch; release ships arm64 macOS only,
+# so gate with os to keep `mise install` working on Intel macOS / Linux clones
+"github:rysk-tanaka/rintel" = { version = "0.2.0", os = ["macos/arm64"] }
 
 # npm: tools
 "npm:aws-cdk" = "2.1107.0"

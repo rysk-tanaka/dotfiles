@@ -3,22 +3,26 @@
 #MISE dir="{{cwd}}"
 #USAGE arg "[base_branch]" help="Base branch to compare against (default: main)"
 #USAGE flag "--codex" help="Use Codex CLI instead of Claude Code"
+#USAGE flag "--rintel" help="Use Apple Intelligence (Foundation Models) via rintel"
 
 set -euo pipefail
 
 DOTFILES="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
 USE_CODEX="${usage_codex:-false}"
+USE_RINTEL="${usage_rintel:-false}"
+
+if [[ "$USE_CODEX" == "true" && "$USE_RINTEL" == "true" ]]; then
+    echo "Error: --codex and --rintel are mutually exclusive" >&2
+    exit 1
+fi
 
 if ! command -v jq &>/dev/null; then
     echo "Error: jq command not found. Run 'mise install' to install dependencies." >&2
     exit 1
 fi
 
-if [[ "$USE_CODEX" == "true" ]]; then
-    if ! command -v codex &>/dev/null; then
-        echo "Error: codex command not found" >&2
-        exit 1
-    fi
+# Codex and rintel backends both need a timeout wrapper
+if [[ "$USE_CODEX" == "true" || "$USE_RINTEL" == "true" ]]; then
     if command -v timeout &>/dev/null; then
         TIMEOUT_CMD="timeout"
     elif command -v gtimeout &>/dev/null; then
@@ -27,7 +31,20 @@ if [[ "$USE_CODEX" == "true" ]]; then
         echo "Error: timeout command not found. Run 'brew install coreutils'." >&2
         exit 1
     fi
+fi
+
+if [[ "$USE_CODEX" == "true" ]]; then
+    if ! command -v codex &>/dev/null; then
+        echo "Error: codex command not found" >&2
+        exit 1
+    fi
     SKILL_PATH="${DOTFILES}/.codex/skills/suggest-branch/SKILL.md"
+elif [[ "$USE_RINTEL" == "true" ]]; then
+    if ! command -v rintel &>/dev/null; then
+        echo "Error: rintel command not found. rintel is mise-managed on macOS arm64 only; on a supported host run 'mise install'." >&2
+        exit 1
+    fi
+    SKILL_PATH="${DOTFILES}/.claude/skills/suggest-branch/SKILL.md"
 else
     if ! command -v claude &>/dev/null; then
         echo "Error: claude command not found" >&2
@@ -84,6 +101,65 @@ if [[ "$USE_CODEX" == "true" ]]; then
         exit 1
     fi
     RESULT=$(cat "$OUTFILE")
+elif [[ "$USE_RINTEL" == "true" ]]; then
+    # rintel --schema uses Foundation Models' guided generation, which constrains
+    # output to the schema and eliminates the small model's invalid-JSON failures
+    # (value-level example-parroting is handled separately below by stripping the
+    # example block). The downstream fence-strip + jq parse still runs as a
+    # backend-agnostic safety net. Git data is passed via --file (a temp file),
+    # not embedded in argv, so large diffs don't hit ARG_MAX and the diff isn't
+    # exposed in the process list. rintel rejects --system values starting with
+    # '-' (the frontmatter '---'), so pass it via the --system= form.
+    SCHEMA_FILE=$(mktemp)
+    GITDATA_FILE=$(mktemp)
+    ERRFILE=$(mktemp)
+    trap 'rm -f "$SCHEMA_FILE" "$GITDATA_FILE" "$ERRFILE"' EXIT
+    printf '%s' "$GIT_DATA" > "$GITDATA_FILE"
+    cat > "$SCHEMA_FILE" <<'SCHEMA'
+{
+  "type": "object",
+  "required": ["candidates"],
+  "properties": {
+    "candidates": {
+      "type": "array",
+      "description": "2-4 branch name candidates",
+      "minItems": 2,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "name": {"type": "string", "description": "Branch name in English kebab-case, e.g. feature/add-foo or fix/bar"},
+          "description": {"type": "string", "description": "候補の説明（日本語）"}
+        }
+      }
+    }
+  }
+}
+SCHEMA
+    # Strip the literal ```json example block from the system prompt: the small
+    # model otherwise copies the example values verbatim (e.g. feature/add-user-auth).
+    # The schema and the naming-rule prose enforce structure instead.
+    # Assumes SKILL.md contains exactly one ```json block (the example output);
+    # if more are added, narrow this pattern so the system prompt isn't broken.
+    RINTEL_SYSTEM=$(sed '/^```json/,/^```/d' "$SKILL_PATH")
+    RINTEL_OK=false
+    for attempt in 1 2; do
+        if RESULT=$("$TIMEOUT_CMD" -k 5 30 rintel ask \
+            --system="$RINTEL_SYSTEM" \
+            --schema="$SCHEMA_FILE" \
+            -f "$GITDATA_FILE" \
+            -- "添付ファイルの git データを分析してブランチ名候補を生成してください。" 2>"$ERRFILE"); then
+            RINTEL_OK=true
+            break
+        fi
+        [[ $attempt -lt 2 ]] && echo "rintel ask failed (attempt $attempt/2), retrying..." >&2
+    done
+    if [[ "$RINTEL_OK" != "true" ]]; then
+        echo "Error: rintel ask failed after retries" >&2
+        cat "$ERRFILE" >&2
+        exit 1
+    fi
 else
     RESULT=$(printf '%s' "$PROMPT" | claude -p \
         --model haiku \
