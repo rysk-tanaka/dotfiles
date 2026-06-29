@@ -41,7 +41,7 @@ if [[ "$USE_CODEX" == "true" ]]; then
     SKILL_PATH="${DOTFILES}/.codex/skills/auto-commit/SKILL.md"
 elif [[ "$USE_RINTEL" == "true" ]]; then
     if ! command -v rintel &>/dev/null; then
-        echo "Error: rintel command not found. Build & install it from the rintel repo: cargo install --path apps/cli" >&2
+        echo "Error: rintel command not found. Run 'mise install' to install it." >&2
         exit 1
     fi
     SKILL_PATH="${DOTFILES}/.claude/skills/auto-commit/SKILL.md"
@@ -100,12 +100,14 @@ if [[ "$USE_CODEX" == "true" ]]; then
     fi
     RESULT=$(cat "$OUTFILE")
 elif [[ "$USE_RINTEL" == "true" ]]; then
-    # rintel --schema uses Foundation Models' guided generation, which guarantees
-    # schema-conforming JSON and eliminates the small model's invalid-JSON and
-    # example-parroting failures. The language guardrail still rejects Japanese
-    # prose mixed with <git-data> XML tags, so use a plain delimiter. rintel also
-    # rejects -s values starting with '-' (frontmatter '---'), so pass the system
-    # prompt via the --system= form and -- before the prompt.
+    # rintel --schema uses Foundation Models' guided generation, which constrains
+    # output to the schema and eliminates the small model's invalid-JSON failures
+    # (value-level example-parroting is handled separately below by stripping the
+    # example block). The downstream fence-strip + jq parse still runs as a
+    # backend-agnostic safety net. The language guardrail rejects Japanese prose
+    # mixed with <git-data> XML tags, so use a plain delimiter. rintel rejects
+    # --system values starting with '-' (the frontmatter '---'), so pass it via
+    # the --system= form; '--' then terminates options before the positional prompt.
     RINTEL_PROMPT="以下の git データを分析してコミットメッセージ候補を生成してください。
 
 git データ:
