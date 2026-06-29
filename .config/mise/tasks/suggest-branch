@@ -41,7 +41,7 @@ if [[ "$USE_CODEX" == "true" ]]; then
     SKILL_PATH="${DOTFILES}/.codex/skills/suggest-branch/SKILL.md"
 elif [[ "$USE_RINTEL" == "true" ]]; then
     if ! command -v rintel &>/dev/null; then
-        echo "Error: rintel command not found. Run 'mise install' to install it." >&2
+        echo "Error: rintel command not found. rintel is mise-managed on macOS arm64 only; on a supported host run 'mise install'." >&2
         exit 1
     fi
     SKILL_PATH="${DOTFILES}/.claude/skills/suggest-branch/SKILL.md"
@@ -106,17 +106,15 @@ elif [[ "$USE_RINTEL" == "true" ]]; then
     # output to the schema and eliminates the small model's invalid-JSON failures
     # (value-level example-parroting is handled separately below by stripping the
     # example block). The downstream fence-strip + jq parse still runs as a
-    # backend-agnostic safety net. The language guardrail rejects Japanese prose
-    # mixed with <git-data> XML tags, so use a plain delimiter. rintel rejects
-    # --system values starting with '-' (the frontmatter '---'), so pass it via
-    # the --system= form; '--' then terminates options before the positional prompt.
-    RINTEL_PROMPT="以下の git データを分析してブランチ名候補を生成してください。
-
-git データ:
-${GIT_DATA}"
+    # backend-agnostic safety net. Git data is passed via --file (a temp file),
+    # not embedded in argv, so large diffs don't hit ARG_MAX and the diff isn't
+    # exposed in the process list. rintel rejects --system values starting with
+    # '-' (the frontmatter '---'), so pass it via the --system= form.
     SCHEMA_FILE=$(mktemp)
+    GITDATA_FILE=$(mktemp)
     ERRFILE=$(mktemp)
-    trap 'rm -f "$SCHEMA_FILE" "$ERRFILE"' EXIT
+    trap 'rm -f "$SCHEMA_FILE" "$GITDATA_FILE" "$ERRFILE"' EXIT
+    printf '%s' "$GIT_DATA" > "$GITDATA_FILE"
     cat > "$SCHEMA_FILE" <<'SCHEMA'
 {
   "type": "object",
@@ -148,7 +146,8 @@ SCHEMA
         if RESULT=$("$TIMEOUT_CMD" -k 5 30 rintel ask \
             --system="$RINTEL_SYSTEM" \
             --schema="$SCHEMA_FILE" \
-            -- "$RINTEL_PROMPT" 2>"$ERRFILE"); then
+            -f "$GITDATA_FILE" \
+            -- "添付ファイルの git データを分析してブランチ名候補を生成してください。" 2>"$ERRFILE"); then
             RINTEL_OK=true
             break
         fi
