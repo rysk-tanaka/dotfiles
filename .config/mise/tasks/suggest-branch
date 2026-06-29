@@ -140,6 +140,8 @@ SCHEMA
     # Strip the literal ```json example block from the system prompt: the small
     # model otherwise copies the example values verbatim (e.g. feature/add-user-auth).
     # The schema and the naming-rule prose enforce structure instead.
+    # Assumes SKILL.md contains exactly one ```json block (the example output);
+    # if more are added, narrow this pattern so the system prompt isn't broken.
     RINTEL_SYSTEM=$(sed '/^```json/,/^```/d' "$SKILL_PATH")
     RINTEL_OK=false
     for attempt in 1 2; do
