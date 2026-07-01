@@ -117,12 +117,27 @@ else
     fi
 
     echo "Restoring gist skill: ${name} (gist:${gist_id})"
-    mkdir -p "${TARGET_DIR}/${name}"
+    # gist JSON は 1 回だけ取得し、ファイルごとの再取得 (N+1) を避ける。
+    gist_json="$(gh api "gists/${gist_id}")"
+
+    # 一時ディレクトリへ全ファイルを書き出してから本配置する。存在ゲートとなる
+    # SKILL.md を最後に mv することで、途中失敗時はゲートが立たず次回再復元される
+    # (空/部分的な SKILL.md が残って復元を恒久的に塞ぐのを防ぐ)。
+    staging="$(mktemp -d)"
     while IFS= read -r fname; do
       [[ -z "${fname}" ]] && continue
-      gh api "gists/${gist_id}" --jq ".files[\"${fname}\"].content" \
-        > "${TARGET_DIR}/${name}/${fname}"
-    done < <(gh api "gists/${gist_id}" --jq '.files | keys[]')
+      jq -r --arg f "${fname}" '.files[$f].content' <<<"${gist_json}" \
+        > "${staging}/${fname}"
+    done < <(jq -r '.files | keys[]' <<<"${gist_json}")
+
+    dest="${TARGET_DIR}/${name}"
+    mkdir -p "${dest}"
+    for f in "${staging}"/*; do
+      [[ "$(basename "${f}")" == "SKILL.md" ]] && continue
+      mv -f "${f}" "${dest}/"
+    done
+    mv -f "${staging}/SKILL.md" "${dest}/SKILL.md"
+    rmdir "${staging}" 2>/dev/null || true
     gist_installed=$((gist_installed + 1))
   done < <(jq -r '.[]
     | select(.source != null and (.source | startswith("gist:")))
