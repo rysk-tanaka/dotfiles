@@ -15,5 +15,6 @@
     "design-doc-yaml/**",
     "fix-prose/**",
     "skill-creator/**",
+    "apple-container/**",
   ],
 }

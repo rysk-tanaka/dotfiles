@@ -66,9 +66,11 @@ if (( removed > 0 )); then
   echo "Removed ${removed} stale symlink(s)"
 fi
 
-# 外部 skill (catalog.json の source が owner/repo 形式) を gh skill install で復元。
-# 実体は gitignore されるため、初回 clone 直後やマシン移行時にここで復元する。
-# rysk-tanaka/skills は上の symlink で扱うため除外。pin が在れば --pin で固定する。
+# 外部 skill (catalog.json の source) を復元。実体は gitignore されるため、初回
+# clone 直後やマシン移行時にここで復元する。source が owner/repo 形式のものは
+# gh skill install、gist:<id> 形式のものは gh api (gh skill install が gist 非対応
+# のため) で取得する。rysk-tanaka/skills は上の symlink で扱うため除外。
+# pin が在れば --pin で固定する。
 CATALOG="${TARGET_DIR}/catalog.json"
 
 if [[ ! -f "${CATALOG}" ]]; then
@@ -100,4 +102,33 @@ else
     | [.name, .source, (.pin // "")] | @tsv' "${CATALOG}")
 
   echo "External skills: ${installed} installed, ${skipped} already present"
+
+  # gist 由来の skill (source が "gist:<id>" 形式) は gh skill install が gist を
+  # 扱えないため gh api で復元する。gist はフラット構造なので全ファイルを書き出す。
+  gist_installed=0
+  gist_skipped=0
+  while IFS=$'\t' read -r name gist_id; do
+    [[ -z "${name}" || -z "${gist_id}" ]] && continue
+
+    # 既存 (SKILL.md が在る) skill は再取得しない (更新は手動で gist を pull し直す)。
+    if [[ -f "${TARGET_DIR}/${name}/SKILL.md" ]]; then
+      gist_skipped=$((gist_skipped + 1))
+      continue
+    fi
+
+    echo "Restoring gist skill: ${name} (gist:${gist_id})"
+    mkdir -p "${TARGET_DIR}/${name}"
+    while IFS= read -r fname; do
+      [[ -z "${fname}" ]] && continue
+      gh api "gists/${gist_id}" --jq ".files[\"${fname}\"].content" \
+        > "${TARGET_DIR}/${name}/${fname}"
+    done < <(gh api "gists/${gist_id}" --jq '.files | keys[]')
+    gist_installed=$((gist_installed + 1))
+  done < <(jq -r '.[]
+    | select(.source != null and (.source | startswith("gist:")))
+    | [.name, (.source | ltrimstr("gist:"))] | @tsv' "${CATALOG}")
+
+  if (( gist_installed > 0 || gist_skipped > 0 )); then
+    echo "Gist skills: ${gist_installed} restored, ${gist_skipped} already present"
+  fi
 fi
