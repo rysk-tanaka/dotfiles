@@ -121,12 +121,13 @@ else
     gist_json="$(gh api "gists/${gist_id}")"
 
     # 一時ディレクトリへ全ファイルを書き出してから本配置する。存在ゲートとなる
-    # SKILL.md を最後に mv することで、途中失敗時はゲートが立たず次回再復元される
-    # (空/部分的な SKILL.md が残って復元を恒久的に塞ぐのを防ぐ)。
+    # SKILL.md を最後に mv することで、他ファイルが揃う前にゲートが立つのを防ぎ、
+    # 途中失敗時はゲートが立たず次回再復元される。
+    # content 抽出は jq -j (改行を付与しない) で gist をそのままバイト再現する。
     staging="$(mktemp -d)"
     while IFS= read -r fname; do
       [[ -z "${fname}" ]] && continue
-      jq -r --arg f "${fname}" '.files[$f].content' <<<"${gist_json}" \
+      jq -j --arg f "${fname}" '.files[$f].content' <<<"${gist_json}" \
         > "${staging}/${fname}"
     done < <(jq -r '.files | keys[]' <<<"${gist_json}")
 
