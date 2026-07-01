@@ -131,12 +131,14 @@ else
         > "${staging}/${fname}"
     done < <(jq -r '.files | keys[]' <<<"${gist_json}")
 
+    # keys[] を再走査して名前で mv する (glob は dotglob 無効だと .gitignore 等の
+    # dotfile を取りこぼし、SKILL.md だけ配置されてゲートが立ち恒久欠落するため)。
     dest="${TARGET_DIR}/${name}"
     mkdir -p "${dest}"
-    for f in "${staging}"/*; do
-      [[ "$(basename "${f}")" == "SKILL.md" ]] && continue
-      mv -f "${f}" "${dest}/"
-    done
+    while IFS= read -r fname; do
+      [[ -z "${fname}" || "${fname}" == "SKILL.md" ]] && continue
+      mv -f "${staging}/${fname}" "${dest}/${fname}"
+    done < <(jq -r '.files | keys[]' <<<"${gist_json}")
     mv -f "${staging}/SKILL.md" "${dest}/SKILL.md"
     rmdir "${staging}" 2>/dev/null || true
     gist_installed=$((gist_installed + 1))
