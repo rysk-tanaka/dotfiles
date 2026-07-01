@@ -9,6 +9,11 @@ export GITU_SHOW_EDITOR="zed"
 # with devcontainers sharing the same worktree via bind mount.
 export GIT_OPTIONAL_LOCKS=0
 
+# Skip auto_updates casks in `brew upgrade`.
+# These update themselves in-app; letting brew touch them causes sudo prompts
+# and Caskroom staging conflicts on already-running apps.
+export HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS=1
+
 # GitHub token for MCP server (gh auth token via OAuth, not PAT)
 # - MCP-specific var to avoid interfering with gh CLI's own token resolution
 # - No --hostname flag: returns active account's token, respects `gh auth switch`
