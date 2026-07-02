@@ -48,6 +48,10 @@ zoxide = "0.9.9"
 # so gate with os to keep `mise install` working on Intel macOS / Linux clones
 "github:rysk-tanaka/rintel" = { version = "0.2.0", os = ["macos/arm64"] }
 
+# ubi: tools
+# global wakatime-cli stops claude-code-wakatime's unauthenticated GitHub API version polling
+"ubi:wakatime/wakatime-cli" = "2.21.4"
+
 # npm: tools
 "npm:aws-cdk" = "2.1107.0"
 "npm:cc-sdd" = "2.1.1"
