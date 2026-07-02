@@ -1,4 +1,5 @@
 # CLI tools
+brew "container"
 brew "coreutils"
 brew "fastfetch"
 brew "gnu-sed"
