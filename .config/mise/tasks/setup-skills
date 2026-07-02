@@ -118,7 +118,27 @@ else
 
     echo "Restoring gist skill: ${name} (gist:${gist_id})"
     # gist JSON は 1 回だけ取得し、ファイルごとの再取得 (N+1) を避ける。
-    gist_json="$(gh api "gists/${gist_id}")"
+    if ! gist_json="$(gh api "gists/${gist_id}")"; then
+      echo "WARN: gist:${gist_id} (${name}) の取得に失敗、skip" >&2
+      continue
+    fi
+
+    # 検証系ガードは staging 作成前に置く (skip 経路で一時ディレクトリを作らず
+    # リークを避けるため)。1MB 超のファイル (.files[].truncated) や 300 ファイル超
+    # (top-level .truncated) は content が切り詰められ完全復元できないので skip する
+    # (完全版は手動 git clone が必要)。
+    if [[ "$(jq -r '.truncated' <<<"${gist_json}")" == "true" ]] \
+       || jq -e 'any(.files[]; .truncated)' <<<"${gist_json}" >/dev/null; then
+      echo "WARN: gist:${gist_id} (${name}) は truncated、skip (手動 clone が必要)" >&2
+      continue
+    fi
+
+    # SKILL.md を欠く gist は skill として不正。最終 mv で失敗し dest が半壊するのを
+    # 避けるため事前に skip する。
+    if ! jq -e '.files["SKILL.md"]' <<<"${gist_json}" >/dev/null; then
+      echo "WARN: gist:${gist_id} (${name}) に SKILL.md が無い、skip" >&2
+      continue
+    fi
 
     # 一時ディレクトリへ全ファイルを書き出してから本配置する。存在ゲートとなる
     # SKILL.md を最後に mv することで、他ファイルが揃う前にゲートが立つのを防ぎ、
