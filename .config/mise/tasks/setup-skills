@@ -66,9 +66,11 @@ if (( removed > 0 )); then
   echo "Removed ${removed} stale symlink(s)"
 fi
 
-# 外部 skill (catalog.json の source が owner/repo 形式) を gh skill install で復元。
-# 実体は gitignore されるため、初回 clone 直後やマシン移行時にここで復元する。
-# rysk-tanaka/skills は上の symlink で扱うため除外。pin が在れば --pin で固定する。
+# 外部 skill (catalog.json の source) を復元。実体は gitignore されるため、初回
+# clone 直後やマシン移行時にここで復元する。source が owner/repo 形式のものは
+# gh skill install、gist:<id> 形式のものは gh api (gh skill install が gist 非対応
+# のため) で取得する。rysk-tanaka/skills は上の symlink で扱うため除外。
+# pin が在れば --pin で固定する。
 CATALOG="${TARGET_DIR}/catalog.json"
 
 if [[ ! -f "${CATALOG}" ]]; then
@@ -100,4 +102,71 @@ else
     | [.name, .source, (.pin // "")] | @tsv' "${CATALOG}")
 
   echo "External skills: ${installed} installed, ${skipped} already present"
+
+  # gist 由来の skill (source が "gist:<id>" 形式) は gh skill install が gist を
+  # 扱えないため gh api で復元する。gist はフラット構造なので全ファイルを書き出す。
+  gist_installed=0
+  gist_skipped=0
+  while IFS=$'\t' read -r name gist_id; do
+    [[ -z "${name}" || -z "${gist_id}" ]] && continue
+
+    # 既存 (SKILL.md が在る) skill は再取得しない (更新は手動で gist を pull し直す)。
+    if [[ -f "${TARGET_DIR}/${name}/SKILL.md" ]]; then
+      gist_skipped=$((gist_skipped + 1))
+      continue
+    fi
+
+    echo "Restoring gist skill: ${name} (gist:${gist_id})"
+    # gist JSON は 1 回だけ取得し、ファイルごとの再取得 (N+1) を避ける。
+    if ! gist_json="$(gh api "gists/${gist_id}")"; then
+      echo "WARN: gist:${gist_id} (${name}) の取得に失敗、skip" >&2
+      continue
+    fi
+
+    # 検証系ガードは staging 作成前に置く (skip 経路で一時ディレクトリを作らず
+    # リークを避けるため)。1MB 超のファイル (.files[].truncated) や 300 ファイル超
+    # (top-level .truncated) は content が切り詰められ完全復元できないので skip する
+    # (完全版は手動 git clone が必要)。
+    if [[ "$(jq -r '.truncated' <<<"${gist_json}")" == "true" ]] \
+       || jq -e 'any(.files[]; .truncated)' <<<"${gist_json}" >/dev/null; then
+      echo "WARN: gist:${gist_id} (${name}) は truncated、skip (手動 clone が必要)" >&2
+      continue
+    fi
+
+    # SKILL.md を欠く gist は skill として不正。最終 mv で失敗し dest が半壊するのを
+    # 避けるため事前に skip する。
+    if ! jq -e '.files["SKILL.md"]' <<<"${gist_json}" >/dev/null; then
+      echo "WARN: gist:${gist_id} (${name}) に SKILL.md が無い、skip" >&2
+      continue
+    fi
+
+    # 一時ディレクトリへ全ファイルを書き出してから本配置する。存在ゲートとなる
+    # SKILL.md を最後に mv することで、他ファイルが揃う前にゲートが立つのを防ぎ、
+    # 途中失敗時はゲートが立たず次回再復元される。
+    # content 抽出は jq -j (改行を付与しない) で gist をそのままバイト再現する。
+    staging="$(mktemp -d)"
+    while IFS= read -r fname; do
+      [[ -z "${fname}" ]] && continue
+      jq -j --arg f "${fname}" '.files[$f].content' <<<"${gist_json}" \
+        > "${staging}/${fname}"
+    done < <(jq -r '.files | keys[]' <<<"${gist_json}")
+
+    # keys[] を再走査して名前で mv する (glob は dotglob 無効だと .gitignore 等の
+    # dotfile を取りこぼし、SKILL.md だけ配置されてゲートが立ち恒久欠落するため)。
+    dest="${TARGET_DIR}/${name}"
+    mkdir -p "${dest}"
+    while IFS= read -r fname; do
+      [[ -z "${fname}" || "${fname}" == "SKILL.md" ]] && continue
+      mv -f "${staging}/${fname}" "${dest}/${fname}"
+    done < <(jq -r '.files | keys[]' <<<"${gist_json}")
+    mv -f "${staging}/SKILL.md" "${dest}/SKILL.md"
+    rmdir "${staging}" 2>/dev/null || true
+    gist_installed=$((gist_installed + 1))
+  done < <(jq -r '.[]
+    | select(.source != null and (.source | startswith("gist:")))
+    | [.name, (.source | ltrimstr("gist:"))] | @tsv' "${CATALOG}")
+
+  if (( gist_installed > 0 || gist_skipped > 0 )); then
+    echo "Gist skills: ${gist_installed} restored, ${gist_skipped} already present"
+  fi
 fi

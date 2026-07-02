@@ -87,6 +87,12 @@
     "example": "/read-screen s:2"
   },
   {
+    "name": "apple-container",
+    "description": "Apple Silicon Mac で動く軽量 Linux コンテナランタイム container CLI の利用者向けリファレンス（run/build/image/machine/network/volume/DNS/設定）",
+    "category": "コンテナ",
+    "source": "gist:306e75ce54a24379b4b505cf9c4df0cd"
+  },
+  {
     "name": "setup-workflows",
     "description": "rysk-tanaka/workflows の reusable workflow を呼び出すラッパーワークフローを対話的に生成",
     "category": "GitHub ワークフロー",
