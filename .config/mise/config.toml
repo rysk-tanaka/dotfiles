@@ -66,6 +66,9 @@ zoxide = "0.9.9"
 DOTFILES_PATH = "/Users/rysk/Repositories/rysk/dotfiles"
 
 [tasks.lint]
+# Global tasks default to config_root ($HOME) as cwd; without this, running
+# `mise run lint` with no paths would ruff-format the entire home directory
+dir = "{{cwd}}"
 usage = 'arg "[paths]" var=#true help="Lint target paths"'
 run = [
   "uv run --with ruff -- ruff format ${usage_paths:-}",
