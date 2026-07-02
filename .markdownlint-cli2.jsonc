@@ -9,6 +9,8 @@
     "**/node_modules/**",
     "**/target/**",
     "**/.venv/**",
+    "**/venv/**",
+    "**/.terraform/**",
     "**/build/**",
     ".codex/skills/**",
     ".tmp/**",
