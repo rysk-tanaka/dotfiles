@@ -147,8 +147,10 @@ MacOS用の初期セットアップを行います。
     `.aws/config` のように公開できないファイルはtranscryptで透過暗号化してコミットしています。symlinkを張る前に、手順2でインストールした1Password CLIを使い、1Passwordに保存したパスワードで復号を有効化します。
 
     ```bash
-    transcrypt -c aes-256-cbc -p "$(op read 'op://Personal/dotfiles-transcrypt/password')" --yes
+    transcrypt -c aes-256-cbc --set-openssl-path=/usr/bin/openssl -p "$(op read 'op://Personal/dotfiles-transcrypt/password')" --yes
     ```
+
+    `--set-openssl-path` は macOS 標準の LibreSSL を使う指定です。Homebrew の OpenSSL 3 は transcrypt が使う鍵導出方式（`EVP_BytesToKey`）を非推奨として扱い、`git status` のたびに警告を stderr へ出すため、警告を出さない LibreSSL を明示しています。transcrypt は `-md MD5` を明示指定しているため、どちらの実装でも暗号文はバイト一致します。
 
     注意点として、このリポジトリはprekのpre-commitフックが既に`.git/hooks/pre-commit`を使用しているため、transcryptの平文コミット防止フックは`.git/hooks/pre-commit-crypt`に保存されるだけで自動では有効化されません。暗号化自体はclean/smudgeフィルタが行うため、このフックが無くても暗号化には影響ありません。また、上記のtranscrypt実行時に`filter.crypt.required true`が自動設定されるため、フィルタが動作しない状態でのコミットはgit自体が失敗させます。手動での`git config`設定は不要です。
 
