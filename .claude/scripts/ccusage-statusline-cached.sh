@@ -13,7 +13,10 @@
 #   }
 set -euo pipefail
 
-ttl_seconds=3
+# Override via env to tune without editing the script; the default suits a
+# short cost-display latency at the cost of frequent refreshes in a busy
+# session (a cold ccusage run is ~10s, so a larger TTL lowers that churn)
+ttl_seconds="${CCUSAGE_STATUSLINE_TTL:-3}"
 # A cold ccusage run takes ~10s (full JSONL parse), so anything shorter
 # would reclaim the lock of a refresh that is still legitimately running
 lock_stale_seconds=30
@@ -58,8 +61,10 @@ refresh_cache() {
     if command -v ccusage &>/dev/null \
         && printf '%s' "$input" | ccusage statusline >"$tmp" 2>/dev/null \
         && [[ -s "$tmp" ]]; then
-        # Atomic replace so a concurrent reader never sees a partial line
-        mv -f "$tmp" "$cache_file"
+        # Atomic replace so a concurrent reader never sees a partial line.
+        # `|| rm -f` keeps a failed mv (disk full, permissions) from
+        # aborting under set -e before the lock is released below
+        mv -f "$tmp" "$cache_file" || rm -f "$tmp"
     else
         # ccusage missing or failed. `touch` bumps the cache mtime so the
         # TTL throttles retries even while failing, and creates an empty
@@ -69,13 +74,13 @@ refresh_cache() {
         # revalidate); without the mtime bump, a persistent failure would
         # respawn a background refresh on every statusline call
         rm -f "$tmp"
-        touch "$cache_file"
+        touch "$cache_file" || true
     fi
 
-    # Release explicitly: EXIT traps never fire inside the `( ... & )`
-    # background job, so a trap-based release would leak the lock every
-    # refresh. A refresh killed before reaching this line is reclaimed by
-    # the staleness check above
+    # Release the lock. Every mutating op above is guarded with `|| ...`, so
+    # set -e cannot abort the function before this line; the lock is always
+    # released. A refresh SIGKILLed before here is reclaimed by the
+    # staleness check at the top
     rmdir "$lock_dir" 2>/dev/null || true
 
     # Opportunistic cleanup of dead-session caches; slow path only.
