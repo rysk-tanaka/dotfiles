@@ -55,7 +55,7 @@ zoxide = "0.9.9"
 
 # npm: tools
 "npm:aws-cdk" = "2.1128.1"
-"npm:cc-sdd" = "2.1.1"
+"npm:cc-sdd" = "3.0.2"
 "npm:ccmanager" = "3.12.6"
 "npm:ccusage" = "18.0.11"                     # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
 "npm:@ccusage/codex" = "18.0.11"              # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
