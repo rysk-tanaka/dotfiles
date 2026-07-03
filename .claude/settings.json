@@ -132,7 +132,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "ccusage statusline"
+    "command": "bash /Users/rysk/.claude/scripts/ccusage-statusline-cached.sh"
   },
   "enabledPlugins": {
     "claude-code-wakatime@wakatime": true,
