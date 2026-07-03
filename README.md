@@ -190,7 +190,7 @@ MacOS用の初期セットアップを行います。
 
     ```bash
     ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gh-token-env.plist ~/Library/LaunchAgents/
-    launchctl load ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
     ```
 
 4. Docker SSH設定の生成
