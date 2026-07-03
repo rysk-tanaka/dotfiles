@@ -32,6 +32,7 @@ zoxide = "0.9.9"
 "aqua:anthropics/claude-code" = "2.1.199"
 "aqua:cli/cli" = "2.95.0"                  # gh: bare registry entry not tracked by Renovate
 "aqua:ducaale/xh" = "0.26.1"
+"aqua:google-antigravity/antigravity-cli" = "1.0.15"
 "aqua:google/osv-scanner" = "2.4.0"
 "aqua:j178/prek" = "0.4.5"
 "aqua:suzuki-shunsuke/ghalint" = "1.5.6"

@@ -29,6 +29,9 @@ MacOS用の初期セットアップを行います。
 │       ├── auto-commit/              # コミットメッセージ自動生成
 │       ├── suggest-branch/           # ブランチ名提案
 │       └── cloudwatch-logs/          # CloudWatchログ取得（~/.claude/skills/cloudwatch-logs/cloudwatch_logs.py を呼び出す）
+├── .gemini/                          # Antigravity CLI設定
+│   └── config/
+│       └── mcp_config.json           # MCPサーバー設定（config.json等の実行時状態は管理対象外）
 ├── .claude/                          # Claude Code設定
 │   ├── CLAUDE.md                     # グローバル指示
 │   ├── rules/                        # 条件付きルール（pathsフロントマターでスコープ）
@@ -159,6 +162,7 @@ MacOS用の初期セットアップを行います。
     ```bash
     mkdir -p ~/.aws
     mkdir -p ~/.codex
+    mkdir -p ~/.gemini/config
     mkdir -p ~/.claude
     mkdir -p ~/.config/ccmanager
     mkdir -p ~/.config/cmux
@@ -180,6 +184,7 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.codex/important.config.toml ~/.codex/important.config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.codex/skills ~/.codex/skills
     ln -sf ~/.claude/CLAUDE.md ~/.codex/AGENTS.md
+    ln -sf ~/Repositories/rysk/dotfiles/.gemini/config/mcp_config.json ~/.gemini/config/mcp_config.json
     ln -sf ~/Repositories/rysk/dotfiles/.claude/settings.json ~/.claude/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.claude/CLAUDE.md ~/.claude/CLAUDE.md
     ln -sf ~/Repositories/rysk/dotfiles/.claude/commands ~/.claude/commands
