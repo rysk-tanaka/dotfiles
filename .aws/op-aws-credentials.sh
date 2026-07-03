@@ -13,7 +13,7 @@
 # Terraform や SDK は alias を経由せず認証情報チェーンを直接解決するので、plugin では認証情報が渡らない。
 # credential_process なら AWS の config 側で解決されるため、
 # aws CLI / Terraform / SDK のすべてが一貫して 1Password から取得できる。
-set -eu
+set -euo pipefail
 
 if [ $# -ne 2 ]; then
   echo "Usage: $(basename "$0") <item-name> <vault-name>" >&2
@@ -23,7 +23,15 @@ fi
 item_name=$1
 vault_name=$2
 
-op item get "$item_name" --vault "$vault_name" --format json \
+result=$(op item get "$item_name" --vault "$vault_name" --format json \
   | jq '{Version: 1,
          AccessKeyId:     (.fields[] | select(.label=="access key id")     | .value),
-         SecretAccessKey: (.fields[] | select(.label=="secret access key") | .value)}'
+         SecretAccessKey: (.fields[] | select(.label=="secret access key") | .value)}')
+
+# ラベル不一致だと jq は何も出力せず exit 0 になるため、欠落を明示的に失敗させる
+if [ -z "$result" ]; then
+  echo "Error: 'access key id' / 'secret access key' field not found in item '$item_name'" >&2
+  exit 1
+fi
+
+printf '%s\n' "$result"

@@ -150,7 +150,7 @@ MacOS用の初期セットアップを行います。
     transcrypt -c aes-256-cbc -p "$(op read 'op://Personal/dotfiles-transcrypt/password')" --yes
     ```
 
-    注意点として、このリポジトリはprekのpre-commitフックが既に`.git/hooks/pre-commit`を使用しているため、transcryptの平文コミット防止フックは`.git/hooks/pre-commit-crypt`に保存されるだけで自動では有効化されません。暗号化自体はclean/smudgeフィルタが行うため、このフックが無くても暗号化には影響ありません。
+    注意点として、このリポジトリはprekのpre-commitフックが既に`.git/hooks/pre-commit`を使用しているため、transcryptの平文コミット防止フックは`.git/hooks/pre-commit-crypt`に保存されるだけで自動では有効化されません。暗号化自体はclean/smudgeフィルタが行うため、このフックが無くても暗号化には影響ありません。また、上記のtranscrypt実行時に`filter.crypt.required true`が自動設定されるため、フィルタが動作しない状態でのコミットはgit自体が失敗させます。手動での`git config`設定は不要です。
 
     ディレクトリの作成
 
