@@ -11,6 +11,7 @@ brew "mise"
 brew "pkg-config"
 brew "poppler" # PDF utilities (pdftoppm/pdfinfo) used by Claude Code to read PDFs
 brew "telnet"
+brew "transcrypt"
 cask "codex"
 
 # Shell plugins (required by .zshrc)
