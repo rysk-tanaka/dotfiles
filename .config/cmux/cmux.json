@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
+  "schemaVersion": 1,
+
+  // This file uses JSON with comments (JSONC).
+  // Settings written here are file-managed; removed keys fall back to Settings UI values.
+
+  // PR polling hits the GitHub API once per tab. Unauthenticated it exhausts the
+  // per-IP 60 req/h quota behind the Tailscale exit node, so GH_TOKEN is injected
+  // into the GUI session via ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
+  // https://github.com/manaflow-ai/cmux/issues/3136
+  "sidebar" : {
+    "showPullRequests" : true
+  }
+}

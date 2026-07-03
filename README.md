@@ -70,6 +70,8 @@ MacOS用の初期セットアップを行います。
 ├── .config/                          # 各種アプリケーション設定
 │   ├── ccmanager/                    # ccmanagerセッション管理
 │   │   └── config.json               # ccmanager設定
+│   ├── cmux/                         # cmuxターミナル
+│   │   └── cmux.json                 # cmux設定
 │   ├── tmux/                         # tmux設定
 │   │   ├── tmux.conf                 # tmux一般設定
 │   │   └── zed-attach.sh             # Zedターミナル用アタッチスクリプト
@@ -95,6 +97,8 @@ MacOS用の初期セットアップを行います。
 ├── .pre-commit-config.yaml           # pre-commitフック設定
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
 ├── renovate.json                     # Renovate依存関係自動更新設定
+├── launchd/                          # LaunchAgent定義
+│   └── com.rysk.gh-token-env.plist   # GH_TOKENをGUIセッションへ注入
 └── docs/                             # ドキュメント
     ├── ccmanager.md                  # ccmanager導入ガイド
     ├── claude-code.md                # Claude Code設定詳細
@@ -140,10 +144,12 @@ MacOS用の初期セットアップを行います。
     mkdir -p ~/.codex
     mkdir -p ~/.claude
     mkdir -p ~/.config/ccmanager
+    mkdir -p ~/.config/cmux
     mkdir -p ~/.config/ghostty
     mkdir -p ~/.config/git
     mkdir -p ~/.config/tmux
     mkdir -p ~/.config/zed
+    mkdir -p ~/Library/LaunchAgents
     ```
 
     設定ファイルのリンク
@@ -161,6 +167,7 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.claude/rules ~/.claude/rules
     ln -sf ~/Repositories/rysk/dotfiles/.claude/skills ~/.claude/skills
     ln -sf ~/Repositories/rysk/dotfiles/.config/ccmanager/config.json ~/.config/ccmanager/config.json
+    ln -sf ~/Repositories/rysk/dotfiles/.config/cmux/cmux.json ~/.config/cmux/cmux.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/ghostty/config ~/.config/ghostty/config
     ln -sf ~/Repositories/rysk/dotfiles/.config/git/ignore ~/.config/git/ignore
     ln -sf ~/Repositories/rysk/dotfiles/.config/mise ~/.config/mise
@@ -175,6 +182,15 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.zshrc ~/.zshrc
     ln -sf ~/Repositories/rysk/dotfiles/.zshenv ~/.zshenv
     ln -sf ~/Repositories/rysk/dotfiles/.zprofile ~/.zprofile
+    ```
+
+    LaunchAgentの配置
+
+    cmux の PR サイドバーが認証付きで GitHub API をポーリングできるよう、ログイン時に `GH_TOKEN` を GUI セッションへ注入します。詳細は [docs/cmux.md](./docs/cmux.md) を参照してください。
+
+    ```bash
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gh-token-env.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
     ```
 
 4. Docker SSH設定の生成
