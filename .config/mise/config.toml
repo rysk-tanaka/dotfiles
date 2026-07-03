@@ -36,7 +36,7 @@ zoxide = "0.9.9"
 "aqua:google/osv-scanner" = "2.4.0"
 "aqua:j178/prek" = "0.4.5"
 "aqua:suzuki-shunsuke/ghalint" = "1.5.6"
-"aqua:suzuki-shunsuke/pinact" = "3.10.1"
+"aqua:suzuki-shunsuke/pinact" = "4.1.0"
 "aqua:sxyazi/yazi" = "26.5.6"
 "aqua:zizmorcore/zizmor" = "1.26.1"
 
