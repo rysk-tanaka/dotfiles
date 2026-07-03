@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ログイン時に gh の Keychain トークンを GUI セッション環境変数 GH_TOKEN に注入する。
+  Dock から起動される cmux の PR ポーリングを認証付き (5,000 req/h) にするのが目的。
+  トークンは plist には保存されず、毎ログイン時に gh の Keychain から読む。
+  取得できない場合 (未ログイン等) は unsetenv で残留トークンを掃除し Keychain と同期する。
+  `gh auth switch` 後は launchctl kickstart gui/$(id -u)/com.rysk.gh-token-env で再注入するか再ログイン。
+  失敗時のログは /tmp/com.rysk.gh-token-env.err を確認する。
+
+  セキュリティ上の許容事項 (単一ユーザーの Mac 前提):
+    launchctl setenv はスコープをアプリ単位で分けられないため GH_TOKEN は GUI セッション
+    全体へ露出し、GUI から起動した全アプリが参照できる。また setenv 実行中はトークンが
+    argv に載り ps から数ミリ秒観測可能。いずれも launchctl の仕様上回避できないため、
+    gh の OAuth トークンを最小スコープに保つ前提で受け入れる。
+
+  導入:
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
+  解除:
+    launchctl bootout gui/$(id -u)/com.rysk.gh-token-env
+    launchctl unsetenv GH_TOKEN
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.rysk.gh-token-env</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/sh</string>
+        <string>-c</string>
+        <string>export PATH="$HOME/.local/share/mise/shims:/opt/homebrew/bin:/usr/bin:/bin"; t="$(gh auth token)"; if [ -n "$t" ]; then launchctl setenv GH_TOKEN "$t"; else launchctl unsetenv GH_TOKEN; fi</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.rysk.gh-token-env.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.rysk.gh-token-env.err</string>
+</dict>
+</plist>

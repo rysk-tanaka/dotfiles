@@ -11,6 +11,43 @@ Brewfile に登録済み。`brew bundle` でインストールされる。
 
 tap の追加が必要なため、Brewfile に `tap "manaflow-ai/cmux"` を記述している。
 
+## 設定ファイル
+
+`~/.config/cmux/cmux.json`（JSONC）は本リポジトリの `.config/cmux/cmux.json` への symlink。ディレクトリ内に cmux がランタイムファイルを作る可能性があるため、ghostty と同じくファイル単位で symlink する。
+
+```bash
+mkdir -p ~/.config/cmux
+ln -sf ~/Repositories/rysk/dotfiles/.config/cmux/cmux.json ~/.config/cmux/cmux.json
+```
+
+ファイルはホットリロードされる。実ファイルを symlink に差し替えた直後は監視が外れることがあり、反映されない場合は cmux を再起動する。ファイルに書いたキーは file-managed になり、キーを消すと Settings UI の値にフォールバックする。
+
+## PR サイドバーと GitHub API 認証
+
+`sidebar.showPullRequests` はタブごとに GitHub API をポーリングする（[manaflow-ai/cmux#3136](https://github.com/manaflow-ai/cmux/issues/3136)）。未認証だと IP あたり 60回/時の制限を数分で枯渇させ、同じ出口 IP（Tailscale exit node 等）を使う他ツールの GitHub API アクセスを巻き添えにする。
+
+cmux は環境変数 `GH_TOKEN` を読んで認証付き（5,000回/時）でポーリングできるが、Dock から起動される GUI アプリはシェルの env を継承しない。そこで LaunchAgent がログイン時に `gh auth token` で Keychain からトークンを読み、GUI セッションへ注入する。plist の実体は `launchd/com.rysk.gh-token-env.plist`。
+
+```bash
+mkdir -p ~/Library/LaunchAgents
+ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gh-token-env.plist ~/Library/LaunchAgents/
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
+```
+
+symlink 経由の手動投入・実行は検証済み。もしログイン時の自動実行が効かない場合は symlink を実体コピーに置き換える。
+
+```bash
+unlink ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
+cp ~/Repositories/rysk/dotfiles/launchd/com.rysk.gh-token-env.plist ~/Library/LaunchAgents/
+```
+
+運用上の注意。
+
+- トークンは plist に保存されず、毎ログイン時に gh の Keychain から読む。取得できない場合は `GH_TOKEN` を unset して Keychain と同期する
+- `gh auth switch` 後は `launchctl kickstart gui/$(id -u)/com.rysk.gh-token-env` で再注入するか、再ログインする
+- `launchctl setenv` は GUI セッション全体に効くため、GUI から起動した全アプリが `GH_TOKEN` を参照できる点に留意
+- 反映確認は `launchctl getenv GH_TOKEN`、失敗時のログは `/tmp/com.rysk.gh-token-env.err` を確認する。cmux 側は再起動後に有効になる
+
 ## 用語
 
 - Window - macOS のウィンドウ。複数のワークスペースを持てる

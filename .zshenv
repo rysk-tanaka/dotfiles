@@ -14,6 +14,13 @@ export GIT_OPTIONAL_LOCKS=0
 # and Caskroom staging conflicts on already-running apps.
 export HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS=1
 
+# The cmux LaunchAgent injects GH_TOKEN into the GUI session, and terminals inherit it.
+# gh always prefers GH_TOKEN over the keyring, so that inherited value would pin the CLI
+# to whatever account was active at login and silently override `gh auth switch`. Drop it
+# here so the gh CLI (and the `gh auth token` call below) follow the keyring active account.
+# cmux reads the launchd-set GH_TOKEN directly, so unsetting the shell copy does not affect it.
+unset GH_TOKEN
+
 # GitHub tokens for MCP server and mise (gh auth token via OAuth, not PAT)
 # - Tool-specific vars (not GITHUB_TOKEN) to avoid interfering with gh CLI's own token resolution
 # - No --hostname flag: returns active account's token, respects `gh auth switch`
