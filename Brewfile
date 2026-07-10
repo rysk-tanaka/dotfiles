@@ -42,6 +42,7 @@ cask "slack"
 cask "zoom"
 
 # AI
+cask "chatgpt"
 cask "claude"
 
 # Development
