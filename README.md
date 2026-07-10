@@ -22,7 +22,7 @@ MacOS用の初期セットアップを行います。
 │   └── op-aws-credentials.sh         # credential_process用1Passwordヘルパー
 ├── .codex/                           # Codex CLI設定
 │   ├── config.toml                   # ユーザーレベル設定（AGENTS.mdは~/.claude/CLAUDE.mdへのsymlink）
-│   ├── lite.config.toml              # 軽量プロファイル（codex --profile lite、gpt-5.4-mini）
+│   ├── lite.config.toml              # 軽量プロファイル（codex --profile lite、軽量モデル）
 │   ├── quick.config.toml             # 高速レビュープロファイル（codex --profile quick）
 │   ├── important.config.toml         # 重要レビュープロファイル（codex --profile important）
 │   └── skills/                       # Codex用スキル（auto-commit / suggest-branch は独立実装、cloudwatch-logs は Claude側 symlink に依存）

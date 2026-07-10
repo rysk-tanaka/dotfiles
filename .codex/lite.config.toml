@@ -1,4 +1,4 @@
 # 軽量テキスト生成用（コミットメッセージ・ブランチ名など）
 # `codex --profile lite` で base config に上書き
-model = "gpt-5.4-mini"
+model = "gpt-5.6-luna"
 model_reasoning_effort = "low"
