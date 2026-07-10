@@ -1,4 +1,6 @@
 {
+  // Skip untracked artifacts and symlinks into other repos, which lint themselves
+  "gitignore": true,
   "config": {
     "MD013": false,
     "MD024": false,
@@ -12,6 +14,7 @@
     "**/venv/**",
     "**/.terraform/**",
     "**/build/**",
+    "**/.playwright-mcp/**",
     ".codex/skills/**",
     ".tmp/**",
     "**/*.local.md",
