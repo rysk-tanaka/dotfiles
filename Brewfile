@@ -49,7 +49,7 @@ cask "claude"
 cask "coderabbit"
 cask "devpod"
 cask "drawio"
-cask "linear-linear"
+cask "linear"
 cask "orbstack"
 cask "wakatime"
 # Xcode: App Store auto-updates, large download blocks brew bundle
