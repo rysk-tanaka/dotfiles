@@ -67,6 +67,7 @@ Dual-mode skills (resolve-review, codex-review) support foreground (default) and
 Located in `.claude/commands/`. Lightweight prompts that don't need a full skill directory. Invoked via `/command-name`.
 
 - `check-bg` - バックグラウンドタスク結果確認
+- `hunk-review` - Hunk ライブセッション経由の diff レビュー（`hunk skill path` で同梱 skill を読み込み）
 - `permalink` - GitHub パーマリンク生成
 - `uv-init` - uv で Python プロジェクト初期化
 

@@ -43,6 +43,7 @@ MacOS用の初期セットアップを行います。
 │   │   └── suggest-effort.sh         # effortレベル提案（UserPromptSubmit）
 │   ├── commands/                     # カスタムコマンド
 │   │   ├── check-bg.md               # バックグラウンドタスク結果確認
+│   │   ├── hunk-review.md            # Hunkライブセッション経由のdiffレビュー
 │   │   ├── permalink.md              # パーマリンクコマンド
 │   │   └── uv-init.md                # Pythonプロジェクト初期化
 │   ├── skills/                       # カスタムスキル（symlink 表記の項目は mise run setup-skills 実行後に配置）
@@ -86,6 +87,8 @@ MacOS用の初期セットアップを行います。
 │   │   └── settings.json             # 一般設定
 │   ├── ghostty/                      # Ghosttyターミナル
 │   │   └── config                    # Ghostty設定
+│   ├── hunk/                         # Hunk diffビューア
+│   │   └── config.toml               # Hunk表示設定
 │   ├── starship.toml                 # Starshipプロンプト設定
 │   ├── git/                          # Git補助設定
 │   │   └── ignore                    # グローバル除外設定
@@ -168,6 +171,7 @@ MacOS用の初期セットアップを行います。
     mkdir -p ~/.config/cmux
     mkdir -p ~/.config/ghostty
     mkdir -p ~/.config/git
+    mkdir -p ~/.config/hunk
     mkdir -p ~/.config/tmux
     mkdir -p ~/.config/zed
     mkdir -p ~/Library/LaunchAgents
@@ -194,6 +198,7 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.config/cmux/cmux.json ~/.config/cmux/cmux.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/ghostty/config ~/.config/ghostty/config
     ln -sf ~/Repositories/rysk/dotfiles/.config/git/ignore ~/.config/git/ignore
+    ln -sf ~/Repositories/rysk/dotfiles/.config/hunk/config.toml ~/.config/hunk/config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.config/mise ~/.config/mise
     ln -sf ~/Repositories/rysk/dotfiles/.config/tmux/tmux.conf ~/.config/tmux/tmux.conf
     ln -sf ~/Repositories/rysk/dotfiles/.config/tmux/zed-attach.sh ~/.config/tmux/zed-attach.sh
