@@ -182,7 +182,9 @@ MacOS用の初期セットアップを行います。
     ```bash
     ln -sf ~/Repositories/rysk/dotfiles/.aws/config ~/.aws/config
     ln -sf ~/Repositories/rysk/dotfiles/.aws/op-aws-credentials.sh ~/.aws/op-aws-credentials.sh
-    ln -sf ~/Repositories/rysk/dotfiles/.codex/config.toml ~/.codex/config.toml
+    # codex の config.toml は symlink にしない（統合版 ChatGPT アプリが機械状態を書き込むため）
+    # 初回のみコピーで seed し、以後の意図的な変更は repo と ~/.codex/config.toml の両方に反映する
+    cp -n ~/Repositories/rysk/dotfiles/.codex/config.toml ~/.codex/config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.codex/lite.config.toml ~/.codex/lite.config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.codex/quick.config.toml ~/.codex/quick.config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.codex/important.config.toml ~/.codex/important.config.toml

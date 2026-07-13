@@ -78,7 +78,8 @@ if [ -z "$conf_model" ]; then
 fi
 
 # codex debug models をリポジトリ内で実行すると config.toml に trust ブロックが追記される副作用があるため、
-# git リポジトリ外の一時ディレクトリから実行する（~/.codex/config.toml は symlink 経由で読まれるため設定は有効）
+# git リポジトリ外の一時ディレクトリから実行する
+# （~/.codex/config.toml は repo からコピーした実ファイル。repo 側と model 設定が一致している前提でカタログ照合する）
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 if catalog=$(cd "$tmp" && codex debug models 2>/dev/null) && [ -n "$catalog" ]; then
