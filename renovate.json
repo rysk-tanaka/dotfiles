@@ -22,6 +22,12 @@
       "groupName": "ccusage"
     },
     {
+      "matchManagers": ["mise"],
+      "matchDepNames": ["eza"],
+      "allowedVersions": "<=0.23.4",
+      "description": "eza 0.23.5 is not published to crates.io yet, so the asdf plugin (cargo-quickinstall) cannot install it. Remove this cap once crates.io catches up."
+    },
+    {
       "matchDepNames": ["rysk-tanaka/workflows"],
       "enabled": false
     }
