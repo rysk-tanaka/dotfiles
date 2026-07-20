@@ -64,6 +64,15 @@ transform_usage() {
           | limit_row(.; window_label(.windowDurationMins)) ),
         ( .rateLimitsByLimitId // {} | to_entries[] | .value
           | select(.limitId != $main and .limitName != null and .primary != null)
+          # 窓が一度も開始していない枠を落とす。未使用の枠は resetsAt が照会のたびに前進して
+          # 常に「今 + 窓長」を返すため、残り時間が窓長とほぼ同じかどうかで判別できる (12 分
+          # 空けて 2 回照会し、メイン枠の resetsAt が固定される一方でモデル別枠が経過時間ぶん
+          # 前進することを実測した)。300 秒の余裕はサーバーとの時計ずれの吸収用で、開始直後の
+          # 枠が数分隠れるが、その時点の値に情報は無い。
+          # これが無いと GPT-5.3-Codex-Spark の枠が 0% のまま並び続ける。この枠は実使用でも
+          # 加算されない不具合が報告されており (https://github.com/openai/codex/issues/23150)、
+          # 未使用なのか集計漏れなのかは区別できないが、どちらでも表示する価値が無い。
+          | select(.primary.resetsAt - now < .primary.windowDurationMins * 60 - 300)
           | limit_row(.primary; "\(window_label(.primary.windowDurationMins)) (\(.limitName))") ),
         ( .rateLimitResetCredits.availableCount
           | select(. != null)
