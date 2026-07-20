@@ -90,21 +90,37 @@ transform_usage() {
   bar="$b"
 }
 
+# app-server を実行時間の上限付きで起動する。上限が要るのは、後続の sleep が閉じるのは stdin
+# だけで、app-server が OpenAI の usage API を待って返さない限りパイプラインが終わらないため。
+# launchd は前回の実行が生きている間 StartInterval の次回分を起動しないので、一度ハングすると
+# 手動で kill するまで表示が固まったままになる。姉妹スクリプトの curl -m 10 と同じ役割。
+# timeout は Brewfile の coreutils 由来。現行 (9.11) は timeout と gtimeout の両方を配置するが、
+# 古い環境では g 付きしか無いことがあるので両対応する。どちらも無ければ上限なしで実行する。
+# ここで諦めると使用率が二度と更新されず、呼び出し側の || true に握り潰されて気付けないため。
+run_app_server() {
+  if command -v timeout >/dev/null 2>&1; then
+    timeout 15 "$CODEX_BIN" app-server
+  elif command -v gtimeout >/dev/null 2>&1; then
+    gtimeout 15 "$CODEX_BIN" app-server
+  else
+    "$CODEX_BIN" app-server
+  fi
+}
+
 if command -v "$CODEX_BIN" >/dev/null 2>&1; then
   api_tmp="$(mktemp "$OUT_DIR/.codex-usage-api.XXXXXX")"
-  # initialize と本リクエストを続けて流し込み、sleep で応答を受け取ってから stdin を閉じる。
+  # initialize から本リクエストまでを続けて流し込み、sleep で応答を受け取ってから stdin を閉じる。
   # app-server は stdin の EOF で終了するため、この sleep がプロセスを残さないための仕組みも
   # 兼ねる。応答が 2 秒に間に合わなければ空になり、下のキャッシュ縮退へ落ちる。再試行はしない。
-  # timeout は app-server 側がハングした場合の保険。sleep が閉じるのは stdin だけで、app-server
-  # が OpenAI の usage API を待って返さない限りこのパイプラインは終わらない。launchd は前回の
-  # 実行が生きている間 StartInterval の次回分を起動しないため、一度ハングすると手動で kill する
-  # まで表示が固まったままになる。姉妹スクリプトの curl -m 10 と同じ役割で、通常は 2 秒で終わる
-  # ところに余裕を持たせた値。timeout は Brewfile の coreutils が入れる。
-  { printf '%s\n%s\n' \
+  # initialized は codex 0.144.6 では省いても応答が返るが、プロトコル定義 (ClientNotification の
+  # InitializedNotification) では initialize に続けて送ることになっている。将来のバージョンが
+  # 未送信を拒否しても壊れないよう仕様どおりに送る。
+  { printf '%s\n%s\n%s\n' \
       '{"method":"initialize","id":0,"params":{"clientInfo":{"name":"runcat-codex-usage","title":"RunCat","version":"1.0"}}}' \
+      '{"method":"initialized"}' \
       '{"method":"account/rateLimits/read","id":1,"params":{}}'
     sleep 2
-  } | timeout 15 "$CODEX_BIN" app-server 2>/dev/null \
+  } | run_app_server 2>/dev/null \
     | jq -c 'select(.id == 1) | .result' > "$api_tmp" 2>/dev/null || true
 
   # 実際にメトリクスへ変換できるところまで確認してからキャッシュを置き換える。応答の形を
