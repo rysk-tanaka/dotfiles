@@ -92,7 +92,7 @@ fi
 # 書きかけの JSON を RunCat Neo が読まないよう、同一ディレクトリの一時ファイルへ書いて
 # 公式スキーマドキュメントの Constraints が要求する作法に従い、mv で原子的に置換する。
 out_tmp="$(mktemp "$(dirname "$OUT")/.claude-usage.XXXXXX")"
-jq -n \
+if ! jq -n \
   --arg bar "$bar" \
   --argjson metrics "$metrics" \
   --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
@@ -102,5 +102,10 @@ jq -n \
     metricsBarValue: $bar,
     metrics: $metrics,
     lastUpdatedDate: $date
-  }' > "$out_tmp"
+  }' > "$out_tmp" 2>/dev/null; then
+  # jq が mise のバージョン切り替え等で引けなくなった場合でも表示を止めない。
+  # 埋め込むのはリテラルと date の出力だけなので、jq 無しでもエスケープを気にせず書ける。
+  printf '{"title":"Claude Code usage","symbol":"brain.filled.head.profile","metricsBarValue":"---","metrics":[],"lastUpdatedDate":"%s"}\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$out_tmp"
+fi
 mv "$out_tmp" "$OUT"

@@ -232,6 +232,8 @@ MacOS用の初期セットアップを行います。
 
     取得元はClaude Codeの `/usage` コマンドと同じ非公開APIで、認証にはKeychainの `Claude Code-credentials`（Claude Codeのログイン情報）を使います。APIが応答しない場合は直近1時間以内に取得した値を再利用し、それも無い場合はメニューバーが `---` 表示に縮退します。Claude Codeからログアウトした直後も、キャッシュが残っている間は最後に取得した値を表示します。
 
+    `com.rysk.runcat-ccusage` を登録済みの環境では、二重起動を避けるため後述の「旧構成（ccusage版）からの移行」を先に実施してください。
+
     ```bash
     ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-claude-usage.plist ~/Library/LaunchAgents/
     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-claude-usage.plist
