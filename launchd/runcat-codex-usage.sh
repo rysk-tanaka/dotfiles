@@ -31,12 +31,12 @@ trap 'rm -f "$api_tmp" "$out_tmp"' EXIT
 metrics=""
 bar=""
 
-# rateLimits 応答をメトリクス行とバー文字列へ変換する。フィールド欠落や窓の構成変更で jq は
-# 失敗しうるので、変換できた時だけ metrics/bar を設定し、それ以外は非ゼロを返して呼び出し側の
-# 縮退分岐に委ねる。
-# 行は応答の形から組み立てる。ChatGPT Plus では primary が週間枠のみ (secondary は null) だが、
+# rateLimits 応答をメトリクス行とバー文字列へ変換する。フィールド欠落やウィンドウ構成の変更で
+# jq は失敗しうるので、変換できた時だけ metrics/bar を設定し、それ以外は非ゼロを返して呼び出し
+# 側の縮退分岐に委ねる。
+# 行は応答の形から組み立てる。ChatGPT Plus では primary が週間枠のみで secondary は null だが、
 # プラン変更で 5 時間枠が増えても壊れないよう windowDurationMins からラベルを引く。
-# rateLimitsByLimitId には全体枠 (limitId が rateLimits と同じ) とモデル別枠が混在するので、
+# rateLimitsByLimitId には limitId が rateLimits と同じ全体枠とモデル別枠が混在するので、
 # 全体枠は rateLimits 側と重複するため除外する。
 transform_usage() {
   local json="$1" m b
@@ -64,11 +64,11 @@ transform_usage() {
           | limit_row(.; window_label(.windowDurationMins)) ),
         ( .rateLimitsByLimitId // {} | to_entries[] | .value
           | select(.limitId != $main and .limitName != null and .primary != null)
-          # 窓が一度も開始していない枠を落とす。未使用の枠は resetsAt が照会のたびに前進して
-          # 常に「今 + 窓長」を返すため、残り時間が窓長とほぼ同じかどうかで判別できる (12 分
-          # 空けて 2 回照会し、メイン枠の resetsAt が固定される一方でモデル別枠が経過時間ぶん
-          # 前進することを実測した)。300 秒の余裕はサーバーとの時計ずれの吸収用で、開始直後の
-          # 枠が数分隠れるが、その時点の値に情報は無い。
+          # ウィンドウが一度も開始していない枠を落とす。未使用の枠は resetsAt が照会のたびに
+          # 前進して常に「今 + ウィンドウ長」を返すため、残り時間がウィンドウ長とほぼ同じかで
+          # 判別できる。12 分空けて 2 回照会し、メイン枠の resetsAt が固定される一方でモデル別
+          # 枠が経過時間ぶん前進することを実測した。300 秒の余裕はサーバーとの時計ずれの吸収用
+          # で、開始直後の枠が数分隠れるが、その時点の値に情報は無い。
           # これが無いと GPT-5.3-Codex-Spark の枠が 0% のまま並び続ける。この枠は実使用でも
           # 加算されない不具合が報告されており (https://github.com/openai/codex/issues/23150)、
           # 未使用なのか集計漏れなのかは区別できないが、どちらでも表示する価値が無い。
@@ -94,12 +94,17 @@ if command -v "$CODEX_BIN" >/dev/null 2>&1; then
   api_tmp="$(mktemp "$OUT_DIR/.codex-usage-api.XXXXXX")"
   # initialize と本リクエストを続けて流し込み、sleep で応答を受け取ってから stdin を閉じる。
   # app-server は stdin の EOF で終了するため、この sleep がプロセスを残さないための仕組みも
-  # 兼ねる。応答が 2 秒に間に合わなければ空になり、下のキャッシュ縮退へ落ちる (再試行しない)。
+  # 兼ねる。応答が 2 秒に間に合わなければ空になり、下のキャッシュ縮退へ落ちる。再試行はしない。
+  # timeout は app-server 側がハングした場合の保険。sleep が閉じるのは stdin だけで、app-server
+  # が OpenAI の usage API を待って返さない限りこのパイプラインは終わらない。launchd は前回の
+  # 実行が生きている間 StartInterval の次回分を起動しないため、一度ハングすると手動で kill する
+  # まで表示が固まったままになる。姉妹スクリプトの curl -m 10 と同じ役割で、通常は 2 秒で終わる
+  # ところに余裕を持たせた値。timeout は Brewfile の coreutils が入れる。
   { printf '%s\n%s\n' \
       '{"method":"initialize","id":0,"params":{"clientInfo":{"name":"runcat-codex-usage","title":"RunCat","version":"1.0"}}}' \
       '{"method":"account/rateLimits/read","id":1,"params":{}}'
     sleep 2
-  } | "$CODEX_BIN" app-server 2>/dev/null \
+  } | timeout 15 "$CODEX_BIN" app-server 2>/dev/null \
     | jq -c 'select(.id == 1) | .result' > "$api_tmp" 2>/dev/null || true
 
   # 実際にメトリクスへ変換できるところまで確認してからキャッシュを置き換える。応答の形を
