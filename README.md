@@ -108,7 +108,9 @@ MacOS用の初期セットアップを行います。
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
 ├── renovate.json                     # Renovate依存関係自動更新設定
 ├── launchd/                          # LaunchAgent定義
-│   └── com.rysk.gh-token-env.plist   # GH_TOKENをGUIセッションへ注入
+│   ├── com.rysk.gh-token-env.plist   # GH_TOKENをGUIセッションへ注入
+│   ├── com.rysk.runcat-ccusage.plist # ccusage使用状況を定期採取
+│   └── runcat-ccusage.sh             # RunCat Neoカスタムメトリクス用JSON生成
 └── docs/                             # ドキュメント
     ├── ccmanager.md                  # ccmanager導入ガイド
     ├── claude-code.md                # Claude Code設定詳細
@@ -224,6 +226,17 @@ MacOS用の初期セットアップを行います。
     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
     ```
 
+    RunCat Neoのカスタムメトリクス（任意）
+
+    ccusageの使用状況を定期的に `~/.runcat/ccusage.json` へ書き出し、RunCat Neoのメニューバーに表示します。実行間隔は `launchd/com.rysk.runcat-ccusage.plist` の `StartInterval` で定義しています。JSONの更新はスクリプト側の責務で、RunCat Neo自体はファイルを監視するだけです。
+
+    ```bash
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-ccusage.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-ccusage.plist
+    ```
+
+    登録後、RunCat Neoの Settings > Metrics > Custom Metrics で「Add Custom Metrics Source」を選びます。ドット始まりのディレクトリはファイル選択ダイアログから辿れないため、`Cmd + Shift + G` で `~/.runcat/ccusage.json` のパスを直接入力します。
+
 4. Docker SSH設定の生成
 
     `build_lambda`関数で使用するDocker用SSH設定を生成します：
@@ -270,7 +283,7 @@ MacOS用の初期セットアップを行います。
 
     このステップを飛ばすと `/auto-commit` `/pr` `/resolve-review` などの Claude Code skill、`mise run auto-commit` / `mise run suggest-branch` (`.claude/skills/{auto-commit,suggest-branch}/collect.sh` を呼ぶ)、Codex の `cloudwatch-logs` (`~/.claude/skills/cloudwatch-logs/cloudwatch_logs.py` を参照) が失敗します。
 
-    第三者がこの dotfiles を fork して利用する場合、`.claude/settings.json` の `permissions.allow` 絶対パス (`/Users/rysk/.claude/skills/...` 形式) を各自の HOME パスに書き換えてください。claude-code#14956 の制約で `~` 展開が効かないため、絶対パス指定が必須です。
+    第三者がこの dotfiles を fork して利用する場合、`.claude/settings.json` の `permissions.allow` 絶対パス (`/Users/rysk/.claude/skills/...` 形式) を各自の HOME パスに書き換えてください。claude-code#14956 の制約で `~` 展開が効かないため、絶対パス指定が必須です。`launchd/` 配下の plist の `ProgramArguments` / `PATH` も同様に絶対パスなので、各自の HOME パスに書き換えてください (launchd は環境変数を展開しません)。
 
 7. Homebrew未提供フォントのインストール
 
