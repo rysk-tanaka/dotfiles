@@ -10,58 +10,31 @@
 set -euo pipefail
 
 OUT="${RUNCAT_JSON:-$HOME/.runcat/claude-usage.json}"
+OUT_DIR="$(dirname "$OUT")"
 # 縮退動作を検証する時だけ到達不能な URL に差し替えられるようにしておく。
 USAGE_API_URL="${USAGE_API_URL:-https://api.anthropic.com/api/oauth/usage}"
-CACHE="$(dirname "$OUT")/.claude-usage-api.json"
+CACHE="$OUT_DIR/.claude-usage-api.json"
 # 429 は Retry-After を返さず数十分続くことがある。その間は直近の値で代替するが、
 # 古すぎる値は「今の消費率」として誤解を招くので上限を設ける。
 CACHE_MAX_AGE=3600
 
-mkdir -p "$(dirname "$OUT")"
+mkdir -p "$OUT_DIR"
 
 api_tmp=""
 out_tmp=""
 trap 'rm -f "$api_tmp" "$out_tmp"' EXIT
 
-# アクセストークンは Claude Code が Keychain に保存し、ログイン中は自動更新される。
-# 値を画面にもログにも出さないよう、set -x を入れず curl の -v も使わない。
-token="$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null \
-  | jq -r '.claudeAiOauth.accessToken // empty' 2>/dev/null)" || token=""
-
-if [[ -n "$token" ]]; then
-  api_tmp="$(mktemp "$(dirname "$OUT")/.usage-api.XXXXXX")"
-  # Authorization は -H ではなく stdin の設定ファイルとして -K - で渡す。-H だとトークンが
-  # curl の argv に載り、同一ユーザーの他プロセスから ps で読めてしまうため。
-  http_code="$(printf 'header = "Authorization: Bearer %s"\n' "$token" \
-    | curl -sS -m 10 -K - -o "$api_tmp" -w '%{http_code}' \
-      -H "anthropic-beta: oauth-2025-04-20" \
-      -H "Content-Type: application/json" \
-      "$USAGE_API_URL" 2>/dev/null)" || http_code="000"
-
-  # limits の存在まで確認してからキャッシュを更新する。API 形式が変わった時に
-  # 壊れた応答で有効なキャッシュを潰さないため。
-  if [[ "$http_code" == "200" ]] && jq -e '.limits | arrays' "$api_tmp" >/dev/null 2>&1; then
-    mv "$api_tmp" "$CACHE"
-  fi
-fi
-
-usage_json=""
-# 存在確認を stat 自体に兼ねさせる。-f で確認してから stat を呼ぶと、その間にキャッシュが
-# 消えた場合に stat が空を返し、算術展開が構文エラーになって set -e で止まってしまう。
-cache_mtime="$(stat -f %m "$CACHE" 2>/dev/null || echo 0)"
-if (( cache_mtime > 0 )) && (( $(date +%s) - cache_mtime <= CACHE_MAX_AGE )); then
-  usage_json="$(cat "$CACHE" 2>/dev/null)" || usage_json=""
-fi
-
 metrics=""
 bar=""
-if [[ -n "$usage_json" ]]; then
-  # キャッシュ時のガードは .limits が配列かどうかしか見ていない。要素側のフィールドが
-  # 欠けたり resets_at のオフセットが +00:00 以外に変わったりすると以下の jq は失敗するので、
-  # set -e で落ちないよう失敗を捕捉し、下の縮退分岐へ合流させる。
-  # resets_at はマイクロ秒と +00:00 オフセット付き (2026-07-25T18:00:00.002230+00:00) で、
-  # fromdateiso8601 が期待する %Y-%m-%dT%H:%M:%SZ に合わないため両方を落としてから渡す。
-  metrics="$(jq -c '
+
+# usage JSON をメトリクス行とバー文字列へ変換する。要素のフィールド欠落や resets_at の
+# オフセット変更で jq は失敗しうるので、変換できた時だけ metrics/bar を設定し、それ以外は
+# 非ゼロを返して呼び出し側の縮退分岐に委ねる。
+# resets_at はマイクロ秒と +00:00 オフセット付き (2026-07-25T18:00:00.002230+00:00) で、
+# fromdateiso8601 が期待する %Y-%m-%dT%H:%M:%SZ に合わないため両方を落としてから渡す。
+transform_usage() {
+  local json="$1" m b
+  m="$(jq -c '
     [ .limits[]
       | (.resets_at | sub("\\.[0-9]+"; "") | sub("\\+00:00$"; "Z") | fromdateiso8601) as $reset
       | (($reset - now) | if . < 0 then 0 else . end) as $left
@@ -76,9 +49,45 @@ if [[ -n "$usage_json" ]]; then
             end),
           normalizedValue: (.percent / 100)
         }
-    ]' <<<"$usage_json" 2>/dev/null)" || metrics=""
-  bar="$(jq -r 'first(.limits[] | select(.kind == "session") | "\(.percent)%") // "---"' \
-    <<<"$usage_json" 2>/dev/null)" || bar=""
+    ]' <<<"$json" 2>/dev/null)" || return 1
+  b="$(jq -r 'first(.limits[] | select(.kind == "session") | "\(.percent)%") // "---"' \
+    <<<"$json" 2>/dev/null)" || return 1
+  [[ -n "$m" && -n "$b" ]] || return 1
+  metrics="$m"
+  bar="$b"
+}
+
+# アクセストークンは Claude Code が Keychain に保存し、ログイン中は自動更新される。
+# 値を画面にもログにも出さないよう、set -x を入れず curl の -v も使わない。
+token="$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null \
+  | jq -r '.claudeAiOauth.accessToken // empty' 2>/dev/null)" || token=""
+
+if [[ -n "$token" ]]; then
+  api_tmp="$(mktemp "$OUT_DIR/.usage-api.XXXXXX")"
+  # Authorization は -H ではなく stdin の設定ファイルとして -K - で渡す。-H だとトークンが
+  # curl の argv に載り、同一ユーザーの他プロセスから ps で読めてしまうため。
+  http_code="$(printf 'header = "Authorization: Bearer %s"\n' "$token" \
+    | curl -sS -m 10 -K - -o "$api_tmp" -w '%{http_code}' \
+      -H "anthropic-beta: oauth-2025-04-20" \
+      -H "Content-Type: application/json" \
+      "$USAGE_API_URL" 2>/dev/null)" || http_code="000"
+
+  # 実際にメトリクスへ変換できるところまで確認してからキャッシュを置き換える。応答の形を
+  # 部分的にしか見ずに採用すると、要素側の形式が変わった応答で正常なキャッシュを潰してしまい、
+  # 冒頭に書いた「API 変更時は既存キャッシュへ縮退」が働かなくなるため。
+  if [[ "$http_code" == "200" ]] && transform_usage "$(cat "$api_tmp" 2>/dev/null)"; then
+    mv "$api_tmp" "$CACHE"
+  fi
+fi
+
+# API から取れなかった時だけキャッシュに頼る。存在確認は stat 自体に兼ねさせる。-f で確認して
+# から stat を呼ぶと、その間にキャッシュが消えた場合に stat が空を返し、算術展開が構文エラーに
+# なって set -e で止まってしまう。
+if [[ -z "$metrics" ]]; then
+  cache_mtime="$(stat -f %m "$CACHE" 2>/dev/null || echo 0)"
+  if (( cache_mtime > 0 )) && (( $(date +%s) - cache_mtime <= CACHE_MAX_AGE )); then
+    transform_usage "$(cat "$CACHE" 2>/dev/null)" || true
+  fi
 fi
 
 # 取得もキャッシュ流用もできない、あるいは応答が想定の形でない状態。
@@ -91,7 +100,7 @@ fi
 # キー名は RunCat Neo の Custom Metrics スキーマで固定。リネームすると無言で描画されなくなる。
 # 書きかけの JSON を RunCat Neo が読まないよう、同一ディレクトリの一時ファイルへ書いて
 # 公式スキーマドキュメントの Constraints が要求する作法に従い、mv で原子的に置換する。
-out_tmp="$(mktemp "$(dirname "$OUT")/.claude-usage.XXXXXX")"
+out_tmp="$(mktemp "$OUT_DIR/.claude-usage.XXXXXX")"
 if ! jq -n \
   --arg bar "$bar" \
   --argjson metrics "$metrics" \
