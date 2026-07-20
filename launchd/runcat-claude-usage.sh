@@ -6,6 +6,7 @@
 # 取得元は Claude Code の /usage コマンドと同じ非公開 API のため、レスポンス形式が予告なく
 # 変わりうる。トークン失効・API 変更・429 のいずれでも launchd ジョブを壊さないよう、
 # 失敗時は既存キャッシュへ、それも無ければ空メトリクスへ縮退して必ず正常終了する。
+# キャッシュはトークンが取れない時 (未ログイン等) にも使うため、直近 1 時間は値が残る。
 set -euo pipefail
 
 OUT="${RUNCAT_JSON:-$HOME/.runcat/claude-usage.json}"
@@ -29,11 +30,13 @@ token="$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/n
 
 if [[ -n "$token" ]]; then
   api_tmp="$(mktemp "$(dirname "$OUT")/.usage-api.XXXXXX")"
-  http_code="$(curl -sS -m 10 -o "$api_tmp" -w '%{http_code}' \
-    -H "Authorization: Bearer $token" \
-    -H "anthropic-beta: oauth-2025-04-20" \
-    -H "Content-Type: application/json" \
-    "$USAGE_API_URL" 2>/dev/null)" || http_code="000"
+  # Authorization は -H ではなく -K - (stdin の設定ファイル) で渡す。-H だとトークンが
+  # curl の argv に載り、同一ユーザーの他プロセスから ps で読めてしまうため。
+  http_code="$(printf 'header = "Authorization: Bearer %s"\n' "$token" \
+    | curl -sS -m 10 -K - -o "$api_tmp" -w '%{http_code}' \
+      -H "anthropic-beta: oauth-2025-04-20" \
+      -H "Content-Type: application/json" \
+      "$USAGE_API_URL" 2>/dev/null)" || http_code="000"
 
   # limits の存在まで確認してからキャッシュを更新する。API 形式が変わった時に
   # 壊れた応答で有効なキャッシュを潰さないため。
@@ -50,7 +53,12 @@ if [[ -f "$CACHE" ]]; then
   fi
 fi
 
+metrics=""
+bar=""
 if [[ -n "$usage_json" ]]; then
+  # キャッシュ時のガードは .limits が配列かどうかしか見ていない。要素側のフィールドが
+  # 欠けたり resets_at のオフセットが +00:00 以外に変わったりすると以下の jq は失敗するので、
+  # set -e で落ちないよう握りつぶして下の縮退分岐へ合流させる。
   # resets_at はマイクロ秒と +00:00 オフセット付き (2026-07-25T18:00:00.002230+00:00) で、
   # fromdateiso8601 が期待する %Y-%m-%dT%H:%M:%SZ に合わないため両方を落としてから渡す。
   metrics="$(jq -c '
@@ -68,10 +76,14 @@ if [[ -n "$usage_json" ]]; then
             end),
           normalizedValue: (.percent / 100)
         }
-    ]' <<<"$usage_json")"
-  bar="$(jq -r 'first(.limits[] | select(.kind == "session") | "\(.percent)%") // "---"' <<<"$usage_json")"
-else
-  # 取得もキャッシュ流用もできない状態。空メトリクスにして異常を表示側で気付けるようにする。
+    ]' <<<"$usage_json" 2>/dev/null)" || metrics=""
+  bar="$(jq -r 'first(.limits[] | select(.kind == "session") | "\(.percent)%") // "---"' \
+    <<<"$usage_json" 2>/dev/null)" || bar=""
+fi
+
+# 取得もキャッシュ流用もできない、あるいは応答が想定の形でない状態。
+# 空メトリクスにして異常を表示側で気付けるようにする。
+if [[ -z "$metrics" || -z "$bar" ]]; then
   metrics="[]"
   bar="---"
 fi
