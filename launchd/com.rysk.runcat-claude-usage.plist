@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Claude のプラン使用制限を RunCat Neo カスタムメトリクス JSON (~/.runcat/claude-usage.json)
+  へ書き出す。jq は mise 管理のため PATH に mise shims を含める。
+
+  StartInterval はこのジョブの実行間隔の唯一の定義 (300 秒)。取得先の OAuth usage API は
+  短間隔ポーリングに対して 429 を返し、Retry-After 無しで長時間ブロックされる。5 分間隔は
+  同 API を使う statusline 系ツールが安全域としている範囲で、メニューバー表示の鮮度としても
+  足りるという判断。間隔を変える場合はここだけを直す (短縮は 429 のリスクを伴う)。
+
+  導入 (symlink の作成手順は README.md を参照):
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-claude-usage.plist
+  解除:
+    launchctl bootout gui/$(id -u)/com.rysk.runcat-claude-usage
+    unlink ~/Library/LaunchAgents/com.rysk.runcat-claude-usage.plist
+  失敗時のログ: /tmp/com.rysk.runcat-claude-usage.err
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.rysk.runcat-claude-usage</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/rysk/Repositories/rysk/dotfiles/launchd/runcat-claude-usage.sh</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/rysk/.local/share/mise/shims:/opt/homebrew/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StartInterval</key>
+    <integer>300</integer>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.rysk.runcat-claude-usage.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.rysk.runcat-claude-usage.err</string>
+</dict>
+</plist>

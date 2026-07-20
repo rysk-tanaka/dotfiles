@@ -109,8 +109,8 @@ MacOS用の初期セットアップを行います。
 ├── renovate.json                     # Renovate依存関係自動更新設定
 ├── launchd/                          # LaunchAgent定義
 │   ├── com.rysk.gh-token-env.plist   # GH_TOKENをGUIセッションへ注入
-│   ├── com.rysk.runcat-ccusage.plist # ccusage使用状況を定期採取
-│   └── runcat-ccusage.sh             # RunCat Neoカスタムメトリクス用JSON生成
+│   ├── com.rysk.runcat-claude-usage.plist # Claudeのプラン使用制限を定期採取
+│   └── runcat-claude-usage.sh        # RunCat Neoカスタムメトリクス用JSON生成
 └── docs/                             # ドキュメント
     ├── ccmanager.md                  # ccmanager導入ガイド
     ├── claude-code.md                # Claude Code設定詳細
@@ -228,14 +228,16 @@ MacOS用の初期セットアップを行います。
 
     RunCat Neoのカスタムメトリクス（任意）
 
-    ccusageの使用状況を定期的に `~/.runcat/ccusage.json` へ書き出し、RunCat Neoのメニューバーに表示します。実行間隔は `launchd/com.rysk.runcat-ccusage.plist` の `StartInterval` で定義しています。JSONの更新はスクリプト側の責務で、RunCat Neo自体はファイルを監視するだけです。
+    Claudeのプラン使用制限（現在のセッションと週間）を定期的に `~/.runcat/claude-usage.json` へ書き出し、RunCat Neoのメニューバーに表示します。実行間隔は `launchd/com.rysk.runcat-claude-usage.plist` の `StartInterval` で定義しています。JSONの更新はスクリプト側の責務で、RunCat Neo自体はファイルを監視するだけです。
+
+    取得元はClaude Codeの `/usage` コマンドと同じ非公開APIで、認証にはKeychainの `Claude Code-credentials`（Claude Codeのログイン情報）を使います。Claude Codeにログインしていない場合や、APIが応答しない場合はメニューバーが `---` 表示に縮退します。
 
     ```bash
-    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-ccusage.plist ~/Library/LaunchAgents/
-    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-ccusage.plist
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-claude-usage.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-claude-usage.plist
     ```
 
-    登録後、RunCat Neoの Settings > Metrics > Custom Metrics で「Add Custom Metrics Source」を選びます。ドット始まりのディレクトリはファイル選択ダイアログから辿れないため、`Cmd + Shift + G` で `~/.runcat/ccusage.json` のパスを直接入力します。
+    登録後、RunCat Neoの Settings > Metrics > Custom Metrics で「Add Custom Metrics Source」を選びます。ドット始まりのディレクトリはファイル選択ダイアログから辿れないため、`Cmd + Shift + G` で `~/.runcat/claude-usage.json` のパスを直接入力します。
 
 4. Docker SSH設定の生成
 
