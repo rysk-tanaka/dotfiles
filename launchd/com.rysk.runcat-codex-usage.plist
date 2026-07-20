@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Codex のプラン使用制限を RunCat Neo カスタムメトリクス JSON (~/.runcat/codex-usage.json)
+  へ書き出す。codex は Homebrew、jq は mise 管理のため PATH に両方を含める。
+
+  StartInterval はこのジョブの実行間隔の唯一の定義 (300 秒)。codex app-server は照会のたびに
+  OpenAI 側の usage API へ問い合わせるため、短間隔で回すと無駄な負荷になる。5 分は Claude 側の
+  ジョブと揃えた値で、メニューバー表示の鮮度としても足りるという判断。間隔を変える場合はここ
+  だけを直す。
+
+  導入 (symlink の作成手順は README.md を参照):
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-codex-usage.plist
+  解除:
+    launchctl bootout gui/$(id -u)/com.rysk.runcat-codex-usage
+    unlink ~/Library/LaunchAgents/com.rysk.runcat-codex-usage.plist
+  失敗時のログ: /tmp/com.rysk.runcat-codex-usage.err
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.rysk.runcat-codex-usage</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/rysk/Repositories/rysk/dotfiles/launchd/runcat-codex-usage.sh</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/rysk/.local/share/mise/shims:/opt/homebrew/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StartInterval</key>
+    <integer>300</integer>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.rysk.runcat-codex-usage.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.rysk.runcat-codex-usage.err</string>
+</dict>
+</plist>
