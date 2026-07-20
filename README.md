@@ -250,7 +250,7 @@ MacOS用の初期セットアップを行います。
     unlink ~/Library/LaunchAgents/com.rysk.runcat-ccusage.plist
     ```
 
-    RunCat Neo側も監視先が変わるため、Settings > Metrics > Custom Metrics で旧ソース `~/.runcat/ccusage.json` を削除し、新しく `~/.runcat/claude-usage.json` を登録します。再登録が済んだら `rm ~/.runcat/ccusage.json` で旧ファイルを削除します。
+    RunCat Neo側も監視先が変わるため、Settings > Metrics > Custom Metrics で旧ソース `~/.runcat/ccusage.json` を削除し、`rm ~/.runcat/ccusage.json` で旧ファイルも削除します。新ソースの登録は、上記の手順で新ジョブを登録してから行います。
 
 4. Docker SSH設定の生成
 

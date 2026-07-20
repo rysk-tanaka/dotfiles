@@ -46,11 +46,11 @@ if [[ -n "$token" ]]; then
 fi
 
 usage_json=""
-if [[ -f "$CACHE" ]]; then
-  cache_age=$(( $(date +%s) - $(stat -f %m "$CACHE") ))
-  if (( cache_age <= CACHE_MAX_AGE )); then
-    usage_json="$(cat "$CACHE")"
-  fi
+# 存在確認を stat 自体に兼ねさせる。-f で確認してから stat を呼ぶと、その間にキャッシュが
+# 消えた場合に stat が空を返し、算術展開が構文エラーになって set -e で止まってしまう。
+cache_mtime="$(stat -f %m "$CACHE" 2>/dev/null || echo 0)"
+if (( cache_mtime > 0 )) && (( $(date +%s) - cache_mtime <= CACHE_MAX_AGE )); then
+  usage_json="$(cat "$CACHE" 2>/dev/null)" || usage_json=""
 fi
 
 metrics=""
