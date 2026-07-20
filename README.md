@@ -109,8 +109,8 @@ MacOS用の初期セットアップを行います。
 ├── renovate.json                     # Renovate依存関係自動更新設定
 ├── launchd/                          # LaunchAgent定義
 │   ├── com.rysk.gh-token-env.plist   # GH_TOKENをGUIセッションへ注入
-│   ├── com.rysk.runcat-ccusage.plist # ccusage使用状況を定期採取
-│   └── runcat-ccusage.sh             # RunCat Neoカスタムメトリクス用JSON生成
+│   ├── com.rysk.runcat-claude-usage.plist # Claudeのプラン使用制限を定期採取
+│   └── runcat-claude-usage.sh        # RunCat Neoカスタムメトリクス用JSON生成
 └── docs/                             # ドキュメント
     ├── ccmanager.md                  # ccmanager導入ガイド
     ├── claude-code.md                # Claude Code設定詳細
@@ -228,14 +228,29 @@ MacOS用の初期セットアップを行います。
 
     RunCat Neoのカスタムメトリクス（任意）
 
-    ccusageの使用状況を定期的に `~/.runcat/ccusage.json` へ書き出し、RunCat Neoのメニューバーに表示します。実行間隔は `launchd/com.rysk.runcat-ccusage.plist` の `StartInterval` で定義しています。JSONの更新はスクリプト側の責務で、RunCat Neo自体はファイルを監視するだけです。
+    Claudeのプラン使用制限（現在のセッションと週間）を定期的に `~/.runcat/claude-usage.json` へ書き出し、RunCat Neoのメニューバーに表示します。実行間隔は `launchd/com.rysk.runcat-claude-usage.plist` の `StartInterval` で定義しています。JSONの更新はスクリプト側の責務で、RunCat Neo自体はファイルを監視するだけです。
+
+    取得元はClaude Codeの `/usage` コマンドと同じ非公開APIで、認証にはKeychainの `Claude Code-credentials`（Claude Codeのログイン情報）を使います。APIが応答しない場合は直近1時間以内に取得した値を再利用し、それも無い場合はメニューバーが `---` 表示に縮退します。Claude Codeからログアウトした直後も、キャッシュが残っている間は最後に取得した値を表示します。
+
+    `com.rysk.runcat-ccusage` を登録済みの環境では、二重起動を避けるため後述の「旧構成（ccusage版）からの移行」を先に実施してください。
 
     ```bash
-    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-ccusage.plist ~/Library/LaunchAgents/
-    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-ccusage.plist
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-claude-usage.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-claude-usage.plist
     ```
 
-    登録後、RunCat Neoの Settings > Metrics > Custom Metrics で「Add Custom Metrics Source」を選びます。ドット始まりのディレクトリはファイル選択ダイアログから辿れないため、`Cmd + Shift + G` で `~/.runcat/ccusage.json` のパスを直接入力します。
+    登録後、RunCat Neoの Settings > Metrics > Custom Metrics で「Add Custom Metrics Source」を選びます。ドット始まりのディレクトリはファイル選択ダイアログから辿れないため、`Cmd + Shift + G` で `~/.runcat/claude-usage.json` のパスを直接入力します。
+
+    旧構成（ccusage版）からの移行
+
+    `com.rysk.runcat-ccusage` を登録済みの環境では、新ジョブを登録する前に旧ジョブを停止します。Labelが異なるため、停止しないと旧ジョブが削除済みのスクリプトを実行し続けます。
+
+    ```bash
+    launchctl bootout gui/$(id -u)/com.rysk.runcat-ccusage
+    unlink ~/Library/LaunchAgents/com.rysk.runcat-ccusage.plist
+    ```
+
+    RunCat Neo側も監視先が変わるため、Settings > Metrics > Custom Metrics で旧ソース `~/.runcat/ccusage.json` を削除し、`rm ~/.runcat/ccusage.json` で旧ファイルも削除します。新ソースの登録は、上記の手順で新ジョブを登録してから行います。
 
 4. Docker SSH設定の生成
 
