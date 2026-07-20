@@ -110,7 +110,9 @@ MacOS用の初期セットアップを行います。
 ├── launchd/                          # LaunchAgent定義
 │   ├── com.rysk.gh-token-env.plist   # GH_TOKENをGUIセッションへ注入
 │   ├── com.rysk.runcat-claude-usage.plist # Claudeのプラン使用制限を定期採取
-│   └── runcat-claude-usage.sh        # RunCat Neoカスタムメトリクス用JSON生成
+│   ├── com.rysk.runcat-codex-usage.plist # Codexのプラン使用制限を定期採取
+│   ├── runcat-claude-usage.sh        # Claude用カスタムメトリクスJSON生成
+│   └── runcat-codex-usage.sh         # Codex用カスタムメトリクスJSON生成
 └── docs/                             # ドキュメント
     ├── ccmanager.md                  # ccmanager導入ガイド
     ├── claude-code.md                # Claude Code設定詳細
@@ -228,16 +230,22 @@ MacOS用の初期セットアップを行います。
 
     RunCat Neoのカスタムメトリクス（任意）
 
-    Claudeのプラン使用制限（現在のセッションと週間）を定期的に `~/.runcat/claude-usage.json` へ書き出し、RunCat Neoのメニューバーに表示します。実行間隔は `launchd/com.rysk.runcat-claude-usage.plist` の `StartInterval` で定義しています。JSONの更新はスクリプト側の責務で、RunCat Neo自体はファイルを監視するだけです。
+    ClaudeとCodexのプラン使用制限を定期的に `~/.runcat/claude-usage.json` と `~/.runcat/codex-usage.json` へ書き出し、RunCat Neoのメニューバーに表示します。実行間隔はそれぞれの plist の `StartInterval` で定義しています。JSONの更新はスクリプト側の責務で、RunCat Neo自体はファイルを監視するだけです。
 
-    取得元はClaude Codeの `/usage` コマンドと同じ非公開APIで、認証にはKeychainの `Claude Code-credentials`（Claude Codeのログイン情報）を使います。APIが応答しない場合は直近1時間以内に取得した値を再利用し、それも無い場合はメニューバーが `---` 表示に縮退します。Claude Codeからログアウトした直後も、キャッシュが残っている間は最後に取得した値を表示します。
+    Claude側は現在のセッションと週間の制限を表示します。取得元はClaude Codeの `/usage` コマンドと同じ非公開APIで、認証にはKeychainの `Claude Code-credentials`（Claude Codeのログイン情報）を使います。
+
+    Codex側は週間の制限とモデル別の枠、レートリミットのリセット権の残数を表示します。取得には `codex app-server` のJSON-RPC（`account/rateLimits/read`）を使うため、認証はcodex本体が `~/.codex/auth.json` で解決します。スクリプトはアクセストークンを扱いません。
+
+    どちらも取得に失敗した場合は直近1時間以内に取得した値を再利用し、それも無い場合はメニューバーが `---` 表示に縮退します。ログアウトした直後も、キャッシュが残っている間は最後に取得した値を表示します。
 
     ```bash
     ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-claude-usage.plist ~/Library/LaunchAgents/
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-codex-usage.plist ~/Library/LaunchAgents/
     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-claude-usage.plist
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-codex-usage.plist
     ```
 
-    登録後、RunCat Neoの Settings > Metrics > Custom Metrics で「Add Custom Metrics Source」を選びます。ドット始まりのディレクトリはファイル選択ダイアログから辿れないため、`Cmd + Shift + G` で `~/.runcat/claude-usage.json` のパスを直接入力します。
+    登録後、RunCat Neoの Settings > Metrics > Custom Metrics で「Add Custom Metrics Source」を選びます。ドット始まりのディレクトリはファイル選択ダイアログから辿れないため、`Cmd + Shift + G` で `~/.runcat/claude-usage.json` と `~/.runcat/codex-usage.json` のパスをそれぞれ直接入力します。
 
 4. Docker SSH設定の生成
 
