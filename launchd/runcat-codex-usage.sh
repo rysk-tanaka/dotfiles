@@ -41,22 +41,29 @@ bar=""
 transform_usage() {
   local json="$1" m b
   m="$(jq -c '
+    # windowDurationMins と resetsAt はスキーマ上 null を取りうる (RateLimitWindow で必須なのは
+    # usedPercent だけ)。null で算術に入ると jq ごと落ちて、肝心の使用率があるのに全体が ---
+    # へ縮退してしまうので、飾りにあたるこの 2 つは欠けても行を作れるようにしておく。
     def window_label($mins):
       if $mins == 10080 then "週間"
       elif $mins == 300 then "5時間"
+      elif $mins == null then "使用量"
       else "\($mins / 60 | floor)h枠" end;
 
     # resetsAt は epoch 秒。過去になった枠は「残 0」に丸める。
     def left_str($resets):
-      (($resets - now) | if . < 0 then 0 else . end) as $left
-      | if $left >= 86400
-        then "(残 \($left / 86400 | floor)d\(($left % 86400) / 3600 | floor)h)"
-        else "(残 \($left / 3600 | floor)h\((($left % 3600) / 60 | floor) | tostring | if length < 2 then "0" + . else . end)m)"
-        end;
+      if $resets == null then ""
+      else
+        (($resets - now) | if . < 0 then 0 else . end) as $left
+        | if $left >= 86400
+          then " (残 \($left / 86400 | floor)d\(($left % 86400) / 3600 | floor)h)"
+          else " (残 \($left / 3600 | floor)h\((($left % 3600) / 60 | floor) | tostring | if length < 2 then "0" + . else . end)m)"
+          end
+      end;
 
     def limit_row($entry; $title):
       { title: $title,
-        formattedValue: "\($entry.usedPercent)% " + left_str($entry.resetsAt),
+        formattedValue: "\($entry.usedPercent)%" + left_str($entry.resetsAt),
         normalizedValue: ($entry.usedPercent / 100) };
 
     .rateLimits.limitId as $main
@@ -72,7 +79,10 @@ transform_usage() {
           # これが無いと GPT-5.3-Codex-Spark の枠が 0% のまま並び続ける。この枠は実使用でも
           # 加算されない不具合が報告されており (https://github.com/openai/codex/issues/23150)、
           # 未使用なのか集計漏れなのかは区別できないが、どちらでも表示する価値が無い。
-          | select(.primary.resetsAt - now < .primary.windowDurationMins * 60 - 300)
+          # resetsAt か windowDurationMins が null だと開始済みか判定できない。判定できない枠は
+          # 落とさず残す (隠すのは「一度も開始していないと確認できた」枠だけに限る)。
+          | select(.primary.resetsAt == null or .primary.windowDurationMins == null
+                   or (.primary.resetsAt - now < .primary.windowDurationMins * 60 - 300))
           | limit_row(.primary; "\(window_label(.primary.windowDurationMins)) (\(.limitName))") ),
         ( .rateLimitResetCredits.availableCount
           | select(. != null)
@@ -82,8 +92,13 @@ transform_usage() {
     # 応答から 1 行も作れない場合、そのまま採用すると空のカードでキャッシュを潰してしまう。
     | if length == 0 then error("no rate limit entries") else . end' \
     <<<"$json" 2>/dev/null)" || return 1
-  # 数値であることまで確かめる。欠落時に "null%" と表示するより ---  へ縮退した方がよい。
-  b="$(jq -r '.rateLimits.primary.usedPercent | select(type == "number") | "\(.)%"' \
+  # バーの値は行と同じ順で primary → secondary の先頭から採る。primary 固定にすると、
+  # スキーマ上 primary も secondary も null を取りうる (RateLimitSnapshot は required 無しで
+  # どちらも anyOf [RateLimitWindow, null]) ため、secondary だけが返る構成に変わった時に
+  # 行は作れるのにバーだけ失敗して全体が --- へ落ちる。
+  # 数値であることまで確かめるのは、欠落時に "null%" と表示するより --- へ縮退した方がよいため。
+  b="$(jq -r 'first(.rateLimits | (.primary, .secondary) | select(. != null)
+                | .usedPercent | select(type == "number")) | "\(.)%"' \
     <<<"$json" 2>/dev/null)" || return 1
   [[ -n "$m" && -n "$b" ]] || return 1
   metrics="$m"
