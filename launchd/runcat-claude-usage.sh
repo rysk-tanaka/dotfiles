@@ -6,7 +6,7 @@
 # 取得元は Claude Code の /usage コマンドと同じ非公開 API のため、レスポンス形式が予告なく
 # 変わりうる。トークン失効・API 変更・429 のいずれでも launchd ジョブを壊さないよう、
 # 失敗時は既存キャッシュへ、それも無ければ空メトリクスへ縮退して必ず正常終了する。
-# キャッシュはトークンが取れない時 (未ログイン等) にも使うため、直近 1 時間は値が残る。
+# キャッシュは未ログイン等でトークンが取れない時にも使うため、直近 1 時間は値が残る。
 set -euo pipefail
 
 OUT="${RUNCAT_JSON:-$HOME/.runcat/claude-usage.json}"
@@ -24,13 +24,13 @@ out_tmp=""
 trap 'rm -f "$api_tmp" "$out_tmp"' EXIT
 
 # アクセストークンは Claude Code が Keychain に保存し、ログイン中は自動更新される。
-# 値は画面にもログにも出さない (set -x を入れない、curl の -v を使わない)。
+# 値を画面にもログにも出さないよう、set -x を入れず curl の -v も使わない。
 token="$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null \
   | jq -r '.claudeAiOauth.accessToken // empty' 2>/dev/null)" || token=""
 
 if [[ -n "$token" ]]; then
   api_tmp="$(mktemp "$(dirname "$OUT")/.usage-api.XXXXXX")"
-  # Authorization は -H ではなく -K - (stdin の設定ファイル) で渡す。-H だとトークンが
+  # Authorization は -H ではなく stdin の設定ファイルとして -K - で渡す。-H だとトークンが
   # curl の argv に載り、同一ユーザーの他プロセスから ps で読めてしまうため。
   http_code="$(printf 'header = "Authorization: Bearer %s"\n' "$token" \
     | curl -sS -m 10 -K - -o "$api_tmp" -w '%{http_code}' \
@@ -58,7 +58,7 @@ bar=""
 if [[ -n "$usage_json" ]]; then
   # キャッシュ時のガードは .limits が配列かどうかしか見ていない。要素側のフィールドが
   # 欠けたり resets_at のオフセットが +00:00 以外に変わったりすると以下の jq は失敗するので、
-  # set -e で落ちないよう握りつぶして下の縮退分岐へ合流させる。
+  # set -e で落ちないよう失敗を捕捉し、下の縮退分岐へ合流させる。
   # resets_at はマイクロ秒と +00:00 オフセット付き (2026-07-25T18:00:00.002230+00:00) で、
   # fromdateiso8601 が期待する %Y-%m-%dT%H:%M:%SZ に合わないため両方を落としてから渡す。
   metrics="$(jq -c '
@@ -90,7 +90,7 @@ fi
 
 # キー名は RunCat Neo の Custom Metrics スキーマで固定。リネームすると無言で描画されなくなる。
 # 書きかけの JSON を RunCat Neo が読まないよう、同一ディレクトリの一時ファイルへ書いて
-# mv で原子的に置換する (公式スキーマドキュメントの Constraints で要求される作法)。
+# 公式スキーマドキュメントの Constraints が要求する作法に従い、mv で原子的に置換する。
 out_tmp="$(mktemp "$(dirname "$OUT")/.claude-usage.XXXXXX")"
 jq -n \
   --arg bar "$bar" \

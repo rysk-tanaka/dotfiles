@@ -241,7 +241,7 @@ MacOS用の初期セットアップを行います。
 
     旧構成（ccusage版）からの移行
 
-    `com.rysk.runcat-ccusage` を登録済みの環境では、新ジョブを登録する前に旧ジョブを停止します。Labelが異なるため、停止しないと旧ジョブが削除済みのスクリプトを実行し続けてエラーになります。
+    `com.rysk.runcat-ccusage` を登録済みの環境では、新ジョブを登録する前に旧ジョブを停止します。Labelが異なるため、停止しないと旧ジョブが削除済みのスクリプトを実行し続けます。
 
     ```bash
     launchctl bootout gui/$(id -u)/com.rysk.runcat-ccusage
