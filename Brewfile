@@ -64,6 +64,7 @@ cask "1password-cli"
 
 # Utilities
 cask "duet"
+mas "RunCat Neo", id: 6757801838 # Menu bar CPU indicator, Mac App Store only (no cask)
 cask "the-unarchiver"
 
 # IME
