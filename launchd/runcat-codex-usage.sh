@@ -94,7 +94,7 @@ transform_usage() {
 # だけで、app-server が OpenAI の usage API を待って返さない限りパイプラインが終わらないため。
 # launchd は前回の実行が生きている間 StartInterval の次回分を起動しないので、一度ハングすると
 # 手動で kill するまで表示が固まったままになる。姉妹スクリプトの curl -m 10 と同じ役割。
-# timeout は Brewfile の coreutils 由来。現行 (9.11) は timeout と gtimeout の両方を配置するが、
+# timeout は Brewfile の coreutils 由来。現行の 9.11 は timeout と gtimeout の両方を配置するが、
 # 古い環境では g 付きしか無いことがあるので両対応する。どちらも無ければ上限なしで実行する。
 # ここで諦めると使用率が二度と更新されず、呼び出し側の || true に握り潰されて気付けないため。
 run_app_server() {
