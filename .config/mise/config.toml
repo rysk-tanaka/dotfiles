@@ -3,13 +3,13 @@
 1password-cli = "2.32.1"
 actionlint = "1.7.12"
 aws-sam-cli = "1.163.0"
-awscli = "2.35.23"                         # requires rosetta 2
+awscli = "2.36.5"                         # requires rosetta 2
 bat = "0.26.1"
 bun = "1.3.14"
 delta = "0.19.2"
 duckdb = "1.5.4"
 eza = "0.23.4"
-fzf = "0.74.0"                             # required for zoxide interactive (cdi)
+fzf = "0.74.1"                             # required for zoxide interactive (cdi)
 gitu = "0.43.0"
 go = "1.26.5"
 jq = "1.8.2"
@@ -18,12 +18,12 @@ node = "lts"
 pandoc = "3.10"
 pre-commit = "4.6.0"
 python = "3.12.13"
-ripgrep = "15.1.0"
-rust = "1.97.0"
+ripgrep = "15.2.0"
+rust = "1.97.1"
 shellcheck = "0.11.0"
 starship = "1.26.0"
 terraform = "1.15.8"
-uv = "0.11.28"
+uv = "0.11.30"
 yarn = "4.17.1"
 zoxide = "0.10.0"
 
@@ -32,10 +32,10 @@ zoxide = "0.10.0"
 "aqua:anthropics/claude-code" = "2.1.218"
 "aqua:cli/cli" = "2.96.0"                  # gh: bare registry entry not tracked by Renovate
 "aqua:ducaale/xh" = "0.26.1"
-"aqua:google-antigravity/antigravity-cli" = "1.1.2"
+"aqua:google-antigravity/antigravity-cli" = "1.1.5"
 "aqua:google/osv-scanner" = "2.4.0"
-"aqua:j178/prek" = "0.4.9"
-"aqua:modem-dev/hunk" = "0.17.0"
+"aqua:j178/prek" = "0.4.10"
+"aqua:modem-dev/hunk" = "0.17.3"
 "aqua:suzuki-shunsuke/ghalint" = "1.5.6"
 "aqua:suzuki-shunsuke/pinact" = "4.1.0"
 "aqua:sxyazi/yazi" = "26.5.6"
@@ -52,20 +52,20 @@ zoxide = "0.10.0"
 
 # ubi: tools
 # global wakatime-cli stops claude-code-wakatime's unauthenticated GitHub API version polling
-"ubi:wakatime/wakatime-cli" = "2.22.0"
+"ubi:wakatime/wakatime-cli" = "2.22.2"
 
 # npm: tools
-"npm:aws-cdk" = "2.1131.0"
+"npm:aws-cdk" = "2.1132.0"
 "npm:cc-sdd" = "3.0.2"
 "npm:ccmanager" = "4.2.1"
 "npm:ccusage" = "20.0.18"                     # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
 "npm:@ccusage/codex" = "19.0.0"              # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
 "npm:claude-code-templates" = "1.29.4"
-"npm:@github/copilot" = "1.0.70"
-"npm:markdownlint-cli2" = "0.23.0"
+"npm:@github/copilot" = "1.0.73"
+"npm:markdownlint-cli2" = "0.23.1"
 "npm:md-mermaid-lint" = "1.0.1"
 "npm:opencommit" = "3.3.9"
-"npm:pnpm" = "11.11.0"                         # npm backend: aqua registry lacks v11 darwin tarball asset
+"npm:pnpm" = "11.15.1"                         # npm backend: aqua registry lacks v11 darwin tarball asset
 "npm:pyright" = "1.1.411"
 
 [env]
