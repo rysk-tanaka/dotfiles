@@ -37,7 +37,7 @@
       "customType": "regex",
       "description": "Track pinned mcp-proxy-for-aws version in MCP config and docs",
       "managerFilePatterns": ["/(^|/)\\.mcp\\.json$/", "/^docs/mcp\\.md$/"],
-      "matchStrings": ["mcp-proxy-for-aws@(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "matchStrings": ["mcp-proxy-for-aws@(?<currentValue>\\d+(?:\\.\\d+)+)"],
       "depNameTemplate": "mcp-proxy-for-aws",
       "datasourceTemplate": "pypi"
     }
