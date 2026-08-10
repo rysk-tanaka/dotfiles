@@ -12,15 +12,19 @@ AWSドキュメントへのアクセスを提供します。
 - スコープ: プロジェクト
 - 機能: AWS認証不要でドキュメントの閲覧・検索が可能
 
-### AWS API MCP Server
+### AWS MCP Server
 
-AWS CLIコマンドの実行を提供します。
+AWSがホストするマネージドリモートMCPサーバーです。開発終了となったOSS版 `awslabs.aws-api-mcp-server` の後継として移行しました。
 
-- コマンド: `uvx awslabs.aws-api-mcp-server@latest`
+- コマンド: `uvx mcp-proxy-for-aws@1.6.4 https://aws-mcp.us-east-1.api.aws/mcp --read-only`
 - スコープ: プロジェクト
-- 機能: 自然言語からAWS CLIコマンドを生成・実行
-- 設定: `READ_OPERATIONS_ONLY=true`（読み取り専用モード）
-- 前提条件: AWS認証情報の設定（AWS CLI/SDKの設定に従う）
+- 機能: 15,000以上のAWS APIの実行、ドキュメント取得、サンドボックスでのスクリプト実行
+- 構成: ローカルには軽量プロキシ `mcp-proxy-for-aws` のみ配置し、リクエストをSigV4で署名してAWS側で実行
+- 設定: `--read-only` フラグで書き込み権限が必要なツールを無効化。IAMポリシーの `aws:ViaAWSMCPService` コンテキストキーでも制御可能
+- 前提条件: AWS CLI/SDKの認証チェーンに従ったAWS認証情報の設定
+- バージョン: 移行ガイドの推奨に従い、サプライチェーン対策として `@latest` ではなく特定バージョンに固定。更新は Renovate の custom manager が `.mcp.json` とこのドキュメントを追従
+- 運用方針: マルチアカウント環境で IAM ポリシー整備が現実的でないため `--read-only` を維持し、MCP はドキュメント検索等の知識系ツールに限定。読み取りを含む AWS 操作は AWS CLI + プロファイル切替で行う
+- 参考: <https://github.com/awslabs/mcp/blob/main/src/aws-api-mcp-server/MIGRATION.md>
 
 ### Playwright MCP Server
 
@@ -79,14 +83,14 @@ MCPサーバーの設定は以下のファイルに保存されます。
         "FASTMCP_LOG_LEVEL": "ERROR"
       }
     },
-    "aws-api": {
+    "aws-mcp": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["awslabs.aws-api-mcp-server@latest"],
-      "env": {
-        "FASTMCP_LOG_LEVEL": "ERROR",
-        "READ_OPERATIONS_ONLY": "true"
-      }
+      "args": [
+        "mcp-proxy-for-aws@1.6.4",
+        "https://aws-mcp.us-east-1.api.aws/mcp",
+        "--read-only"
+      ]
     },
     "playwright": {
       "type": "stdio",

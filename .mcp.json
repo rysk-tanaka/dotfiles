@@ -8,14 +8,14 @@
         "FASTMCP_LOG_LEVEL": "ERROR"
       }
     },
-    "aws-api": {
+    "aws-mcp": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["awslabs.aws-api-mcp-server@latest"],
-      "env": {
-        "FASTMCP_LOG_LEVEL": "ERROR",
-        "READ_OPERATIONS_ONLY": "true"
-      }
+      "args": [
+        "mcp-proxy-for-aws@1.6.4",
+        "https://aws-mcp.us-east-1.api.aws/mcp",
+        "--read-only"
+      ]
     },
     "playwright": {
       "type": "stdio",
