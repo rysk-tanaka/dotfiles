@@ -108,6 +108,7 @@ MacOS用の初期セットアップを行います。
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
 ├── renovate.json                     # Renovate依存関係自動更新設定
 ├── launchd/                          # LaunchAgent定義
+│   ├── com.rysk.gc-uv-cache.plist    # uvキャッシュを日次でprune
 │   ├── com.rysk.gh-token-env.plist   # GH_TOKENをGUIセッションへ注入
 │   ├── com.rysk.runcat-claude-usage.plist # Claudeのプラン使用制限を定期採取
 │   ├── com.rysk.runcat-codex-usage.plist # Codexのプラン使用制限を定期採取
@@ -226,6 +227,17 @@ MacOS用の初期セットアップを行います。
     ```bash
     ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gh-token-env.plist ~/Library/LaunchAgents/
     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
+    ```
+
+    uvキャッシュの定期prune
+
+    `~/.cache/uv` を毎日3時に `uv cache prune` します。uvにはTTLもサイズ上限も自動GCも無く、放置すると際限なく膨らむため定期実行をこちらで用意しています。実体は `mise run gc-uv-cache` と同じスクリプトなので、手動実行もできます。
+
+    週次ではなく日次なのはロック競合を避けるためです。常駐する `uvx` 製のMCPサーバーがキャッシュロックを保持し続けるので、Claude Codeのセッションが開いている間のpruneは必ず失敗します。タスク側はロックを検知すると即座に諦めて正常終了するため、空振りしても害はありません。試行回数を稼いでセッションが閉じている時間帯に当たるのを待ちます。
+
+    ```bash
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gc-uv-cache.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gc-uv-cache.plist
     ```
 
     RunCat Neoのカスタムメトリクス（任意）

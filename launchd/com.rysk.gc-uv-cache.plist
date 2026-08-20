@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  uv のキャッシュ (~/.cache/uv) を定期的に prune する。uv には TTL もサイズ上限も自動GCも
+  無いため (astral-sh/uv#5731, #9790 はいずれも未実装)、定期実行はこちらで用意する必要がある。
+
+  StartCalendarInterval が実行タイミングの唯一の定義 (毎日 3:00)。週次ではなく日次なのは
+  ロック競合のため。常駐する uvx 製 MCP サーバーがキャッシュロックを保持し続けるので
+  (astral-sh/uv#16112)、Claude Code のセッションが開いている間の prune は必ず失敗する。
+  タスク側はロック検知で即座に諦めて exit 0 するので、空振りは安いし無害。日次で試行回数を
+  稼ぎ、セッションが閉じている時間帯に当たるのを待つ設計。
+
+  スリープ中に発火時刻を跨いだ場合、launchd は起床直後に一度だけ実行する。セッション開始前
+  なのでロックが空いている可能性が高く、この設計とは相性が良い。
+
+  導入 (symlink の作成手順は README.md を参照):
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gc-uv-cache.plist
+  解除:
+    launchctl bootout gui/$(id -u)/com.rysk.gc-uv-cache
+    unlink ~/Library/LaunchAgents/com.rysk.gc-uv-cache.plist
+  実行ログ: /tmp/com.rysk.gc-uv-cache.out / .err
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.rysk.gc-uv-cache</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/rysk/Repositories/rysk/dotfiles/.config/mise/tasks/gc-uv-cache</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/rysk/.local/share/mise/shims:/opt/homebrew/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <false/>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>3</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.rysk.gc-uv-cache.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.rysk.gc-uv-cache.err</string>
+</dict>
+</plist>
