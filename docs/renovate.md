@@ -18,7 +18,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "enabledManagers": ["github-actions", "mise", "pre-commit"],
+  "enabledManagers": ["github-actions", "mise", "pre-commit", "custom.regex"],
   "labels": ["dependencies"],
   "timezone": "Asia/Tokyo",
   "schedule": ["before 9am on saturday"],
@@ -37,6 +37,16 @@
       "matchDepNames": ["npm:ccusage", "npm:@ccusage/codex"],
       "groupName": "ccusage"
     }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track pinned mcp-proxy-for-aws version in MCP config and docs",
+      "managerFilePatterns": ["/(^|/)\\.mcp\\.json$/", "/^docs/mcp\\.md$/"],
+      "matchStrings": ["mcp-proxy-for-aws@(?<currentValue>\\d+(?:\\.\\d+)+)"],
+      "depNameTemplate": "mcp-proxy-for-aws",
+      "datasourceTemplate": "pypi"
+    }
   ]
 }
 ```
@@ -44,10 +54,11 @@
 各フィールドの説明。
 
 - `extends` - `config:recommended` で推奨プリセットを適用（range更新なし等）。`group:allNonMajor` で minor / patch / digest 更新を 1 PR に集約し、major のみ個別 PR とする（`prHourlyLimit` のデフォルト 2 件/時に小粒な更新が詰まって後回しになるのを防ぐ）
-- `enabledManagers` - 有効にするマネージャを限定。対応しているマネージャは以下の3つ
+- `enabledManagers` - 有効にするマネージャを限定。対応しているマネージャは以下の4つ
   - `github-actions` - `.github/workflows/` 内のアクションバージョン
   - `mise` - `.config/mise/config.toml` のツールバージョン
   - `pre-commit` - `.pre-commit-config.yaml` のフックバージョン
+  - `custom.regex` - 正規表現ベースのカスタムマネージャ（後述の customManagers セクション参照）
 - `labels` - 作成されるPRに付与するラベル
 - `timezone` / `schedule` - 更新チェックのスケジュール
 
@@ -72,6 +83,17 @@
 これにより、ツールのインストールが失敗するバージョンが自動マージされるリスクを防止しています。
 
 パッケージの指定には `matchDepNames` を使用します。以前は `matchPackageNames` が使われていましたが、Renovate v39 以降は `matchDepNames` に統一されています。
+
+### customManagers
+
+専用マネージャが存在しないファイル内のバージョン文字列は、regex カスタムマネージャで追従します。
+
+現在は `mcp-proxy-for-aws`（AWS MCP Server 用プロキシ、詳細は `docs/mcp.md` 参照）を対象に、`.mcp.json` と `docs/mcp.md` 内の `mcp-proxy-for-aws@X.Y.Z` を PyPI データソースで追跡しています。両ファイルが同一 PR で更新されるため、実設定とドキュメントの乖離が起きません。
+
+注意点。
+
+- regex はバージョン文字列の書き換えのみ行う。エンドポイント URL 変更などファイル構造の変更は手動対応
+- `enabledManagers` に `custom.regex` を含めないと customManagers 定義があっても動作しない
 
 ## miseマネージャとの連携
 
