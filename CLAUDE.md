@@ -13,6 +13,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Install tools: `mise install` (installs all tools defined in `.config/mise/config.toml`)
 - Sync tools after Renovate: `mise run sync-tools` (runs `mise install`, lists prunable versions and prunes them after a `y/N` confirmation, then checks Codex CLI version lag and whether the configured model is still in the catalog; `--yes` skips the prune prompt)
 - Prune uv cache: `mise run gc-uv-cache` (runs `uv cache prune`, skipping quietly while a `uvx` MCP server holds the cache lock; scheduled daily via `launchd/com.rysk.gc-uv-cache.plist` since uv has no automatic GC)
+- Prune Docker: `mise run gc-docker` (prunes old containers, images, and builder cache via OrbStack, skipping quietly while OrbStack is stopped; scheduled weekly via `launchd/com.rysk.gc-docker.plist`; volumes are never pruned)
+- Prune Rust targets: `mise run gc-rust-targets` (deletes `target/` of projects not built for 30+ days via cargo-clean-all, `--dry-run` to preview; scheduled weekly via `launchd/com.rysk.gc-rust-targets.plist`)
 - Setup WakaTime: `mise run setup-wakatime` (generates `~/.wakatime.cfg` from 1Password)
 - Install fonts: `mise run setup-fonts` or `bash .config/mise/tasks/setup-fonts` (installs Bizin Gothic NF from GitHub Releases)
 - Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+#MISE description="Delete Rust target dirs of projects not built recently, via cargo-clean-all"
+#USAGE flag "--keep-days <days>" help="Keep target dirs of projects built within this many days" default="30"
+#USAGE flag "--dir <path>" help="Root directory to scan for cargo projects (default: ~/Repositories)"
+#USAGE flag "--dry-run" help="List cleanable projects without deleting anything"
+
+set -euo pipefail
+
+keep_days="${usage_keep_days:-30}"
+# Default built from $HOME here rather than in #USAGE: a literal "~/Repositories"
+# coming through a quoted variable never tilde-expands.
+dir="${usage_dir:-$HOME/Repositories}"
+
+if ! command -v cargo-clean-all >/dev/null 2>&1; then
+    echo "gc-rust-targets: cargo-clean-all not found in PATH" >&2
+    exit 1
+fi
+
+args=(--keep-days "$keep_days" --yes)
+if [ "${usage_dry_run:-false}" = "true" ]; then
+    args+=(--dry-run)
+fi
+
+# Deletes whole target dirs (next build is a full rebuild); projects built within
+# --keep-days are skipped entirely, so active incremental caches survive.
+cargo-clean-all "$dir" "${args[@]}"

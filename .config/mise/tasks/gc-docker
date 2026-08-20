@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+#MISE description="Prune old Docker containers, images, and builder cache, skipping cleanly while OrbStack is stopped"
+#USAGE flag "--until <hours>" help="Remove unused images created more than this many hours ago" default="1440"
+#USAGE flag "--containers-until <hours>" help="Remove stopped containers created more than this many hours ago" default="720"
+
+set -euo pipefail
+
+until_hours="${usage_until:-1440}"
+containers_until="${usage_containers_until:-720}"
+
+if ! command -v orbctl >/dev/null 2>&1; then
+    echo "gc-docker: orbctl not found in PATH" >&2
+    exit 1
+fi
+if ! command -v docker >/dev/null 2>&1; then
+    echo "gc-docker: docker not found in PATH" >&2
+    exit 1
+fi
+
+# Gate on OrbStack state before any docker command: the docker CLI auto-starts
+# the OrbStack VM, and waking it up just to prune defeats the purpose.
+# Exit codes verified on OrbStack 2.2.3: 0=Running, 1=Stopped, 2=Starting.
+# Wrapped in set +e/-e because a bare `orbctl status` would kill the script
+# under `set -e` before the branch below ever runs.
+set +e
+orbctl status >/dev/null 2>&1
+rc=$?
+set -e
+case $rc in
+    0) ;;
+    1 | 2)
+        echo "==> skipped: OrbStack is not running (retry on the next run)"
+        exit 0
+        ;;
+    *)
+        echo "gc-docker: orbctl status failed with exit code $rc" >&2
+        exit 1
+        ;;
+esac
+
+echo "==> docker disk usage (before)"
+docker system df | sed 's/^/    /'
+
+# Containers before images: a stopped container pins its image, so the reverse
+# order leaves those images behind for another cycle. The `until` filter is
+# creation-time based for both (Docker records no last-used time), so a
+# long-running container stopped yesterday is still pruned once its creation is
+# old enough. Acceptable here: these are throwaway dev containers.
+echo "==> pruning stopped containers older than ${containers_until}h"
+docker container prune --force --filter "until=${containers_until}h" | sed 's/^/    /'
+
+echo "==> pruning unused images older than ${until_hours}h"
+docker image prune --all --force --filter "until=${until_hours}h" | sed 's/^/    /'
+
+# Current Docker CLI resolves `docker builder prune` to the Buildx prune, whose
+# size flag is --max-used-space; the legacy one is --keep-storage. Detect the
+# flag from the same command's --help so detection and execution cannot diverge.
+# --all is deliberately omitted (internal/frontend caches are kept), so 2GB caps
+# only the normally-prunable cache, not the total builder cache size.
+echo "==> pruning builder cache down to 2GB"
+if docker builder prune --help 2>&1 | grep -q -- '--max-used-space'; then
+    docker builder prune --force --max-used-space 2GB | sed 's/^/    /'
+else
+    docker builder prune --force --keep-storage 2GB | sed 's/^/    /'
+fi
+
+echo "==> docker disk usage (after)"
+docker system df | sed 's/^/    /'
+
+# Volumes are never pruned automatically: they can hold DB data. Report only.
+# Guard the assignment: this is a report-only line, and a future format change
+# must not turn a successful prune into an error exit under `set -e`.
+vol_reclaimable=$(docker system df | awk '/^Local Volumes/ {print $(NF - 1), $NF}') || vol_reclaimable=""
+echo "==> volumes are not pruned (may hold DB data); reclaimable: ${vol_reclaimable:-unknown}"

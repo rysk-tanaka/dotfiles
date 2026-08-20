@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Docker (OrbStack) の古いコンテナ・イメージ・builder キャッシュを毎週日曜 3:30 に prune する
+  (実体は mise タスク gc-docker)。uv と違いロック競合が無いため週次で十分。
+
+  タスク側は orbctl status で OrbStack 停止中を検知して exit 0 する (docker CLI は
+  OrbStack VM を自動起動してしまうため、prune のために VM を起こさないガード)。
+  volume は DB データ消失リスクがあるため prune 対象外 (reclaimable の情報表示のみ)。
+  スリープで発火時刻を跨いだ場合、launchd は起床直後に一度だけ実行する。
+
+  PATH の /usr/local/bin は docker CLI (OrbStack の symlink) 用。
+
+  導入 (symlink の作成手順は README.md を参照):
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gc-docker.plist
+  解除:
+    launchctl bootout gui/$(id -u)/com.rysk.gc-docker
+    unlink ~/Library/LaunchAgents/com.rysk.gc-docker.plist
+  実行ログ: /tmp/com.rysk.gc-docker.out / .err
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.rysk.gc-docker</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/rysk/Repositories/rysk/dotfiles/.config/mise/tasks/gc-docker</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/rysk/.local/share/mise/shims:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <false/>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>0</integer>
+        <key>Hour</key>
+        <integer>3</integer>
+        <key>Minute</key>
+        <integer>30</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.rysk.gc-docker.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.rysk.gc-docker.err</string>
+</dict>
+</plist>
