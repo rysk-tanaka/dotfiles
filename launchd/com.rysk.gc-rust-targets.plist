@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ~/Repositories 配下の休眠 Rust プロジェクトの target/ を毎週日曜 4:00 に削除する
+  (実体は mise タスク gc-rust-targets、cargo-clean-all 使用)。Cargo 1.88+ の自動 GC は
+  ~/.cargo のみで target/ は対象外のため、定期実行はこちらで用意する。
+  uv と違いロック競合が無いため週次で十分。30 日以内にビルドされたプロジェクトは
+  target 全体が保護される。
+  スリープで発火時刻を跨いだ場合、launchd は起床直後に一度だけ実行する。
+
+  導入 (symlink の作成手順は README.md を参照):
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gc-rust-targets.plist
+  解除:
+    launchctl bootout gui/$(id -u)/com.rysk.gc-rust-targets
+    unlink ~/Library/LaunchAgents/com.rysk.gc-rust-targets.plist
+  実行ログ: /tmp/com.rysk.gc-rust-targets.out / .err
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.rysk.gc-rust-targets</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/rysk/Repositories/rysk/dotfiles/.config/mise/tasks/gc-rust-targets</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/rysk/.local/share/mise/shims:/opt/homebrew/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <false/>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>0</integer>
+        <key>Hour</key>
+        <integer>4</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.rysk.gc-rust-targets.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.rysk.gc-rust-targets.err</string>
+</dict>
+</plist>
