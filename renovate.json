@@ -35,10 +35,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track pinned mcp-proxy-for-aws version in MCP config and docs",
+      "description": "Track pinned PyPI-backed MCP server versions in MCP config and docs. The depName alternation is an explicit allowlist so npm-backed entries (@playwright/mcp, @drawio/mcp) are not matched as PyPI packages.",
       "managerFilePatterns": ["/(^|/)\\.mcp\\.json$/", "/^docs/mcp\\.md$/"],
-      "matchStrings": ["mcp-proxy-for-aws@(?<currentValue>\\d+(?:\\.\\d+)+)"],
-      "depNameTemplate": "mcp-proxy-for-aws",
+      "matchStrings": ["(?<depName>mcp-proxy-for-aws|awslabs\\.aws-documentation-mcp-server)@(?<currentValue>\\d+(?:\\.\\d+)+)"],
       "datasourceTemplate": "pypi"
     }
   ]
