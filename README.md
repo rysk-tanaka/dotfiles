@@ -108,6 +108,8 @@ MacOS用の初期セットアップを行います。
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
 ├── renovate.json                     # Renovate依存関係自動更新設定
 ├── launchd/                          # LaunchAgent定義
+│   ├── com.rysk.gc-docker.plist      # Dockerの古いイメージ等を週次でprune
+│   ├── com.rysk.gc-rust-targets.plist # 休眠Rustプロジェクトのtargetを週次で削除
 │   ├── com.rysk.gc-uv-cache.plist    # uvキャッシュを日次でprune
 │   ├── com.rysk.gh-token-env.plist   # GH_TOKENをGUIセッションへ注入
 │   ├── com.rysk.runcat-claude-usage.plist # Claudeのプラン使用制限を定期採取
@@ -236,6 +238,17 @@ MacOS用の初期セットアップを行います。
     ```bash
     ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gc-uv-cache.plist ~/Library/LaunchAgents/
     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gc-uv-cache.plist
+    ```
+
+    Docker・Rust targetの定期GC
+
+    Dockerの古いコンテナ・イメージ・builderキャッシュのpruneと、休眠Rustプロジェクトの `target/` 削除を毎週日曜に実行します（手動実行は `mise run gc-docker` / `mise run gc-rust-targets`）。volumeを対象外とした理由などの設計判断は各plist内のコメントを参照してください。
+
+    ```bash
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gc-docker.plist ~/Library/LaunchAgents/
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gc-rust-targets.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gc-docker.plist
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gc-rust-targets.plist
     ```
 
     RunCat Neoのカスタムメトリクス（任意）
