@@ -21,7 +21,11 @@ cache_bytes() {
         printf '%s' "$out"
         return 0
     fi
-    du -sk "$(uv cache dir 2>/dev/null)" 2>/dev/null | awk '{print $1 * 1024}'
+    # The cache directory does not exist until uv first runs, so `du` can fail here.
+    # Guard the assignment: an unguarded one would abort the whole script via `set -e`
+    # with its stderr already swallowed, which is the opposite of degrading gracefully.
+    out=$(du -sk "$(uv cache dir 2>/dev/null)" 2>/dev/null | awk '{print $1 * 1024}') || out=""
+    printf '%s' "${out:-0}"
 }
 
 human() {
@@ -37,7 +41,7 @@ echo "==> uv cache: $(human "$before")"
 # Fail fast and let the next run pick it up rather than blocking for minutes.
 # `--force` would skip the in-use check and can delete archives a live venv still
 # hardlinks, so it is deliberately not used here.
-holders=$(pgrep -x uv 2>/dev/null | grep -v "^$$\$" || true)
+holders=$(pgrep -x uv 2>/dev/null || true)
 if [ -n "$holders" ]; then
     echo "    in-flight uv processes: $(echo "$holders" | tr '\n' ' ')"
 fi
@@ -48,7 +52,10 @@ rc=$?
 set -e
 
 if [ $rc -ne 0 ]; then
-    if printf '%s' "$output" | grep -q "waiting for lock"; then
+    # uv exposes no distinct exit code for lock contention, so this has to match its
+    # message text. Keep the pattern broad across wordings: a missed match downgrades a
+    # harmless skip into a noisy failure, which is what this whole branch exists to avoid.
+    if printf '%s' "$output" | grep -qiE 'waiting for lock|currently in-use|timeout .*lock'; then
         echo "    skipped: another uv process holds the cache lock (retry on the next run)"
         exit 0
     fi
@@ -60,7 +67,12 @@ printf '%s\n' "$output" | sed 's/^/    /'
 
 after=$(cache_bytes)
 after=${after:-0}
-echo "==> pruned: $(human "$before") -> $(human "$after") (reclaimed $(human $((before - after))))"
+# A concurrent uv run can grow the cache mid-prune, so clamp rather than print "-0.0GiB".
+reclaimed=$((before - after))
+if [ "$reclaimed" -lt 0 ]; then
+    reclaimed=0
+fi
+echo "==> pruned: $(human "$before") -> $(human "$after") (reclaimed $(human "$reclaimed"))"
 
 threshold_bytes=$(awk -v g="$threshold_gib" 'BEGIN { printf "%d", g * 1073741824 }')
 if [ "$after" -gt "$threshold_bytes" ]; then
