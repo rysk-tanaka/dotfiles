@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Install Homebrew packages: `brew bundle` (installs packages and fonts defined in `Brewfile`)
 - Install tools: `mise install` (installs all tools defined in `.config/mise/config.toml`)
 - Sync tools after Renovate: `mise run sync-tools` (runs `mise install`, lists prunable versions and prunes them after a `y/N` confirmation, then checks Codex CLI version lag and whether the configured model is still in the catalog; `--yes` skips the prune prompt)
-- Prune uv cache: `mise run gc-uv-cache` (runs `uv cache prune`; exits quietly when a long-lived `uvx` MCP server holds the cache lock, and warns when the cache stays above `--threshold` GiB. Scheduled daily by `launchd/com.rysk.gc-uv-cache.plist` — uv has no TTL, size cap, or automatic GC)
+- Prune uv cache: `mise run gc-uv-cache` (runs `uv cache prune`, skipping quietly while a `uvx` MCP server holds the cache lock; scheduled daily via `launchd/com.rysk.gc-uv-cache.plist` since uv has no automatic GC)
 - Setup WakaTime: `mise run setup-wakatime` (generates `~/.wakatime.cfg` from 1Password)
 - Install fonts: `mise run setup-fonts` or `bash .config/mise/tasks/setup-fonts` (installs Bizin Gothic NF from GitHub Releases)
 - Scan Brewfile: `mise run scan-brew` (shows diff between installed packages and Brewfile)

@@ -231,9 +231,7 @@ MacOS用の初期セットアップを行います。
 
     uvキャッシュの定期prune
 
-    `~/.cache/uv` を毎日3時に `uv cache prune` します。uvにはTTLもサイズ上限も自動GCも無く、放置すると際限なく膨らむため定期実行をこちらで用意しています。実体は `mise run gc-uv-cache` と同じスクリプトなので、手動実行もできます。
-
-    週次ではなく日次なのはロック競合を避けるためです。常駐する `uvx` 製のMCPサーバーがキャッシュロックを保持し続けるので、Claude Codeのセッションが開いている間のpruneは必ず失敗します。タスク側はロックを検知すると即座に諦めて正常終了するため、空振りしても害はありません。試行回数を稼いでセッションが閉じている時間帯に当たるのを待ちます。
+    uvにはキャッシュの自動GCが無いため、毎日3時に `uv cache prune` を実行します（手動実行は `mise run gc-uv-cache`）。日次スケジュールの理由やロック競合時の挙動は plist 内のコメントを参照してください。
 
     ```bash
     ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gc-uv-cache.plist ~/Library/LaunchAgents/
