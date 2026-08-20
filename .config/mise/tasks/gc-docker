@@ -68,5 +68,7 @@ echo "==> docker disk usage (after)"
 docker system df | sed 's/^/    /'
 
 # Volumes are never pruned automatically: they can hold DB data. Report only.
-vol_reclaimable=$(docker system df | awk '/^Local Volumes/ {print $(NF - 1), $NF}')
+# Guard the assignment: this is a report-only line, and a future format change
+# must not turn a successful prune into an error exit under `set -e`.
+vol_reclaimable=$(docker system df | awk '/^Local Volumes/ {print $(NF - 1), $NF}') || vol_reclaimable=""
 echo "==> volumes are not pruned (may hold DB data); reclaimable: ${vol_reclaimable:-unknown}"
