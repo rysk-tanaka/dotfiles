@@ -8,7 +8,7 @@ Claude CodeはMCPサーバーを使って外部ツールやサービスと連携
 
 AWSドキュメントへのアクセスを提供します。
 
-- コマンド: `uvx awslabs.aws-documentation-mcp-server@latest`
+- コマンド: `uvx awslabs.aws-documentation-mcp-server@1.1.30`
 - スコープ: プロジェクト
 - 機能: AWS認証不要でドキュメントの閲覧・検索が可能
 
@@ -78,7 +78,7 @@ MCPサーバーの設定は以下のファイルに保存されます。
     "aws-docs": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "args": ["awslabs.aws-documentation-mcp-server@1.1.30"],
       "env": {
         "FASTMCP_LOG_LEVEL": "ERROR"
       }

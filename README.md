@@ -108,6 +108,7 @@ MacOS用の初期セットアップを行います。
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
 ├── renovate.json                     # Renovate依存関係自動更新設定
 ├── launchd/                          # LaunchAgent定義
+│   ├── com.rysk.gc-uv-cache.plist    # uvキャッシュを日次でprune
 │   ├── com.rysk.gh-token-env.plist   # GH_TOKENをGUIセッションへ注入
 │   ├── com.rysk.runcat-claude-usage.plist # Claudeのプラン使用制限を定期採取
 │   ├── com.rysk.runcat-codex-usage.plist # Codexのプラン使用制限を定期採取
@@ -226,6 +227,15 @@ MacOS用の初期セットアップを行います。
     ```bash
     ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gh-token-env.plist ~/Library/LaunchAgents/
     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
+    ```
+
+    uvキャッシュの定期prune
+
+    uvにはキャッシュの自動GCが無いため、毎日3時に `uv cache prune` を実行します（手動実行は `mise run gc-uv-cache`）。日次スケジュールの理由やロック競合時の挙動は plist 内のコメントを参照してください。
+
+    ```bash
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gc-uv-cache.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gc-uv-cache.plist
     ```
 
     RunCat Neoのカスタムメトリクス（任意）

@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+#MISE description="Prune the uv cache, skipping cleanly while another uv process holds the cache lock"
+#USAGE flag "--threshold <gib>" help="Warn when the cache still exceeds this size (GiB) after pruning" default="20"
+#USAGE flag "--lock-timeout <seconds>" help="Seconds to wait for the uv cache lock before giving up" default="10"
+
+set -euo pipefail
+
+threshold_gib="${usage_threshold:-20}"
+lock_timeout="${usage_lock_timeout:-10}"
+
+if ! command -v uv >/dev/null 2>&1; then
+    echo "gc-uv-cache: uv not found in PATH" >&2
+    exit 1
+fi
+
+# `uv cache size` is still preview-gated, so fall back to du when the flag or the
+# subcommand disappears in a future release. Both report bytes.
+cache_bytes() {
+    local out
+    if out=$(uv cache size --preview-features cache-size 2>/dev/null) && [[ "$out" =~ ^[0-9]+$ ]]; then
+        printf '%s' "$out"
+        return 0
+    fi
+    # The cache directory does not exist until uv first runs, so `du` can fail here.
+    # Guard the assignment: an unguarded one would abort the whole script via `set -e`
+    # with its stderr already swallowed, which is the opposite of degrading gracefully.
+    out=$(du -sk "$(uv cache dir 2>/dev/null)" 2>/dev/null | awk '{print $1 * 1024}') || out=""
+    printf '%s' "${out:-0}"
+}
+
+human() {
+    awk -v b="${1:-0}" 'BEGIN { printf "%.1fGiB", b / 1073741824 }'
+}
+
+before=$(cache_bytes)
+before=${before:-0}
+echo "==> uv cache: $(human "$before")"
+
+# A long-lived `uvx` MCP server holds the cache lock for its whole lifetime, so a
+# scheduled prune collides with any open Claude Code session (astral-sh/uv#16112).
+# Fail fast and let the next run pick it up rather than blocking for minutes.
+# `--force` would skip the in-use check and can delete archives a live venv still
+# hardlinks, so it is deliberately not used here.
+holders=$(pgrep -x uv 2>/dev/null || true)
+if [ -n "$holders" ]; then
+    echo "    in-flight uv processes: $(echo "$holders" | tr '\n' ' ')"
+fi
+
+set +e
+output=$(UV_LOCK_TIMEOUT="$lock_timeout" uv cache prune 2>&1)
+rc=$?
+set -e
+
+if [ $rc -ne 0 ]; then
+    # uv exposes no distinct exit code for lock contention, so this has to match its
+    # message text. Keep the pattern broad across wordings: a missed match downgrades a
+    # harmless skip into a noisy failure, which is what this whole branch exists to avoid.
+    if printf '%s' "$output" | grep -qiE 'waiting for lock|currently in-use|timeout .*lock'; then
+        echo "    skipped: another uv process holds the cache lock (retry on the next run)"
+        exit 0
+    fi
+    echo "$output" >&2
+    exit $rc
+fi
+
+printf '%s\n' "$output" | sed 's/^/    /'
+
+after=$(cache_bytes)
+after=${after:-0}
+# A concurrent uv run can grow the cache mid-prune, so clamp rather than print "-0.0GiB".
+reclaimed=$((before - after))
+if [ "$reclaimed" -lt 0 ]; then
+    reclaimed=0
+fi
+echo "==> pruned: $(human "$before") -> $(human "$after") (reclaimed $(human "$reclaimed"))"
+
+threshold_bytes=$(awk -v g="$threshold_gib" 'BEGIN { printf "%d", g * 1073741824 }')
+if [ "$after" -gt "$threshold_bytes" ]; then
+    echo "==> still above ${threshold_gib}GiB after pruning." >&2
+    echo "    live .venv hardlinks keep their archive entries alive; check for pinned-version churn," >&2
+    echo "    or escalate manually with: uv cache clean   (full wipe, forces re-download)" >&2
+fi
