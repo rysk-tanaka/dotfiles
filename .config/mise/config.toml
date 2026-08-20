@@ -43,6 +43,7 @@ zoxide = "0.10.0"
 
 # cargo: tools
 "cargo:treemd" = "0.6.0"
+"cargo:cargo-clean-all" = "0.6.4"
 
 # github: tools
 "github:rysk-tanaka/csvr" = "0.2.0"
