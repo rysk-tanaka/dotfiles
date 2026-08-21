@@ -171,9 +171,11 @@ if (!settings['markdown-pdf.executablePath']) {
 }
 
 function sectionConfig(section) {
-  // build nested object for a section from flat dotted keys
+  // build nested object for a section from flat dotted keys; an empty section
+  // (getConfiguration() with no args) exposes every key under its full dotted
+  // path, matching VS Code's whole-config view
   const out = {};
-  const prefix = section + '.';
+  const prefix = section ? section + '.' : '';
   for (const [k, v] of Object.entries(settings)) {
     if (!k.startsWith(prefix)) continue;
     const parts = k.slice(prefix.length).split('.');
@@ -271,7 +273,7 @@ Module._load = function (request, parent, isMain) {
 const cacheDir = path.join(os.homedir(), '.cache', 'markdown-pdf-cli', 'chromium');
 fs.mkdirSync(cacheDir, { recursive: true });
 const context = {
-  subscriptions: { push() {} },
+  subscriptions: [],
   globalStorageUri: { fsPath: cacheDir },
   globalStoragePath: cacheDir,
   extension: { packageJSON: extPkg },
