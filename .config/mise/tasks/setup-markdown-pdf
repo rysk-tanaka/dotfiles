@@ -20,7 +20,9 @@ if [ -d "${REPO_DIR}/.git" ]; then
         # a previous pinned run leaves a detached HEAD; return to the default
         # branch before pulling so unpinning actually tracks upstream again
         if ! git -C "${REPO_DIR}" symbolic-ref -q HEAD >/dev/null; then
-            default_branch="$(git -C "${REPO_DIR}" rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's|^origin/||')"
+            # "|| true" keeps set -e from killing the assignment when
+            # origin/HEAD is unset, so the :-master fallback can kick in
+            default_branch="$(git -C "${REPO_DIR}" rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's|^origin/||' || true)"
             git -C "${REPO_DIR}" checkout "${default_branch:-master}"
         fi
         echo "Updating ${REPO_DIR}..."
