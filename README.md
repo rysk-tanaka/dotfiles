@@ -84,7 +84,10 @@ MacOS用の初期セットアップを行います。
 │   │   └── zed-attach.sh             # Zedターミナル用アタッチスクリプト
 │   ├── zed/                          # Zedエディタ
 │   │   ├── keymap.json               # キーマップ設定
-│   │   └── settings.json             # 一般設定
+│   │   ├── settings.json             # 一般設定
+│   │   └── tasks.json                # タスク定義（Markdown → PDF等）
+│   ├── markdown-pdf-cli/             # Markdown→PDF変換CLI
+│   │   └── markdown-pdf-cli.cjs      # vscode-markdown-pdfのCLIラッパー
 │   ├── ghostty/                      # Ghosttyターミナル
 │   │   └── config                    # Ghostty設定
 │   ├── hunk/                         # Hunk diffビューア
@@ -213,6 +216,7 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.config/tmux/zed-attach.sh ~/.config/tmux/zed-attach.sh
     ln -sf ~/Repositories/rysk/dotfiles/.config/zed/keymap.json ~/.config/zed/keymap.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/zed/settings.json ~/.config/zed/settings.json
+    ln -sf ~/Repositories/rysk/dotfiles/.config/zed/tasks.json ~/.config/zed/tasks.json
     ln -sf ~/Repositories/rysk/dotfiles/.config/starship.toml ~/.config/starship.toml
     ln -sf ~/Repositories/rysk/dotfiles/.gitconfig.managed ~/.gitconfig.managed
     git config --global include.path ~/.gitconfig.managed

@@ -22,6 +22,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Setup review label: `mise run setup-review-label` (creates `claude-review` label on current GitHub repo)
 - Suggest branch name: `mise run suggest-branch` (analyzes work and suggests branch names)
 - Setup skills symlinks: `mise run setup-skills` (clones `rysk-tanaka/skills` if missing and creates per-skill symlinks under `.claude/skills/`, then restores external skills: catalog.json `source` が `owner/repo` は `gh skill install`、`gist:<id>` は `gh api gists/<id>` で復元). dotfiles 初回 clone 直後に必須。未実行だと `/auto-commit` `/pr` `/resolve-review` 等の参照先 script や skill-creator 等の外部 skill 実体が無く失敗する
+- Setup Markdown PDF CLI: `mise run setup-markdown-pdf` (clones and builds `yzane/vscode-markdown-pdf` into `~/.cache/markdown-pdf-cli/`; rerun to update. The `mdpdf` shell function runs the CLI wrapper `.config/markdown-pdf-cli/markdown-pdf-cli.cjs`, which shims the `vscode` module so the unmodified extension bundle runs headless. Zed の「Markdown → PDF」タスクからも呼ばれる)
 - Upgrade Claude Code: `mise run upgrade-claude` (upgrades to latest GitHub Release, bypassing aqua registry lag)
 - Update Claude Code plugins: `mise run upgrade-plugins` (runs `claude plugin marketplace update` to force `git pull` and reports version diff; works around session-start auto-sync only doing `git fetch` per anthropics/claude-code#41885)
 
@@ -76,7 +77,7 @@ Located in `.claude/commands/`. Lightweight prompts that don't need a full skill
 
 ## Shell Functions
 
-カスタムシェル関数は `.config/mise/shell-functions.sh` に集約。`mdlint`（markdownlint-cli2 ラッパー）, `mermaidlint`（Mermaid 構文チェック）, `build_lambda`（Docker 用 SSH 設定切替付き Lambda ビルド）, `teleport`（SSH Host Alias 環境向け `claude --teleport` ラッパー）等。追加・編集はこのファイルで行う。
+カスタムシェル関数は `.config/mise/shell-functions.sh` に集約。`mdlint`（markdownlint-cli2 ラッパー）, `mermaidlint`（Mermaid 構文チェック）, `build_lambda`（Docker 用 SSH 設定切替付き Lambda ビルド）, `teleport`（SSH Host Alias 環境向け `claude --teleport` ラッパー）, `mdpdf`（Markdown → PDF/HTML/PNG/JPEG 変換。`mise run setup-markdown-pdf` で事前ビルド必須）等。追加・編集はこのファイルで行う。
 
 ## Pull Request Guidelines
 
