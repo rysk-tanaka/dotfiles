@@ -1,0 +1,15 @@
+[
+  {
+    "label": "Markdown → PDF",
+    "command": "node",
+    "args": [
+      "$HOME/Repositories/rysk/dotfiles/.config/markdown-pdf-cli/markdown-pdf-cli.cjs",
+      "--type",
+      "pdf",
+      "$ZED_FILE"
+    ],
+    "save": "current",
+    "reveal": "no_focus",
+    "hide": "on_success"
+  }
+]

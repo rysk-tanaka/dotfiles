@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#MISE description="Clone and build yzane/vscode-markdown-pdf for the mdpdf CLI wrapper (rerun to update; MARKDOWN_PDF_EXT_REF pins a tag/commit)"
+
+set -euo pipefail
+
+REPO_DIR="${MARKDOWN_PDF_EXT_ROOT:-$HOME/.cache/markdown-pdf-cli/vscode-markdown-pdf}"
+# Optional supply-chain pin: a tag or commit SHA to build instead of the
+# default-branch head (e.g. MARKDOWN_PDF_EXT_REF=2.2.0)
+REF="${MARKDOWN_PDF_EXT_REF:-}"
+
+for cmd in node git npm; do
+    if ! command -v "${cmd}" &>/dev/null; then
+        echo "Error: ${cmd} is not installed" >&2
+        exit 1
+    fi
+done
+
+if [ -d "${REPO_DIR}/.git" ]; then
+    if [ -z "${REF}" ]; then
+        # a previous pinned run leaves a detached HEAD; return to the default
+        # branch before pulling so unpinning actually tracks upstream again
+        if ! git -C "${REPO_DIR}" symbolic-ref -q HEAD >/dev/null; then
+            # "|| true" keeps set -e from killing the assignment when
+            # origin/HEAD is unset, so the :-master fallback can kick in
+            default_branch="$(git -C "${REPO_DIR}" rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's|^origin/||' || true)"
+            git -C "${REPO_DIR}" checkout "${default_branch:-master}"
+        fi
+        echo "Updating ${REPO_DIR}..."
+        git -C "${REPO_DIR}" pull --ff-only
+    fi
+else
+    mkdir -p "$(dirname "${REPO_DIR}")"
+    git clone --depth 1 https://github.com/yzane/vscode-markdown-pdf.git "${REPO_DIR}"
+fi
+
+if [ -n "${REF}" ]; then
+    echo "Pinning to ${REF}..."
+    git -C "${REPO_DIR}" fetch --depth 1 origin "${REF}"
+    git -C "${REPO_DIR}" checkout --detach FETCH_HEAD
+fi
+
+cd "${REPO_DIR}"
+npm ci --no-audit --no-fund
+npm run build
+
+echo "Built: ${REPO_DIR}/dist/extension.js ($(git -C "${REPO_DIR}" rev-parse --short HEAD))"
+echo "Usage: mdpdf [--type pdf|html|png|jpeg|all] [-s settings.json] [-o outdir] <file.md>..."

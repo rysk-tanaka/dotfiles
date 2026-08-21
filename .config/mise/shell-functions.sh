@@ -247,3 +247,14 @@ teleport() {
 
   return $exit_code
 }
+
+# Export Markdown to PDF/HTML/PNG/JPEG via the yzane/vscode-markdown-pdf CLI wrapper
+# Setup: mise run setup-markdown-pdf (clones and builds the upstream extension)
+mdpdf() {
+  local ext_root="${MARKDOWN_PDF_EXT_ROOT:-$HOME/.cache/markdown-pdf-cli/vscode-markdown-pdf}"
+  if [ ! -f "${ext_root}/dist/extension.js" ]; then
+    echo "mdpdf: extension bundle not found. Run: mise run setup-markdown-pdf" >&2
+    return 1
+  fi
+  MARKDOWN_PDF_EXT_ROOT="${ext_root}" node "${DOTFILES_PATH:-$HOME/Repositories/rysk/dotfiles}/.config/markdown-pdf-cli/markdown-pdf-cli.cjs" "$@"
+}
