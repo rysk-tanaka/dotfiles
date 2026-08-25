@@ -60,7 +60,6 @@ cask "raycast"
 
 # Security
 cask "1password"
-cask "1password-cli"
 
 # Utilities
 cask "duet"
