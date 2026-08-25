@@ -158,6 +158,7 @@
       }
     }
   },
+  "cleanupPeriodDays": 365,
   "alwaysThinkingEnabled": true,
   "tui": "fullscreen",
   "editorMode": "vim",
