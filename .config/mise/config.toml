@@ -3,7 +3,7 @@
 1password-cli = "2.32.1"
 actionlint = "1.7.12"
 aws-sam-cli = "1.165.0"
-awscli = "2.36.30"                         # requires rosetta 2
+awscli = "2.36.31"                         # requires rosetta 2
 bat = "0.26.1"
 bun = "1.4.0"
 delta = "0.19.2"
@@ -23,13 +23,13 @@ rust = "1.98.0"
 shellcheck = "0.11.0"
 starship = "1.26.0"
 terraform = "1.15.9"
-uv = "0.12.5"
+uv = "0.12.6"
 yarn = "4.18.0"
 zoxide = "0.10.0"
 
 # aqua: tools
 "aqua:99designs/aws-vault" = "7.2.0"       # mise registry maps to incorrect aqua:ByteNess/aws-vault
-"aqua:anthropics/claude-code" = "2.1.245"
+"aqua:anthropics/claude-code" = "2.1.246"
 "aqua:cli/cli" = "2.98.0"                  # gh: bare registry entry not tracked by Renovate
 "aqua:ducaale/xh" = "0.26.2"
 "aqua:google-antigravity/antigravity-cli" = "1.1.20"
