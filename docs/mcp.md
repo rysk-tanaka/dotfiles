@@ -8,7 +8,7 @@ Claude CodeはMCPサーバーを使って外部ツールやサービスと連携
 
 AWSドキュメントへのアクセスを提供します。
 
-- コマンド: `uvx awslabs.aws-documentation-mcp-server@1.1.30`
+- コマンド: `uvx awslabs.aws-documentation-mcp-server@1.2.0`
 - スコープ: プロジェクト
 - 機能: AWS認証不要でドキュメントの閲覧・検索が可能
 
@@ -16,7 +16,7 @@ AWSドキュメントへのアクセスを提供します。
 
 AWSがホストするマネージドリモートMCPサーバーです。開発終了となったOSS版 `awslabs.aws-api-mcp-server` の後継として移行しました。
 
-- コマンド: `uvx mcp-proxy-for-aws@1.6.4 https://aws-mcp.us-east-1.api.aws/mcp --read-only`
+- コマンド: `uvx mcp-proxy-for-aws@1.6.5 https://aws-mcp.us-east-1.api.aws/mcp --read-only`
 - スコープ: プロジェクト
 - 機能: 15,000以上のAWS APIの実行、ドキュメント取得、サンドボックスでのスクリプト実行
 - 構成: ローカルには軽量プロキシ `mcp-proxy-for-aws` のみ配置し、リクエストをSigV4で署名してAWS側で実行
@@ -78,7 +78,7 @@ MCPサーバーの設定は以下のファイルに保存されます。
     "aws-docs": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["awslabs.aws-documentation-mcp-server@1.1.30"],
+      "args": ["awslabs.aws-documentation-mcp-server@1.2.0"],
       "env": {
         "FASTMCP_LOG_LEVEL": "ERROR"
       }
@@ -87,7 +87,7 @@ MCPサーバーの設定は以下のファイルに保存されます。
       "type": "stdio",
       "command": "uvx",
       "args": [
-        "mcp-proxy-for-aws@1.6.4",
+        "mcp-proxy-for-aws@1.6.5",
         "https://aws-mcp.us-east-1.api.aws/mcp",
         "--read-only"
       ]
