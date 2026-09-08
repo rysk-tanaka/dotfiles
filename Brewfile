@@ -8,6 +8,7 @@ brew "hey"
 brew "librsvg"
 brew "mas"
 brew "mise"
+brew "mysql-client" # keg-only; provides libmysqlclient for the mysqlclient Python package
 brew "pkg-config"
 brew "poppler" # PDF utilities (pdftoppm/pdfinfo) used by Claude Code to read PDFs
 brew "telnet"

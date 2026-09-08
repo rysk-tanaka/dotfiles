@@ -1,6 +1,10 @@
 # mise shims (loaded for all zsh sessions including non-interactive)
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
+# mysql-client is keg-only: expose mysql_config so the mysqlclient Python package
+# can be built from source (prebuilt wheels link a libmysqlclient version brew no longer ships)
+export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
+
 # Editor (vim for git commit, Zed for gitu file viewer)
 export GIT_EDITOR="vim"
 export GITU_SHOW_EDITOR="zed"
