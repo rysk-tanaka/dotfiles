@@ -2,10 +2,10 @@
 # Standard tools
 1password-cli = "2.32.1"
 actionlint = "1.7.12"
-aws-sam-cli = "1.165.0"
-awscli = "2.36.37"                         # requires rosetta 2
+aws-sam-cli = "1.166.1"
+awscli = "2.36.40"                         # requires rosetta 2
 bat = "0.26.1"
-bun = "1.4.0"
+bun = "1.4.2"
 delta = "0.19.2"
 duckdb = "1.5.5"
 eza = "0.23.4"
@@ -13,29 +13,29 @@ fzf = "0.74.3"                             # required for zoxide interactive (cd
 gitu = "0.43.0"
 go = "1.27.1"
 jq = "1.8.2"
-jujutsu = "0.44.0"
+jujutsu = "0.45.1"
 node = "lts"
 pandoc = "3.11"
 pre-commit = "4.6.2"
 python = "3.12.14"
 ripgrep = "15.2.0"
-rust = "1.98.0"
+rust = "1.98.1"
 shellcheck = "0.11.0"
 starship = "1.26.0"
-terraform = "1.16.0"
-uv = "0.12.8"
+terraform = "1.16.1"
+uv = "0.12.10"
 yarn = "4.18.0"
 zoxide = "0.10.0"
 
 # aqua: tools
 "aqua:99designs/aws-vault" = "7.2.0"       # mise registry maps to incorrect aqua:ByteNess/aws-vault
 "aqua:anthropics/claude-code" = "2.1.267"
-"aqua:cli/cli" = "2.99.0"                  # gh: bare registry entry not tracked by Renovate
+"aqua:cli/cli" = "2.100.0"                  # gh: bare registry entry not tracked by Renovate
 "aqua:ducaale/xh" = "0.26.2"
-"aqua:google-antigravity/antigravity-cli" = "1.1.23"
+"aqua:google-antigravity/antigravity-cli" = "1.1.27"
 "aqua:google/osv-scanner" = "2.5.1"
-"aqua:j178/prek" = "0.5.1"
-"aqua:modem-dev/hunk" = "0.20.1"
+"aqua:j178/prek" = "0.5.2"
+"aqua:modem-dev/hunk" = "0.21.1"
 "aqua:suzuki-shunsuke/ghalint" = "1.5.6"
 "aqua:suzuki-shunsuke/pinact" = "4.1.1"
 "aqua:sxyazi/yazi" = "26.9.1"
@@ -56,17 +56,17 @@ zoxide = "0.10.0"
 "ubi:wakatime/wakatime-cli" = "2.26.0"
 
 # npm: tools
-"npm:aws-cdk" = "2.1139.0"
+"npm:aws-cdk" = "2.1140.0"
 "npm:cc-sdd" = "3.0.2"
-"npm:ccmanager" = "4.3.2"
+"npm:ccmanager" = "4.4.0"
 "npm:ccusage" = "20.0.20"                     # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
 "npm:@ccusage/codex" = "19.0.0"              # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
 "npm:claude-code-templates" = "1.29.4"
-"npm:@github/copilot" = "1.0.82"
+"npm:@github/copilot" = "1.0.83"
 "npm:markdownlint-cli2" = "0.23.2"
 "npm:md-mermaid-lint" = "1.0.1"
 "npm:opencommit" = "3.3.10"
-"npm:pnpm" = "11.25.0"                         # npm backend: aqua registry lacks v11 darwin tarball asset
+"npm:pnpm" = "11.26.0"                         # npm backend: aqua registry lacks v11 darwin tarball asset
 "npm:pyright" = "1.1.413"
 
 [env]
