@@ -36,6 +36,7 @@ zoxide = "0.10.0"
 "aqua:google/osv-scanner" = "2.5.1"
 "aqua:j178/prek" = "0.5.2"
 "aqua:modem-dev/hunk" = "0.21.1"
+"aqua:pnpm/pnpm" = "12.4.1"                 # npm backend (bun) skips pnpm's postinstall, leaving a shebang-less shim that macOS posix_spawn rejects
 "aqua:suzuki-shunsuke/ghalint" = "1.5.6"
 "aqua:suzuki-shunsuke/pinact" = "4.1.1"
 "aqua:sxyazi/yazi" = "26.9.1"
@@ -66,7 +67,6 @@ zoxide = "0.10.0"
 "npm:markdownlint-cli2" = "0.23.2"
 "npm:md-mermaid-lint" = "1.0.1"
 "npm:opencommit" = "3.3.10"
-"npm:pnpm" = "12.4.1"                         # npm backend: aqua registry lacks v11 darwin tarball asset
 "npm:pyright" = "1.1.413"
 
 [env]
