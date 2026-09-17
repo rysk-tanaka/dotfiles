@@ -1,5 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "cleanupPeriodDays": 365,
   "env": {
     "CCUSAGE_STATUSLINE_TTL": "30",
     "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
@@ -158,7 +159,6 @@
       }
     }
   },
-  "cleanupPeriodDays": 365,
   "alwaysThinkingEnabled": true,
   "tui": "fullscreen",
   "editorMode": "vim",
@@ -167,5 +167,26 @@
   "agentPushNotifEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754042613598
+  },
+  "autoMode": {
+    "environment": [
+      "$defaults",
+      "**Primary use of Claude Code**: software development on a personal macOS machine (personal projects and dotfiles, mixed with work)",
+      "**Source control**: GitHub with separate accounts — personal (rysk-tanaka) and a work account; repos owned by the work account or its orgs are work repos",
+      "**Account boundary**: moving code, data, or credentials between work-account repos and personal-account repos (push, gist, copy into issues/PRs) is outside the trust boundary",
+      "**Cloud provider(s)**: AWS",
+      "**Secrets management**: 1Password"
+    ],
+    "allow": [
+      "$defaults",
+      "Bash(mise run lint*)",
+      "Bash(mdlint *)",
+      "Bash(mise run setup-links)",
+      "Bash(mise run gc-uv-cache)"
+    ],
+    "soft_deny": [
+      "$defaults",
+      "Bash(mise run cleanup-link*)"
+    ]
   }
 }
