@@ -28,6 +28,8 @@ build_lambda() {
     fi
 
     # Setup cleanup handler (restores config even on error)
+    # Expand now: the locals are gone by the time the EXIT trap fires
+    # shellcheck disable=SC2064
     trap "mv '$backup' '$ssh_config' 2>/dev/null || true" EXIT
 
     # Switch to Docker SSH config
@@ -62,58 +64,120 @@ mdlint() {
   git_root=$(git rev-parse --show-toplevel 2>/dev/null)
 
   if [ -n "$git_root" ]; then
-    local current_dir=$(pwd)
-
-    # Convert arguments to paths relative to git root
+    local current_dir
+    current_dir=$(pwd)
+    local cwd_prefix
+    cwd_prefix=$(git rev-parse --show-prefix)
     local args=()
-    for arg in "$@"; do
-      # Skip flags (starting with -)
-      if [[ "$arg" == -* ]]; then
+    local explicit_files=()
+
+    # Convert paths to be relative to git root; globs (including globby-only
+    # syntax) are passed through for markdownlint-cli2 to resolve
+    while [ $# -gt 0 ]; do
+      local arg="$1"
+      shift
+      if [[ "$arg" == --config ]]; then
+        # Resolve against the caller's directory since lint runs from git root
+        local config_path="$1"
+        [[ "$config_path" = /* ]] || config_path="$current_dir/$config_path"
+        args+=("$arg" "$config_path")
+        shift
+        continue
+      fi
+      if [[ "$arg" == --configPointer ]]; then
+        args+=("$arg" "$1")
+        shift
+        continue
+      fi
+      if [[ "$arg" == -* ]] || { [ ! -d "$arg" ] && [ ! -f "$arg" ]; }; then
         args+=("$arg")
+        continue
+      fi
+
+      # Collapse ./ and ../ so explicit files match the paths git reports,
+      # keeping symlinked directories as their in-repo logical paths
+      local rel_path="$cwd_prefix$arg"
+      if [ "$arg" = "$git_root" ]; then
+        rel_path=""
+      elif [[ "$arg" = "$git_root"/* ]]; then
+        rel_path="${arg#"$git_root"/}"
+      elif [[ "$arg" = /* ]]; then
+        rel_path="$arg"
+      fi
+      [[ "$rel_path" = /* ]] || rel_path=$(cd "$git_root" && perl -e '
+        my @parts;
+        for (split m{/}, $ARGV[0]) {
+          next if $_ eq "" || $_ eq ".";
+          # A .. after a symlink or an unresolved .. must stay as-is,
+          # otherwise it would point somewhere other than the caller meant
+          my $can_collapse = $_ eq ".." && @parts && $parts[-1] ne ".."
+            && !-l join("/", @parts);
+          if ($can_collapse) { pop @parts; next; }
+          push @parts, $_;
+        }
+        print join("/", @parts);
+      ' -- "$rel_path")
+      # markdownlint-cli2 collapses .. lexically, so pass the real location
+      # when a .. that crosses a symlink had to be kept
+      if [[ "/$rel_path/" = */../* && "$rel_path" != ../* ]]; then
+        # zsh's cd collapses .. before following symlinks, so use realpath
+        rel_path=$(perl -MCwd -e 'print Cwd::realpath($ARGV[0])' -- "$arg")
+      fi
+
+      if [ -f "$arg" ]; then
+        args+=("$rel_path")
+        explicit_files+=("$rel_path")
+        continue
+      fi
+
+      # Directory: only target markdown files
+      if [ -z "$rel_path" ]; then
+        args+=("**/*.md")
       else
-        # If argument is a directory
-        if [ -d "$arg" ]; then
-          # Directory: convert to glob pattern for .md files only
-          local abs_path
-          if [[ "$arg" = /* ]]; then
-            abs_path="$arg"
-          else
-            abs_path="$current_dir/$arg"
-          fi
-
-          local rel_path="${abs_path#$git_root/}"
-          if [ "$rel_path" = "$abs_path" ]; then
-            rel_path="$arg"
-          fi
-
-          # Append /**/*.md to only target markdown files
-          args+=("${rel_path%/}/**/*.md")
-        else
-          # Pass through files, glob patterns and other arguments
-          if [ -f "$arg" ]; then
-            # File: convert to relative path
-            local abs_path
-            if [[ "$arg" = /* ]]; then
-              abs_path="$arg"
-            else
-              abs_path="$current_dir/$arg"
-            fi
-
-            local rel_path="${abs_path#$git_root/}"
-            if [ "$rel_path" = "$abs_path" ]; then
-              rel_path="$arg"
-            fi
-
-            args+=("$rel_path")
-          else
-            # Glob pattern or other argument
-            args+=("$arg")
-          fi
-        fi
+        args+=("$rel_path/**/*.md")
       fi
     done
 
-    (cd "$git_root" && markdownlint-cli2 "${args[@]}")
+    if [ ${#args[@]} -eq 0 ]; then
+      (cd "$git_root" && markdownlint-cli2)
+      return
+    fi
+
+    # markdownlint-cli2 only honors .gitignore, so ask git for everything it
+    # excludes (.git/info/exclude and core.excludesFile too) and for symlinked
+    # directories that usually point into other repos, then pass them as
+    # negated globs; explicitly named files and their parents stay lintable
+    local negation
+    local negations=()
+    while IFS= read -r -d '' negation; do
+      negations+=("$negation")
+    done < <(
+      cd "$git_root" &&
+        {
+          git ls-files -z --others --ignored --exclude-standard --directory
+          git ls-files -z --cached --others --exclude-standard |
+            perl -0 -ne 'chomp; print "$_/\0" if -l && -d'
+        } | LC_ALL=C sort -zu | EXPLICIT_FILES="$(printf '%s\n' "${explicit_files[@]}")" perl -0 -ne '
+          BEGIN { @explicit = grep { length } split /\n/, $ENV{EXPLICIT_FILES}; }
+          chomp;
+          my $entry = $_;
+          # Ignored symlinks are reported without a trailing slash
+          $entry .= "/" if $entry !~ m{/$} && -d $entry;
+          my $is_dir = $entry =~ m{/$};
+          # Only directories and Markdown files can affect lint targets
+          next unless $is_dir || $entry =~ /\.(md|markdown)$/i;
+          next if grep { index($entry, $_) == 0 } @excluded_dirs;
+          next if grep { $_ eq $entry || ($is_dir && index($_, $entry) == 0) } @explicit;
+          push @excluded_dirs, $entry if $is_dir;
+          (my $glob = $entry) =~ s{/$}{};
+          $glob =~ s/([][*?{}()#])/[$1]/g;
+          # A backslash would be turned into a path separator by the CLI
+          $glob =~ s/!/@(!)/g;
+          print "!$glob", ($is_dir ? "/**" : ""), "\0";
+        '
+    )
+
+    (cd "$git_root" && markdownlint-cli2 "${args[@]}" "${negations[@]}")
   else
     # Not in a git repository, convert directories to glob patterns
     local args=()
