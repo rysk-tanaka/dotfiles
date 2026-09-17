@@ -70,12 +70,17 @@ mdlint() {
     cwd_prefix=$(git rev-parse --show-prefix)
     local args=()
     local explicit_files=()
+    local has_targets=""
 
     # Convert paths to be relative to git root; globs (including globby-only
     # syntax) are passed through for markdownlint-cli2 to resolve
     while [ $# -gt 0 ]; do
       local arg="$1"
       shift
+      if [[ "$arg" == --config || "$arg" == --configPointer ]] && [ $# -eq 0 ]; then
+        echo "mdlint: $arg requires a value" >&2
+        return 1
+      fi
       if [[ "$arg" == --config ]]; then
         # Resolve against the caller's directory since lint runs from git root
         local config_path="$1"
@@ -89,7 +94,12 @@ mdlint() {
         shift
         continue
       fi
-      if [[ "$arg" == -* ]] || { [ ! -d "$arg" ] && [ ! -f "$arg" ]; }; then
+      if [[ "$arg" == -* ]]; then
+        args+=("$arg")
+        continue
+      fi
+      has_targets=1
+      if [ ! -d "$arg" ] && [ ! -f "$arg" ]; then
         args+=("$arg")
         continue
       fi
@@ -122,6 +132,8 @@ mdlint() {
       if [[ "/$rel_path/" = */../* && "$rel_path" != ../* ]]; then
         # zsh's cd collapses .. before following symlinks, so use realpath
         rel_path=$(perl -MCwd -e 'print Cwd::realpath($ARGV[0])' -- "$arg")
+        # Keep in-repo targets relative so they match the paths git reports
+        [[ "$rel_path" = "$git_root"/* ]] && rel_path="${rel_path#"$git_root"/}"
       fi
 
       if [ -f "$arg" ]; then
@@ -138,15 +150,17 @@ mdlint() {
       fi
     done
 
-    if [ ${#args[@]} -eq 0 ]; then
-      (cd "$git_root" && markdownlint-cli2)
+    # Without targets markdownlint-cli2 only prints usage, so keep that as-is
+    # instead of passing negated globs that would report linting 0 files
+    if [ -z "$has_targets" ]; then
+      (cd "$git_root" && markdownlint-cli2 "${args[@]}")
       return
     fi
 
     # markdownlint-cli2 only honors .gitignore, so ask git for everything it
     # excludes (.git/info/exclude and core.excludesFile too) and for symlinked
     # directories that usually point into other repos, then pass them as
-    # negated globs; explicitly named files and their parents stay lintable
+    # negated globs; explicitly named files stay lintable
     local negation
     local negations=()
     while IFS= read -r -d '' negation; do
@@ -157,8 +171,17 @@ mdlint() {
           git ls-files -z --others --ignored --exclude-standard --directory
           git ls-files -z --cached --others --exclude-standard |
             perl -0 -ne 'chomp; print "$_/\0" if -l && -d'
-        } | LC_ALL=C sort -zu | EXPLICIT_FILES="$(printf '%s\n' "${explicit_files[@]}")" perl -0 -ne '
-          BEGIN { @explicit = grep { length } split /\n/, $ENV{EXPLICIT_FILES}; }
+        } | LC_ALL=C sort -zu | EXPLICIT_FILES="$(printf '%s\n' "${explicit_files[@]}")" perl -MFile::Find -0 -ne '
+          BEGIN {
+            @explicit = grep { length } split /\n/, $ENV{EXPLICIT_FILES};
+            sub print_negation {
+              my ($path, $is_dir) = @_;
+              $path =~ s/([][*?{}()#])/[$1]/g;
+              # A backslash would be turned into a path separator by the CLI
+              $path =~ s/!/@(!)/g;
+              print "!$path", ($is_dir ? "/**" : ""), "\0";
+            }
+          }
           chomp;
           my $entry = $_;
           # Ignored symlinks are reported without a trailing slash
@@ -167,13 +190,29 @@ mdlint() {
           # Only directories and Markdown files can affect lint targets
           next unless $is_dir || $entry =~ /\.(md|markdown)$/i;
           next if grep { index($entry, $_) == 0 } @excluded_dirs;
-          next if grep { $_ eq $entry || ($is_dir && index($_, $entry) == 0) } @explicit;
-          push @excluded_dirs, $entry if $is_dir;
-          (my $glob = $entry) =~ s{/$}{};
-          $glob =~ s/([][*?{}()#])/[$1]/g;
-          # A backslash would be turned into a path separator by the CLI
-          $glob =~ s/!/@(!)/g;
-          print "!$glob", ($is_dir ? "/**" : ""), "\0";
+          next if grep { $_ eq $entry } @explicit;
+          (my $path = $entry) =~ s{/$}{};
+          if (!$is_dir) {
+            print_negation($path, 0);
+            next;
+          }
+          push @excluded_dirs, $entry;
+          my %keep = map { $_ => 1 } grep { index($_, $entry) == 0 } @explicit;
+          if (!%keep) {
+            print_negation($path, 1);
+            next;
+          }
+          # Exclude the other Markdown files one by one so that naming a file
+          # does not make the rest of its excluded directory lintable
+          find({
+            no_chdir => 1,
+            follow_fast => 1,
+            follow_skip => 2,
+            wanted => sub {
+              return unless -f $_ && /\.(md|markdown)$/i && !$keep{$_};
+              print_negation($_, 0);
+            },
+          }, $path);
         '
     )
 
