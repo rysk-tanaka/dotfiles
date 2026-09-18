@@ -16,7 +16,7 @@ AWSドキュメントへのアクセスを提供します。
 
 AWSがホストするマネージドリモートMCPサーバーです。開発終了となったOSS版 `awslabs.aws-api-mcp-server` の後継として移行しました。
 
-- コマンド: `uvx mcp-proxy-for-aws@1.6.6 https://aws-mcp.us-east-1.api.aws/mcp --read-only`
+- コマンド: `uvx mcp-proxy-for-aws@1.7.0 https://aws-mcp.us-east-1.api.aws/mcp --read-only`
 - スコープ: プロジェクト
 - 機能: 15,000以上のAWS APIの実行、ドキュメント取得、サンドボックスでのスクリプト実行
 - 構成: ローカルには軽量プロキシ `mcp-proxy-for-aws` のみ配置し、リクエストをSigV4で署名してAWS側で実行
@@ -87,7 +87,7 @@ MCPサーバーの設定は以下のファイルに保存されます。
       "type": "stdio",
       "command": "uvx",
       "args": [
-        "mcp-proxy-for-aws@1.6.6",
+        "mcp-proxy-for-aws@1.7.0",
         "https://aws-mcp.us-east-1.api.aws/mcp",
         "--read-only"
       ]
