@@ -27,6 +27,9 @@
     gpgsign = true
 
 # Git behavior settings
+[fetch]
+    prune = true
+
 [rebase]
     autostash = true
 
