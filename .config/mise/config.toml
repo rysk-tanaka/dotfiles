@@ -38,7 +38,7 @@ zoxide = "0.10.0"
 "aqua:modem-dev/hunk" = "0.21.1"
 "aqua:pnpm/pnpm" = "12.4.1"                 # npm backend (bun) skips pnpm's postinstall, leaving a shebang-less shim that macOS posix_spawn rejects
 "aqua:suzuki-shunsuke/ghalint" = "1.5.6"
-"aqua:suzuki-shunsuke/pinact" = "4.1.1"
+"aqua:suzuki-shunsuke/pinact" = "5.0.0"
 "aqua:sxyazi/yazi" = "26.9.1"
 "aqua:zizmorcore/zizmor" = "1.30.0"
 
