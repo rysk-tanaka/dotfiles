@@ -1,6 +1,7 @@
 # CLI tools
 brew "container"
 brew "coreutils"
+brew "dockutil"
 brew "fastfetch"
 brew "gnu-sed"
 brew "gnupg"

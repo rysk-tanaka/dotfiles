@@ -110,6 +110,8 @@ MacOS用の初期セットアップを行います。
 ├── .gitattributes                    # transcrypt透過暗号化の対象パターン定義
 ├── .markdownlint-cli2.jsonc          # markdownlint設定
 ├── renovate.json                     # Renovate依存関係自動更新設定
+├── macos/                            # macOS設定
+│   └── dock-apps.txt                 # Dockに並べるアプリ（mise run setup-dock で適用）
 ├── launchd/                          # LaunchAgent定義
 │   ├── com.rysk.gc-docker.plist      # Dockerの古いイメージ等を週次でprune
 │   ├── com.rysk.gc-rust-targets.plist # 休眠Rustプロジェクトのtargetを週次で削除
@@ -131,49 +133,58 @@ MacOS用の初期セットアップを行います。
 
 ## セットアップ
 
+手順は認証の要否で2つのフェーズに分けています。フェーズ1はGitHubとApp Storeへのサインインだけで完了し、日常の開発環境が揃います。フェーズ2は1Password・SSH鍵・各サービスのアカウントを使う設定で、必要になった時点で個別に実施できます。ただしフェーズ1でコミット署名が必須になるため、コミットする前にフェーズ2の手順1・2を実施してください。
+
 ### 前提条件
 
-- macOS
-- [Homebrew](https://brew.sh/)がインストールされていること
-- [mise](https://mise.jdx.dev/)（ツールバージョン管理）がインストールされていること
+- macOS（Apple Silicon）
+- ユーザー名が `rysk` であること（`launchd/` 配下の plist や `.claude/settings.json` は `/Users/rysk` の絶対パスを前提としています。別ユーザーで使う場合は手順「Claude Code Skills のセットアップ」の注記を参照）
 
-### 手順
+### フェーズ1: 基本環境
 
-1. リポジトリをクローン
+1. Xcode Command Line Tools・Rosetta 2・Homebrew のインストール
+
+    Rosetta 2 は手順5の `mise install` で入る awscli が必要とします（Apple Silicon の新規環境には未インストール）。
+
+    ```bash
+    xcode-select --install
+    softwareupdate --install-rosetta --agree-to-license
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    eval "$(/opt/homebrew/bin/brew shellenv zsh)"
+    ```
+
+    インストーラが案内する `~/.zprofile` への追記は、手順4で本リポジトリの `.zprofile`（`brew shellenv` を含む）に置き換わるため省略できます。
+
+2. リポジトリをクローン
 
     ```bash
     git clone https://github.com/rysk-tanaka/dotfiles.git ~/Repositories/rysk/dotfiles
     cd ~/Repositories/rysk/dotfiles
     ```
 
-2. Homebrewパッケージのインストール
+3. Homebrewパッケージのインストール
 
-    Brewfileに定義されたパッケージとフォントをインストールします。
+    Brewfileに定義されたパッケージとフォントをインストールします。Mac App Store 専用のアプリ（`mas` の項目）も含むため、事前に App Store へサインインしておきます。未サインインの場合は `mas` の項目だけが失敗します。
 
     ```bash
     brew bundle
     ```
 
-3. シンボリックリンクの作成
-
-    設定ファイルを適切な場所にシンボリックリンクします。
-
-    暗号化ファイルの復号（transcrypt）
-
-    `.aws/config` のように公開できないファイルはtranscryptで透過暗号化してコミットしています。symlinkを張る前に、手順2でインストールした1Password CLIを使い、1Passwordに保存したパスワードで復号を有効化します。
+    新規環境では、Homebrew の補完ディレクトリにグループ書き込み権限が付いているため、zsh 起動時に `zsh compinit: insecure directories` の警告が出ます。`compaudit` で対象が `/opt/homebrew/share` 配下だけであることを確認し、権限を外します。
 
     ```bash
-    transcrypt -c aes-256-cbc --set-openssl-path=/usr/bin/openssl -p "$(op read 'op://Personal/dotfiles-transcrypt/password')" --yes
+    compaudit
+    chmod go-w /opt/homebrew/share
+    chmod -R go-w /opt/homebrew/share/zsh
     ```
 
-    `--set-openssl-path` は macOS 標準の LibreSSL を使う指定です。Homebrew の OpenSSL 3 は transcrypt が使う鍵導出方式（`EVP_BytesToKey`）を非推奨として扱い、`git status` のたびに警告を stderr へ出すため、警告を出さない LibreSSL を明示しています。transcrypt は `-md MD5` を明示指定しているため、どちらの実装でも暗号文はバイト一致します。
+4. シンボリックリンクの作成
 
-    注意点として、このリポジトリはprekのpre-commitフックが既に`.git/hooks/pre-commit`を使用しているため、transcryptの平文コミット防止フックは`.git/hooks/pre-commit-crypt`に保存されるだけで自動では有効化されません。暗号化自体はclean/smudgeフィルタが行うため、このフックが無くても暗号化には影響ありません。また、上記のtranscrypt実行時に`filter.crypt.required true`が自動設定されるため、フィルタが動作しない状態でのコミットはgit自体が失敗させます。手動での`git config`設定は不要です。
+    設定ファイルを適切な場所にシンボリックリンクします。AWS 関連の設定は、`.aws/config` が transcrypt で暗号化されており、`.aws/op-aws-credentials.sh` も 1Password を前提とするため、フェーズ2で配置します。
 
     ディレクトリの作成
 
     ```bash
-    mkdir -p ~/.aws
     mkdir -p ~/.codex
     mkdir -p ~/.gemini/config
     mkdir -p ~/.claude
@@ -190,8 +201,6 @@ MacOS用の初期セットアップを行います。
     設定ファイルのリンク
 
     ```bash
-    ln -sf ~/Repositories/rysk/dotfiles/.aws/config ~/.aws/config
-    ln -sf ~/Repositories/rysk/dotfiles/.aws/op-aws-credentials.sh ~/.aws/op-aws-credentials.sh
     # codex の config.toml は symlink にしない（統合版 ChatGPT アプリが機械状態を書き込むため）
     # 初回のみコピーで seed し、以後の意図的な変更は repo と ~/.codex/config.toml の両方に反映する
     cp -n ~/Repositories/rysk/dotfiles/.codex/config.toml ~/.codex/config.toml
@@ -226,14 +235,9 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.zprofile ~/.zprofile
     ```
 
-    LaunchAgentの配置
+    `~/.config/mise` と `~/.claude/skills` はディレクトリ単位の symlink のため、リンク先に実ディレクトリが既に存在すると、その中に入れ子の symlink が作られます。事前に存在しないことを確認してください。
 
-    cmux の PR サイドバーが認証付きで GitHub API をポーリングできるよう、ログイン時に `GH_TOKEN` を GUI セッションへ注入します。詳細は [docs/cmux.md](./docs/cmux.md) を参照してください。
-
-    ```bash
-    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gh-token-env.plist ~/Library/LaunchAgents/
-    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
-    ```
+    定期GCのLaunchAgent
 
     uvキャッシュの定期prune
 
@@ -255,47 +259,16 @@ MacOS用の初期セットアップを行います。
     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gc-rust-targets.plist
     ```
 
-    RunCat Neoのカスタムメトリクス（任意）
+    リンク後はターミナルを開き直し、以降の手順は新しいシェルで実行します。
 
-    ClaudeとCodexのプラン使用制限を定期的に `~/.runcat/claude-usage.json` と `~/.runcat/codex-usage.json` へ書き出し、RunCat Neoのメニューバーに表示します。実行間隔はそれぞれの plist の `StartInterval` で定義しています。JSONの更新はスクリプト側の責務で、RunCat Neo自体はファイルを監視するだけです。
+5. GitHub 認証と開発ツールのインストール
 
-    Claude側は現在のセッションと週間の制限を表示します。取得元はClaude Codeの `/usage` コマンドと同じ非公開APIで、認証にはKeychainの `Claude Code-credentials`（Claude Codeのログイン情報）を使います。
-
-    Codex側は週間の制限とモデル別の枠、レートリミットのリセット権の残数を表示します。取得には `codex app-server` のJSON-RPC（`account/rateLimits/read`）を使うため、認証はcodex本体が `~/.codex/auth.json` で解決します。スクリプトはアクセストークンを扱いません。
-
-    どちらも取得に失敗した場合は直近1時間以内に取得した値を再利用し、それも無い場合はメニューバーが `---` 表示に縮退します。ログアウトした直後も、キャッシュが残っている間は最後に取得した値を表示します。
+    `mise install` は多くのツールを GitHub Releases から取得するため、未認証の GitHub API の制限（1時間あたり60回）を1回の実行で使い切ります。先に gh でログインし、トークンを渡してから実行します。
 
     ```bash
-    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-claude-usage.plist ~/Library/LaunchAgents/
-    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-codex-usage.plist ~/Library/LaunchAgents/
-    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-claude-usage.plist
-    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-codex-usage.plist
-    ```
-
-    登録後、RunCat Neoの Settings > Metrics > Custom Metrics で「Add Custom Metrics Source」を選びます。ドット始まりのディレクトリはファイル選択ダイアログから辿れないため、`Cmd + Shift + G` で `~/.runcat/claude-usage.json` と `~/.runcat/codex-usage.json` のパスをそれぞれ直接入力します。
-
-4. Docker SSH設定の生成
-
-    `build_lambda`関数で使用するDocker用SSH設定を生成します：
-
-    ```bash
-    # GitHubのホストキーを登録（セキュアなホスト検証のため）
-    ssh-keyscan github.com >> ~/.ssh/known_hosts_docker
-
-    # テンプレートから生成（使用するSSHキー名に置き換える）
-    sed 's/{{SSH_KEY_FILE}}/id_ed25519/g' ~/Repositories/rysk/dotfiles/.ssh/config_docker.template > ~/.ssh/config_docker
-    ```
-
-    注意
-
-    - `id_ed25519`の部分は、実際に使用しているSSHキーのファイル名に置き換えてください（例: `git01`, `id_rsa`など）
-    - この設定では `StrictHostKeyChecking yes` を使用しており、MITM攻撃からの保護を提供します
-
-5. 必要なツールのインストール
-
-    mise を使って必要なツールをインストールします：
-
-    ```bash
+    mise install aqua:cli/cli
+    gh auth login
+    export MISE_GITHUB_TOKEN="$(gh auth token)"
     mise install
     ```
 
@@ -304,6 +277,17 @@ MacOS用の初期セットアップを行います。
     - 1password-cli, awscli, aws-vault, delta, eza, go, jq, node, rust
     - 各種ユーティリティのnpmパッケージ
     - Python 3.12、ripgrep、Starship、Terraformなど
+
+    `.zshenv` はシェル起動時に `gh auth token` から `MISE_GITHUB_TOKEN` を設定しますが、`gh auth login` より前に起動したこのシェルには反映されていないため、手動で `export` します。新しいシェルでは自動で設定されます。`GITHUB_TOKEN` は gh 自身のトークン解決（`gh auth switch`）を上書きしてしまうため使いません。
+
+    GH_TOKEN の注入（cmux 用）
+
+    cmux の PR サイドバーが認証付きで GitHub API をポーリングできるよう、ログイン時に `GH_TOKEN` を GUI セッションへ注入します。詳細は [docs/cmux.md](./docs/cmux.md) を参照してください。
+
+    ```bash
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.gh-token-env.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.gh-token-env.plist
+    ```
 
 6. Claude Code Skills のセットアップ
 
@@ -333,10 +317,128 @@ MacOS用の初期セットアップを行います。
     mise未インストール時は直接実行も可能です。
 
     ```bash
-    bash .config/mise/tasks/setup-fonts
+    bash ~/Repositories/rysk/dotfiles/.config/mise/tasks/setup-fonts
     ```
 
-8. WakaTime設定の生成
+8. git-worktree-runnerのインストール
+
+    複数のAIエージェントが異なるブランチで並行作業する場合に便利なツールです。
+
+    ```bash
+    git clone https://github.com/coderabbitai/git-worktree-runner.git ~/Repositories/external/git-worktree-runner
+    ```
+
+    詳細は [git-worktree-runner](./docs/git-worktree-runner.md) を参照してください。
+
+9. Dock・メニューバー等の macOS 設定
+
+    Dock のアプリの並びと表示設定、メニューバー、スクロール方向などを適用します。
+
+    ```bash
+    mise run setup-dock
+    mise run setup-macos
+    ```
+
+    - `setup-dock` は Dock を全消去してから `macos/dock-apps.txt` の順に並べ直します。未インストールのアプリはスキップします。並びを変える場合は、このファイルを編集して再実行します。あわせて Downloads フォルダの追加（区切り線の右）、Dock のサイズ（64）と自動非表示オフ、ホットコーナー（右下 = 画面をロック）も設定するため、既存のホットコーナー設定は上書きされます
+    - `setup-macos` は `defaults` で設定を書き込みます。対象は、旧環境の値のうち新規インストール直後の既定値と異なるものだけです
+    - ナチュラルなスクロールの変更は、再ログインするまで完全には反映されない場合があります
+
+    以下は `defaults` で制御できない、または管理しないため、必要に応じて手動で設定します。
+
+    - Control Center のモジュール（Wi-Fi、サウンドなど）のメニューバー表示。`NSStatusItem VisibleCC *` を書き換えても反映されないことを確認済みです。既定の表示（入力メニュー・Wi-Fi・Control Center・時計）で旧環境と同等になります
+    - メニューバーのサードパーティ製アイコンとログイン項目。各アプリの設定で「ログイン時に起動」を有効にします
+    - ウィジェット
+
+### フェーズ2: アカウント連携
+
+1. 1Password のセットアップ
+
+    1Password アプリにサインインし、設定の「開発者」で「1Password CLI と連携」を有効化します。以降の手順で使う `op` コマンドがアプリ経由で認証されるようになります。
+
+    ```bash
+    op signin
+    ```
+
+2. Git のユーザー情報とコミット署名
+
+    `.gitconfig.managed` は `commit.gpgsign = true`（SSH 署名）を有効にしており、ユーザー情報と署名鍵は `~/.gitconfig.local` から読み込みます。このファイルが無いとコミットが失敗するため、作成します。
+
+    ```ini
+    [user]
+        name = <名前>
+        email = <メールアドレス>
+        signingkey = <署名に使うSSH公開鍵（ssh-ed25519 ...）>
+    [gpg "ssh"]
+        program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+    ```
+
+    1Password の SSH 鍵アイテムにある「コミット署名を設定」から、同等の内容を生成できます。
+
+3. 暗号化ファイルの復号（transcrypt）と AWS 設定
+
+    `.aws/config` のように公開できないファイルはtranscryptで透過暗号化してコミットしています。フェーズ1で `mise install` 済みの1Password CLI（`op`）を使い、1Passwordに保存したパスワードで復号を有効化します。
+
+    transcrypt はカレントディレクトリの git リポジトリに対して動作するため、リポジトリに移動してから実行します。
+
+    ```bash
+    cd ~/Repositories/rysk/dotfiles
+    transcrypt -c aes-256-cbc --set-openssl-path=/usr/bin/openssl -p "$(op read 'op://Personal/dotfiles-transcrypt/password')" --yes
+    ```
+
+    `--set-openssl-path` は macOS 標準の LibreSSL を使う指定です。Homebrew の OpenSSL 3 は transcrypt が使う鍵導出方式（`EVP_BytesToKey`）を非推奨として扱い、`git status` のたびに警告を stderr へ出すため、警告を出さない LibreSSL を明示しています。transcrypt は `-md MD5` を明示指定しているため、どちらの実装でも暗号文はバイト一致します。
+
+    注意点として、このリポジトリはprekのpre-commitフックが既に`.git/hooks/pre-commit`を使用しているため、transcryptの平文コミット防止フックは`.git/hooks/pre-commit-crypt`に保存されるだけで自動では有効化されません。暗号化自体はclean/smudgeフィルタが行うため、このフックが無くても暗号化には影響ありません。また、上記のtranscrypt実行時に`filter.crypt.required true`が自動設定されるため、フィルタが動作しない状態でのコミットはgit自体が失敗させます。手動での`git config`設定は不要です。
+
+    復号後、AWS 関連の設定をリンクします。
+
+    ```bash
+    mkdir -p ~/.aws
+    ln -sf ~/Repositories/rysk/dotfiles/.aws/config ~/.aws/config
+    ln -sf ~/Repositories/rysk/dotfiles/.aws/op-aws-credentials.sh ~/.aws/op-aws-credentials.sh
+    ```
+
+4. Docker SSH設定の生成
+
+    `build_lambda`関数で使用するDocker用SSH設定を生成します：
+
+    ```bash
+    # 新規環境では ~/.ssh が存在しないため作成する
+    mkdir -p ~/.ssh && chmod 700 ~/.ssh
+
+    # GitHubのホストキーを登録（セキュアなホスト検証のため）
+    ssh-keyscan github.com >> ~/.ssh/known_hosts_docker
+
+    # テンプレートから生成（使用するSSHキー名に置き換える）
+    sed 's/{{SSH_KEY_FILE}}/id_ed25519/g' ~/Repositories/rysk/dotfiles/.ssh/config_docker.template > ~/.ssh/config_docker
+    ```
+
+    注意
+
+    - `id_ed25519`の部分は、実際に使用しているSSHキーのファイル名に置き換えてください（例: `git01`, `id_rsa`など）
+    - この設定では `StrictHostKeyChecking yes` を使用しており、MITM攻撃からの保護を提供します
+
+5. RunCat Neoのカスタムメトリクス（任意）
+
+    Claude Code と Codex にログインした後に実施します。
+
+    ClaudeとCodexのプラン使用制限を定期的に `~/.runcat/claude-usage.json` と `~/.runcat/codex-usage.json` へ書き出し、RunCat Neoのメニューバーに表示します。実行間隔はそれぞれの plist の `StartInterval` で定義しています。JSONの更新はスクリプト側の責務で、RunCat Neo自体はファイルを監視するだけです。
+
+    Claude側は現在のセッションと週間の制限を表示します。取得元はClaude Codeの `/usage` コマンドと同じ非公開APIで、認証にはKeychainの `Claude Code-credentials`（Claude Codeのログイン情報）を使います。
+
+    Codex側は週間の制限とモデル別の枠、レートリミットのリセット権の残数を表示します。取得には `codex app-server` のJSON-RPC（`account/rateLimits/read`）を使うため、認証はcodex本体が `~/.codex/auth.json` で解決します。スクリプトはアクセストークンを扱いません。
+
+    どちらも取得に失敗した場合は直近1時間以内に取得した値を再利用し、それも無い場合はメニューバーが `---` 表示に縮退します。ログアウトした直後も、キャッシュが残っている間は最後に取得した値を表示します。
+
+    ```bash
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-claude-usage.plist ~/Library/LaunchAgents/
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.runcat-codex-usage.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-claude-usage.plist
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.runcat-codex-usage.plist
+    ```
+
+    登録後、RunCat Neoの Settings > Metrics > Custom Metrics で「Add Custom Metrics Source」を選びます。ドット始まりのディレクトリはファイル選択ダイアログから辿れないため、`Cmd + Shift + G` で `~/.runcat/claude-usage.json` と `~/.runcat/codex-usage.json` のパスをそれぞれ直接入力します。
+
+6. WakaTime設定の生成
 
     1PasswordからAPIキーを取得してWakaTime設定ファイルを生成します。
 
@@ -351,16 +453,6 @@ MacOS用の初期セットアップを行います。
     - `op signin`で1Passwordに認証済み
 
     Claude Code用のWakaTimeプラグインの導入手順は [docs/claude-code.md](./docs/claude-code.md) を参照してください。Zed用のWakaTimeプラグインは、Zed内の Extensions パネルから「wakatime」を検索してインストールします。
-
-9. git-worktree-runnerのインストール
-
-    複数のAIエージェントが異なるブランチで並行作業する場合に便利なツールです。
-
-    ```bash
-    git clone https://github.com/coderabbitai/git-worktree-runner.git ~/Repositories/external/git-worktree-runner
-    ```
-
-    詳細は [git-worktree-runner](./docs/git-worktree-runner.md) を参照してください。
 
 ### プロジェクト用セットアップ
 
@@ -472,7 +564,7 @@ build_lambda ./path/to/build_lambda.sh
 - `~/.ssh/config_docker` ファイルが必要（Linux互換のSSH設定）
 - `~/.ssh/known_hosts_docker` ファイルが必要（GitHubホストキーの登録）
 
-セットアップ手順の「3. Docker SSH設定の生成」を参照してください。
+セットアップ手順のフェーズ2「Docker SSH設定の生成」を参照してください。
 
 動作
 
@@ -522,7 +614,7 @@ SSH configでカスタムホスト名（`github.com-{custom-host}`など）を�
 
 このプロジェクトでは以下のツールでPython環境を管理しています
 
-- mise: グローバルなPython環境（Python 3.12.8）
+- mise: グローバルなPython環境（Python 3.12）
 - uv: プロジェクト固有の仮想環境
 
 ### 使い分け

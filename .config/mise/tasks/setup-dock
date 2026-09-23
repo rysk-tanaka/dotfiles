@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+#MISE description="Rebuild the Dock from macos/dock-apps.txt and apply Dock preferences"
+
+set -euo pipefail
+
+DOTFILES_PATH="${DOTFILES_PATH:-$(cd "$(dirname "$0")/../../.." && pwd)}"
+APPS_FILE="${DOTFILES_PATH}/macos/dock-apps.txt"
+
+if ! command -v dockutil &>/dev/null; then
+    echo "Error: dockutil is not installed (run: brew bundle)" >&2
+    exit 1
+fi
+
+if [ ! -f "$APPS_FILE" ]; then
+    echo "Error: App list not found: $APPS_FILE" >&2
+    exit 1
+fi
+
+# 既存の Dock を全消去してからリストどおりに並べ直す（冪等）。
+# 再起動は最後の killall でまとめて 1 回だけ行う。
+dockutil --remove all --no-restart >/dev/null
+
+added=0
+skipped=0
+while IFS= read -r line || [ -n "$line" ]; do
+    app="${line%%#*}"
+    # 前後の空白を除去
+    app="${app#"${app%%[![:space:]]*}"}"
+    app="${app%"${app##*[![:space:]]}"}"
+    [ -z "$app" ] && continue
+
+    if [ ! -d "$app" ]; then
+        echo "WARN: not installed, skipping: $app" >&2
+        skipped=$((skipped + 1))
+        continue
+    fi
+    dockutil --add "$app" --no-restart >/dev/null
+    added=$((added + 1))
+done < "$APPS_FILE"
+
+# 右側（区切り線の右）のフォルダ
+dockutil --add "${HOME}/Downloads" --section others --no-restart >/dev/null
+
+# Dock の挙動
+defaults write com.apple.dock autohide -bool false
+defaults write com.apple.dock tilesize -int 64
+
+# ホットコーナー（右下 = 画面をロック）
+# 値: 0=なし 2=Mission Control 3=アプリケーションウインドウ 4=デスクトップ
+#     5=スクリーンセーバ開始 10=ディスプレイをスリープ 13=画面をロック 14=クイックメモ
+defaults write com.apple.dock wvous-br-corner -int 13
+defaults write com.apple.dock wvous-br-modifier -int 0
+
+killall Dock
+
+echo "Dock updated: ${added} app(s) added, ${skipped} skipped"

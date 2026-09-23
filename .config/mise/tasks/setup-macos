@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#MISE description="Apply macOS preferences (menu bar, scrolling) via defaults"
+
+set -euo pipefail
+
+# 各キーは旧 MacBook の設定値を吸い出し、新規インストール直後の既定値と異なるものだけを採用している。
+# 時計（曜日・AM/PM 表示）、入力メニューの表示、メニューバーの自動非表示（フルスクリーン時のみ）は既定値と同じため書き込まない。
+# 値を変える場合はシステム設定で変更し、defaults read の前後差分で確認してから反映する。
+
+# --- メニューバー ---------------------------------------------------------
+
+# Spotlight のアイコンを非表示（ホストごとの設定）
+defaults -currentHost write com.apple.Spotlight MenuItemHidden -int 1
+
+# --- 入力デバイス -----------------------------------------------------------
+
+# ナチュラルなスクロールをオフ（マウスとトラックパッドで共通の設定）
+defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
+
+# --- 反映 -----------------------------------------------------------------
+
+killall ControlCenter SystemUIServer 2>/dev/null || true
+
+echo "macOS preferences applied."
+echo "Note: scroll direction may require logging out to take effect."

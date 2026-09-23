@@ -13,7 +13,15 @@ REPO="yuru7/bizin-gothic"
 ASSET_PREFIX="BizinGothicNF"
 
 echo "Fetching latest release from ${REPO}..."
-if ! API_RESPONSE=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" 2>&1); then
+# 未認証の GitHub API は 60 req/h/IP で、他のツールや同一 IP からの利用で枯渇し得るため、
+# トークンがあれば認証付き (5,000 req/h) で呼ぶ。無ければ未認証で呼ぶ。
+AUTH_ARGS=()
+TOKEN="${GITHUB_TOKEN:-$(gh auth token 2>/dev/null || true)}"
+if [ -n "$TOKEN" ]; then
+    AUTH_ARGS=(-H "Authorization: Bearer ${TOKEN}")
+fi
+# ${arr[@]+...} guards empty-array expansion under `set -u` on bash 3.2 (macOS).
+if ! API_RESPONSE=$(curl -fsSL ${AUTH_ARGS[@]+"${AUTH_ARGS[@]}"} "https://api.github.com/repos/${REPO}/releases/latest" 2>&1); then
     echo "Error: Failed to fetch release info from GitHub" >&2
     echo "  ${API_RESPONSE}" >&2
     exit 1

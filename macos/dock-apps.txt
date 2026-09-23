@@ -1,0 +1,15 @@
+# Dock に左から並べるアプリ（1行1パス、# 以降はコメント）
+# 未インストールのアプリは警告を出してスキップする
+/System/Applications/Apps.app
+/Applications/cmux.app
+/Applications/Zed Preview.app
+/Applications/Slack.app
+/Applications/Arc.app
+/Applications/Dia.app
+/Applications/Claude.app
+/Applications/OrbStack.app
+/Applications/Obsidian.app
+/Applications/Typora.app
+/Applications/1Password.app
+/System/Applications/System Settings.app
+/System/Applications/Utilities/Activity Monitor.app
