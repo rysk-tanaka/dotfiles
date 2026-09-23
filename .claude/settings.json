@@ -161,22 +161,12 @@
   },
   "alwaysThinkingEnabled": true,
   "tui": "fullscreen",
+  "theme": "dark",
   "editorMode": "vim",
   "verbose": true,
   "preferredNotifChannel": "terminal_bell",
   "agentPushNotifEnabled": true,
-  "feedbackSurveyState": {
-    "lastShownTime": 1754042613598
-  },
   "autoMode": {
-    "environment": [
-      "$defaults",
-      "**Primary use of Claude Code**: software development on a personal macOS machine (personal projects and dotfiles, mixed with work)",
-      "**Source control**: GitHub with separate accounts — personal (rysk-tanaka) and a work account; repos owned by the work account or its orgs are work repos",
-      "**Account boundary**: moving code, data, or credentials between work-account repos and personal-account repos (push, gist, copy into issues/PRs) is outside the trust boundary",
-      "**Cloud provider(s)**: AWS",
-      "**Secrets management**: 1Password"
-    ],
     "allow": [
       "$defaults",
       "Bash(mise run lint*)",
@@ -187,6 +177,17 @@
     "soft_deny": [
       "$defaults",
       "Bash(mise run cleanup-link*)"
+    ],
+    "environment": [
+      "$defaults",
+      "**Primary use of Claude Code**: software development on a personal macOS machine (personal projects and dotfiles, mixed with work)",
+      "**Source control**: GitHub with separate accounts — personal (rysk-tanaka) and a work account; repos owned by the work account or its orgs are work repos",
+      "**Account boundary**: moving code, data, or credentials between work-account repos and personal-account repos (push, gist, copy into issues/PRs) is outside the trust boundary",
+      "**Cloud provider(s)**: AWS",
+      "**Secrets management**: 1Password"
     ]
+  },
+  "feedbackSurveyState": {
+    "lastShownTime": 1754042613598
   }
 }
