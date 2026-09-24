@@ -53,13 +53,6 @@
     "example": "/claude-process clean"
   },
   {
-    "name": "codex-review",
-    "description": "Codex CLIでコードレビューを実行し指摘内容を取得・対応",
-    "category": "Git ワークフロー",
-    "example": "/codex-review develop",
-    "source": "rysk-tanaka/skills"
-  },
-  {
     "name": "review-router",
     "description": "差分を分析して規模・観点に応じたレビューを自動振り分け",
     "category": "Git ワークフロー",

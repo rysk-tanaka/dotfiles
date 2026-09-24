@@ -52,7 +52,6 @@ MacOS用の初期セットアップを行います。
 │   │   ├── auto-commit/              # コミットメッセージ自動生成（symlink: rysk-tanaka/skills）
 │   │   ├── await-ci/                 # CIチェック状態確認・完了待機（symlink: rysk-tanaka/skills）
 │   │   ├── cloudwatch-logs/          # CloudWatchログ取得（symlink: rysk-tanaka/skills）
-│   │   ├── codex-review/             # Codex CLIコードレビュー（symlink: rysk-tanaka/skills）
 │   │   ├── drawio/                   # draw.io図表生成（symlink: rysk-tanaka/skills）
 │   │   ├── drawio-aws/               # AWSアーキテクチャ図生成（symlink: rysk-tanaka/skills）
 │   │   ├── pr/                       # プルリクエスト作成（symlink: rysk-tanaka/skills）

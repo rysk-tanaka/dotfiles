@@ -7,7 +7,6 @@
     "pr/**",
     "resolve-review/**",
     "suggest-branch/**",
-    "codex-review/**",
     "drawio/**",
     "drawio-aws/**",
     "cloudwatch-logs/**",

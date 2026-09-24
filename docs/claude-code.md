@@ -31,7 +31,6 @@ Claude Codeの設定ファイルは現在、他の設定ファイルとは異な
 - `/auto-commit` - ステージ済みの変更からConventional Commits形式のコミットメッセージを自動生成してコミット
 - `/await-ci` - CIチェックの状態確認・完了待機
 - `/cloudwatch-logs` - CloudWatchログの取得・検索（boto3ベースのPythonスクリプト）
-- `/codex-review` - Codex CLIによるコードレビュー（フォアグラウンドデフォルト、`--bg` でバックグラウンド実行）
 - `/drawio` - draw.io図表をネイティブ.drawioファイルとして生成（PNG/SVG/PDFエクスポート対応）
 - `/drawio-aws` - draw.ioでAWSアーキテクチャ図を作成（AWS 4アイコン、カテゴリ別カラー指定付き）
 - `/pr` - ブランチの変更を分析してプルリクエストを作成
