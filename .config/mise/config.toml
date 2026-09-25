@@ -77,20 +77,21 @@ DOTFILES_PATH = "/Users/rysk/Repositories/rysk/dotfiles"
 # `mise run lint` with no paths would ruff-format the entire home directory
 dir = "{{cwd}}"
 usage = 'arg "[paths]" var=#true help="Lint target paths"'
-# Markdown paths (e.g. from `git diff --name-only`) are excluded because mypy
-# treats each file argument as `__main__` and fails on duplicate module names
+# Only Python files and directories are kept so that `git diff --name-only`
+# output can be passed as-is: ruff parses any explicit file as Python, and mypy
+# treats each non-.py file argument as `__main__`
 run = '''
 set -e
 paths=""
 for p in ${usage_paths:-}; do
   case "$p" in
-    *.md|*.mdx) ;;
-    *) paths="$paths $p" ;;
+    *.py|*.pyi) paths="$paths $p" ;;
+    *) [ -d "$p" ] && paths="$paths $p" ;;
   esac
 done
 # Skip instead of falling back to the whole directory when every path was excluded
 if [ -n "${usage_paths:-}" ] && [ -z "$paths" ]; then
-  echo "lint: no target paths after excluding Markdown files"
+  echo "lint: no Python target paths"
   exit 0
 fi
 uv run --with ruff -- ruff format $paths
