@@ -46,6 +46,7 @@ cask "zoom"
 # AI
 cask "chatgpt"
 cask "claude"
+cask "lm-studio"
 
 # Development
 cask "coderabbit"
