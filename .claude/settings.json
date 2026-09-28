@@ -3,7 +3,6 @@
   "cleanupPeriodDays": 365,
   "env": {
     "CCUSAGE_STATUSLINE_TTL": "30",
-    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
     "DISABLE_AUTOUPDATER": "1"
   },
   "attribution": {
