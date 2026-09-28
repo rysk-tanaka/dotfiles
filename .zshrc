@@ -106,3 +106,8 @@ git() {
     command git "$@"
   fi
 }
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/rysk/.lmstudio/bin"
+# End of LM Studio CLI section
+
