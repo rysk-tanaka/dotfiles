@@ -13,6 +13,12 @@ export GITU_SHOW_EDITOR="zed"
 # with devcontainers sharing the same worktree via bind mount.
 export GIT_OPTIONAL_LOCKS=0
 
+# Over SSH, sign commits with the forwarded agent instead of op-ssh-sign:
+# op-ssh-sign asks the remote host's 1Password app, whose unlock prompt appears on its desktop
+if [ -n "$SSH_CONNECTION" ]; then
+  export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=gpg.ssh.program GIT_CONFIG_VALUE_0=ssh-keygen
+fi
+
 # Skip auto_updates casks in `brew upgrade`.
 # These update themselves in-app; letting brew touch them causes sudo prompts
 # and Caskroom staging conflicts on already-running apps.
