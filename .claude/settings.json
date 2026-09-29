@@ -44,6 +44,9 @@
       "Bash(bash /Users/rysk/.claude/skills/claude-process/clean.sh:*)",
       "Bash(bash /Users/rysk/.claude/skills/claude-process/monitor.sh:*)",
       "Bash(bash /Users/rysk/.claude/skills/review-router/analyze.sh:*)",
+      "Bash(bash /Users/rysk/.claude/skills/review-router/../lms-review/lms-review.sh:*)",
+      "Bash(bash /Users/rysk/.claude/skills/lms-review/lms-review.sh:*)",
+      "Bash(bash /Users/rysk/.claude/skills/lms-rescue/lms-rescue.sh:*)",
       "Bash(bash /Users/rysk/.claude/skills/read-screen/read-screen.sh:*)",
       "Read(//Users/rysk/.claude/skills/catalog.json)"
     ],
