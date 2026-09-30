@@ -20,10 +20,10 @@ AWSがホストするマネージドリモートMCPサーバーです。認証�
 - トランスポート: HTTP（リモートサーバー）
 - スコープ: プロジェクト
 - 機能: AWSドキュメント・What's New・ブログ・Well-Architected等の横断検索と取得、リージョン別の提供状況確認、AWS Agent Skillsの取得
-- 前提条件: なし（AWSアカウント・認証情報不要、レート制限あり）
+- 前提条件: なし。AWSアカウントや認証情報は不要だが、レート制限がある
 - AWS Documentation MCP Serverとの使い分け: 検索・取得は重複するが、ドキュメント以外の情報源やリージョン情報は本サーバー、節単位の取得（`read_sections`）や大きな表の行検索（`search_table`）はAWS Documentation MCP Serverを使う
 - 運用方針: MCPは知識系ツールに限定し、読み取りを含むAWS操作はAWS CLI + プロファイル切替で行う
-- 選定理由: 以前はAWS MCP Server（`mcp-proxy-for-aws` 経由、`--read-only`）を使っていたが、SigV4署名のため起動のたびに認証情報を解決し、`credential_process` 経由の1Passwordアンロックを要求していた。知識系ツールに限定する運用では認証が不要なため置き換えた。API実行が必要になった場合はAWS MCP Serverを再導入する
+- 選定理由: 以前は `mcp-proxy-for-aws` 経由のAWS MCP Serverを `--read-only` で使っていたが、SigV4署名のため起動のたびに認証情報を解決し、`credential_process` 経由の1Passwordアンロックを要求していた。知識系ツールに限定する運用では認証が不要なため置き換えた。API実行が必要になった場合はAWS MCP Serverを再導入する
 - 参考: <https://awslabs.github.io/mcp/servers/aws-knowledge-mcp-server>
 
 ### Playwright MCP Server
@@ -33,7 +33,7 @@ AWSがホストするマネージドリモートMCPサーバーです。認証�
 - コマンド: `pnpm dlx @playwright/mcp@latest`
 - スコープ: プロジェクト
 - 機能: Webページのナビゲーション、フォーム入力、クリック、スナップショット取得
-- 前提条件: なし（初回実行時にChromiumが自動インストール）
+- 前提条件: なし。初回実行時にChromiumが自動インストールされる
 - 用途: UI動作確認、デバッグ、E2Eテスト作成支援
 
 ### GitHub MCP Server
@@ -60,17 +60,17 @@ draw.io図表の作成・編集機能を提供します。
 - 参考: <https://github.com/jgraph/drawio-mcp>
 - ツール
   - `open_drawio_xml` - draw.io XML形式で図表を開く
-  - `open_drawio_csv` - CSVデータを図表に変換（組織図、フローチャート等）
+  - `open_drawio_csv` - CSVデータを組織図やフローチャート等の図表に変換
   - `open_drawio_mermaid` - Mermaid.js記法を編集可能な図表に変換
 
 ## MCPサーバー設定ファイル
 
 MCPサーバーの設定は以下のファイルに保存されます。
 
-- プロジェクトスコープ: `.mcp.json` （このリポジトリ内）
-- ユーザースコープ: `~/.claude.json` （`mcpServers` セクション）
+- プロジェクトスコープ: このリポジトリ内の `.mcp.json`
+- ユーザースコープ: `~/.claude.json` の `mcpServers` セクション
 
-現在のプロジェクト設定（`.mcp.json`）
+プロジェクト設定 `.mcp.json` の現在の内容
 
 ```json
 {
@@ -117,7 +117,7 @@ Claude DesktopでMCPサーバーを利用する場合は、以下の設定ファ
 - 設定ファイル: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - 形式: `mcpServers`セクションにサーバー設定を追加
 
-Claude Desktopを再起動すると、設定したMCPサーバーが利用可能になります。
+Claude Desktopを再起動すると、設定したMCPサーバーを利用できます。
 
 ## MCP設定の管理コマンド（Claude Code）
 
