@@ -41,10 +41,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track pinned mcp-proxy-for-aws version in MCP config and docs",
+      "description": "Track pinned PyPI-backed MCP server versions in MCP config and docs. The depName group is an explicit allowlist (extend with `|` when pinning another PyPI package) so npm-backed entries (@playwright/mcp, @drawio/mcp) are not matched as PyPI packages.",
       "managerFilePatterns": ["/(^|/)\\.mcp\\.json$/", "/^docs/mcp\\.md$/"],
-      "matchStrings": ["mcp-proxy-for-aws@(?<currentValue>\\d+(?:\\.\\d+)+)"],
-      "depNameTemplate": "mcp-proxy-for-aws",
+      "matchStrings": ["(?<depName>awslabs\\.aws-documentation-mcp-server)@(?<currentValue>\\d+(?:\\.\\d+)+)"],
       "datasourceTemplate": "pypi"
     }
   ]
@@ -88,7 +87,7 @@
 
 専用マネージャが存在しないファイル内のバージョン文字列は、regex カスタムマネージャで追従します。
 
-現在は `mcp-proxy-for-aws`（AWS MCP Server 用プロキシ、詳細は `docs/mcp.md` 参照）を対象に、`.mcp.json` と `docs/mcp.md` 内の `mcp-proxy-for-aws@X.Y.Z` を PyPI データソースで追跡しています。両ファイルが同一 PR で更新されるため、実設定とドキュメントの乖離が起きません。
+現在は `awslabs.aws-documentation-mcp-server`（AWS Documentation MCP Server、詳細は `docs/mcp.md` 参照）を対象に、`.mcp.json` と `docs/mcp.md` 内の `awslabs.aws-documentation-mcp-server@X.Y.Z` を PyPI データソースで追跡しています。両ファイルが同一 PR で更新されるため、実設定とドキュメントの乖離が起きません。`depName` の選択肢は明示的な許可リストで、npm 由来のエントリ（`@playwright/mcp` 等）を PyPI パッケージとして誤検出しないようにしています。PyPI 由来の MCP サーバーを追加・固定する場合は選択肢に追記します。
 
 注意点。
 
