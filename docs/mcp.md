@@ -12,19 +12,19 @@ AWSドキュメントへのアクセスを提供します。
 - スコープ: プロジェクト
 - 機能: AWS認証不要でドキュメントの閲覧・検索が可能
 
-### AWS MCP Server
+### AWS Knowledge MCP Server
 
-AWSがホストするマネージドリモートMCPサーバーです。開発終了となったOSS版 `awslabs.aws-api-mcp-server` の後継として移行しました。
+AWSがホストするマネージドリモートMCPサーバーです。認証不要でAWSの公式情報を検索・取得できます。
 
-- コマンド: `uvx mcp-proxy-for-aws@1.7.0 https://aws-mcp.us-east-1.api.aws/mcp --read-only`
+- URL: `https://knowledge-mcp.global.api.aws`
+- トランスポート: HTTP（リモートサーバー）
 - スコープ: プロジェクト
-- 機能: 15,000以上のAWS APIの実行、ドキュメント取得、サンドボックスでのスクリプト実行
-- 構成: ローカルには軽量プロキシ `mcp-proxy-for-aws` のみ配置し、リクエストをSigV4で署名してAWS側で実行
-- 設定: `--read-only` フラグで書き込み権限が必要なツールを無効化。IAMポリシーの `aws:ViaAWSMCPService` コンテキストキーでも制御可能
-- 前提条件: AWS CLI/SDKの認証チェーンに従ったAWS認証情報の設定
-- バージョン: 移行ガイドの推奨に従い、サプライチェーン対策として `@latest` ではなく特定バージョンに固定。更新は Renovate の custom manager が `.mcp.json` とこのドキュメントを追従
-- 運用方針: マルチアカウント環境で IAM ポリシー整備が現実的でないため `--read-only` を維持し、MCP はドキュメント検索等の知識系ツールに限定。読み取りを含む AWS 操作は AWS CLI + プロファイル切替で行う
-- 参考: <https://github.com/awslabs/mcp/blob/main/src/aws-api-mcp-server/MIGRATION.md>
+- 機能: AWSドキュメント・What's New・ブログ・Well-Architected等の横断検索と取得、リージョン別の提供状況確認、AWS Agent Skillsの取得
+- 前提条件: なし（AWSアカウント・認証情報不要、レート制限あり）
+- AWS Documentation MCP Serverとの使い分け: 検索・取得は重複するが、ドキュメント以外の情報源やリージョン情報は本サーバー、節単位の取得（`read_sections`）や大きな表の行検索（`search_table`）はAWS Documentation MCP Serverを使う
+- 運用方針: MCPは知識系ツールに限定し、読み取りを含むAWS操作はAWS CLI + プロファイル切替で行う
+- 選定理由: 以前はAWS MCP Server（`mcp-proxy-for-aws` 経由、`--read-only`）を使っていたが、SigV4署名のため起動のたびに認証情報を解決し、`credential_process` 経由の1Passwordアンロックを要求していた。知識系ツールに限定する運用では認証が不要なため置き換えた。API実行が必要になった場合はAWS MCP Serverを再導入する
+- 参考: <https://awslabs.github.io/mcp/servers/aws-knowledge-mcp-server>
 
 ### Playwright MCP Server
 
@@ -83,14 +83,9 @@ MCPサーバーの設定は以下のファイルに保存されます。
         "FASTMCP_LOG_LEVEL": "ERROR"
       }
     },
-    "aws-mcp": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": [
-        "mcp-proxy-for-aws@1.7.0",
-        "https://aws-mcp.us-east-1.api.aws/mcp",
-        "--read-only"
-      ]
+    "aws-knowledge": {
+      "type": "http",
+      "url": "https://knowledge-mcp.global.api.aws"
     },
     "playwright": {
       "type": "stdio",

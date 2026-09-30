@@ -37,7 +37,7 @@
       "customType": "regex",
       "description": "Track pinned PyPI-backed MCP server versions in MCP config and docs. The depName alternation is an explicit allowlist so npm-backed entries (@playwright/mcp, @drawio/mcp) are not matched as PyPI packages.",
       "managerFilePatterns": ["/(^|/)\\.mcp\\.json$/", "/^docs/mcp\\.md$/"],
-      "matchStrings": ["(?<depName>mcp-proxy-for-aws|awslabs\\.aws-documentation-mcp-server)@(?<currentValue>\\d+(?:\\.\\d+)+)"],
+      "matchStrings": ["(?<depName>awslabs\\.aws-documentation-mcp-server)@(?<currentValue>\\d+(?:\\.\\d+)+)"],
       "datasourceTemplate": "pypi"
     }
   ]
