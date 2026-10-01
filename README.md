@@ -458,7 +458,7 @@ MacOS用の初期セットアップを行います。
 
 7. Codex のリモート実行ホスト（任意）
 
-    別の Mac から `codex --remote` で接続される側のホストだけで実施します。接続する側の端末では不要です。
+    daemon の設定と LaunchAgent の登録は、別の Mac から `codex --remote` で接続される側のホストだけで実施します。接続する側の端末で使うのは、最後の `codex_remote` だけです。
 
     `codex app-server daemon` を常駐させ、Unix ソケットで待ち受けます。daemon の設定ファイルは、daemon が tmp 書き込み + rename で保存して symlink を実ファイルに置き換えるため、symlink にせず初回だけコピーします。自動更新は無効化しているため、brew の codex と daemon のバージョンは手動で揃えます。
 
@@ -472,11 +472,10 @@ MacOS用の初期セットアップを行います。
     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.codex-app-server-daemon.plist
     ```
 
-    接続する側の端末では、ソケットを SSH で転送してから接続します。`<host>` には SSH の接続先を入れます。
+    接続する側の端末では `codex_remote` で接続します。詳細は「カスタムシェル関数」の [codex_remote](#codex_remote) を参照してください。
 
     ```bash
-    ssh -N -o StreamLocalBindUnlink=yes -L $HOME/.codex/<host>.sock:/Users/rysk/.codex/app-server-control/app-server-control.sock <host>
-    codex --remote unix://$HOME/.codex/<host>.sock
+    codex_remote <host>
     ```
 
     codex を更新するときは、両方の端末で `brew upgrade --cask codex` を実行してから、ホスト側で `codex app-server daemon update` を実行します。
@@ -636,6 +635,29 @@ SSH configでカスタムホスト名（`github.com-{custom-host}`など）を�
 - 実際のSSH接続は引き続きSSH configの設定（SSH Host Alias）を使用
 - URLの変換は一時的で、通常のgit操作には影響なし
 - gitリポジトリ内でのみ実行可能
+
+### codex_remote
+
+別ホストで常駐している `codex app-server daemon` に、手元の Codex TUI を接続します。ホスト側のセットアップはフェーズ2「Codex のリモート実行ホスト」を参照してください。
+
+```bash
+# m6m に接続（ホスト省略時は m6m）
+codex_remote
+
+# 接続先を指定し、codex の引数を渡す
+codex_remote <host> --model <model>
+```
+
+動作
+
+1. daemon の Unix ソケットを SSH で手元の `~/.codex/remote-<host>-<PID>.sock` へ転送
+2. `codex --remote unix://...` で接続
+3. codex の終了時に転送を閉じ、手元のソケットを削除
+
+注意点
+
+- 接続先のホームディレクトリが手元と同じパスであることを前提にしています
+- 転送用のソケットはシェルごとに別のパスにするため、複数のターミナルから同じホストへ同時に接続できます
 
 ## Python環境の管理
 

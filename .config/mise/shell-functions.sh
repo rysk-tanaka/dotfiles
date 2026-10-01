@@ -361,3 +361,41 @@ mdpdf() {
   fi
   MARKDOWN_PDF_EXT_ROOT="${ext_root}" node "${DOTFILES_PATH:-$HOME/Repositories/rysk/dotfiles}/.config/markdown-pdf-cli/markdown-pdf-cli.cjs" "$@"
 }
+
+# Connect the Codex TUI to the app-server daemon on a remote host
+# Forwards the daemon's Unix socket over SSH for this session only and closes it when codex exits
+# Usage: codex_remote [host] [codex args...], where host defaults to m6m
+codex_remote() {
+  local host="m6m"
+  if [ $# -gt 0 ] && [ "${1#-}" = "$1" ]; then
+    host="$1"
+    shift
+  fi
+
+  # Assumes the same home path on both hosts, as the README requires user rysk
+  local remote_sock="$HOME/.codex/app-server-control/app-server-control.sock"
+  # Paths unique to this shell so a session in another terminal never unlinks this one's socket
+  local local_sock="$HOME/.codex/remote-${host}-$$.sock"
+  local control="$HOME/.codex/remote-${host}-$$.ctl"
+
+  # -f returns only after the local socket is bound; the control socket closes exactly this forward
+  if ! ssh -f -N -M -S "$control" -o ExitOnForwardFailure=yes -L "$local_sock:$remote_sock" "$host"; then
+    echo "codex_remote: failed to forward the app-server socket from $host" >&2
+    return 1
+  fi
+  # Expand now: the locals are gone by the time the trap fires
+  # shellcheck disable=SC2064
+  trap "_codex_remote_close '$host' '$control' '$local_sock'" INT TERM
+
+  codex --remote "unix://$local_sock" "$@"
+  local exit_code=$?
+
+  trap - INT TERM
+  _codex_remote_close "$host" "$control" "$local_sock"
+  return $exit_code
+}
+
+_codex_remote_close() {
+  ssh -S "$2" -O exit "$1" 2>/dev/null
+  rm -f "$3"
+}
