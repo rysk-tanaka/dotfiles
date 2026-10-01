@@ -25,6 +25,8 @@ MacOS用の初期セットアップを行います。
 │   ├── lite.config.toml              # 軽量プロファイル（codex --profile lite、軽量モデル）
 │   ├── quick.config.toml             # 高速レビュープロファイル（codex --profile quick）
 │   ├── important.config.toml         # 重要レビュープロファイル（codex --profile important）
+│   ├── app-server-daemon/            # codex app-server daemon設定
+│   │   └── settings.json             # 自動更新の無効化（初回コピーで配置）
 │   └── skills/                       # Codex用スキル（auto-commit / suggest-branch は独立実装、cloudwatch-logs は Claude側 symlink に依存）
 │       ├── auto-commit/              # コミットメッセージ自動生成
 │       ├── suggest-branch/           # ブランチ名提案
@@ -184,7 +186,7 @@ MacOS用の初期セットアップを行います。
     ディレクトリの作成
 
     ```bash
-    mkdir -p ~/.codex
+    mkdir -p ~/.codex/app-server-daemon
     mkdir -p ~/.gemini/config
     mkdir -p ~/.claude
     mkdir -p ~/.config/ccmanager
@@ -203,6 +205,9 @@ MacOS用の初期セットアップを行います。
     # codex の config.toml は symlink にしない（統合版 ChatGPT アプリが機械状態を書き込むため）
     # 初回のみコピーで seed し、以後の意図的な変更は repo と ~/.codex/config.toml の両方に反映する
     cp -n ~/Repositories/rysk/dotfiles/.codex/config.toml ~/.codex/config.toml
+    # app-server daemon の設定も同様（daemon が tmp 書き込み + rename で保存し symlink を実ファイルに置き換えるため）
+    # 自動更新は無効化し、brew の codex と daemon のバージョンを手動で揃える
+    cp -n ~/Repositories/rysk/dotfiles/.codex/app-server-daemon/settings.json ~/.codex/app-server-daemon/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.codex/lite.config.toml ~/.codex/lite.config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.codex/quick.config.toml ~/.codex/quick.config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.codex/important.config.toml ~/.codex/important.config.toml

@@ -12,7 +12,6 @@ web_search = "cached"  # デフォルト("cached")
 writable_roots = ["~/Library/Application Support/zoxide"]
 
 [features]
-parallel = true  # デフォルト(true)
 shell_snapshot = true  # ベータ機能
 
 # プロファイルは codex 0.134+ で別ファイル方式へ移行
