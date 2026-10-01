@@ -651,8 +651,9 @@ codex_remote <host> --model <model>
 動作
 
 1. daemon の Unix ソケットを SSH で手元の `~/.codex/remote-<host>-<PID>.sock` へ転送
-2. `codex --remote unix://...` で接続
-3. codex の終了時に転送を閉じ、手元のソケットを削除
+2. `-C` の指定が無く、カレントディレクトリと同じパスが接続先にあれば、`-C <カレントディレクトリ>` を付ける。無ければ daemon の作業ディレクトリであるホームで始まる
+3. `codex --remote unix://...` で接続
+4. codex の終了時に転送を閉じ、手元のソケットを削除
 
 注意点
 

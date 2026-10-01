@@ -38,6 +38,11 @@
         <string>/Users/rysk/.local/share/mise/shims:/opt/homebrew/bin:/usr/bin:/bin</string>
     </dict>
 
+    <!-- -C なしで開いたセッションは daemon の作業ディレクトリで始まる。launchd の既定は / で、
+         workspace-write の書き込み可能範囲がディスク全体になるため、ホームに固定する -->
+    <key>WorkingDirectory</key>
+    <string>/Users/rysk</string>
+
     <key>RunAtLoad</key>
     <true/>
     <key>AbandonProcessGroup</key>

@@ -387,7 +387,24 @@ codex_remote() {
   # shellcheck disable=SC2064
   trap "_codex_remote_close '$host' '$control' '$local_sock'" INT TERM
 
-  codex --remote "unix://$local_sock" "$@"
+  # Without -C the session starts in the daemon's working directory, so default to
+  # this directory when the host has the same path
+  local has_cd=false arg
+  for arg in "$@"; do
+    case "$arg" in
+      -C | -C* | --cd | --cd=*) has_cd=true ;;
+    esac
+  done
+  local -a cd_args=()
+  if [ "$has_cd" = false ]; then
+    if ssh -S "$control" "$host" test -d "$(printf '%q' "$PWD")"; then
+      cd_args=(-C "$PWD")
+    else
+      echo "codex_remote: $PWD not found on $host, starting in the daemon's working directory" >&2
+    fi
+  fi
+
+  codex --remote "unix://$local_sock" "${cd_args[@]}" "$@"
   local exit_code=$?
 
   trap - INT TERM
