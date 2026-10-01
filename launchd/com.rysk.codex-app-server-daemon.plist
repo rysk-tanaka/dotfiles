@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ログイン時に codex app-server daemon を起動する。`codex --remote` で接続される側のホスト専用で、
+  接続する側の端末には導入しない。daemon は pidfile 管理の常駐プロセスで再起動を跨がないため、
+  ログインごとに start する。既に起動していれば start は何もしない。
+
+  daemon start は daemon を切り離した直後に終了する。launchd はジョブ終了時にプロセスグループの
+  残存プロセスを kill するため、AbandonProcessGroup で daemon を巻き込まないようにする。
+
+  daemon は起動時の環境を引き継ぐ。ここから起動すると GUI セッションの環境になり、daemon 内の
+  git commit は op-ssh-sign で署名するため、1Password の承認はこのホストのデスクトップに出る。
+
+  導入 (symlink の作成手順は README.md を参照):
+    codex app-server daemon stop
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.codex-app-server-daemon.plist
+  解除:
+    launchctl bootout gui/$(id -u)/com.rysk.codex-app-server-daemon
+    unlink ~/Library/LaunchAgents/com.rysk.codex-app-server-daemon.plist
+  実行ログ: /tmp/com.rysk.codex-app-server-daemon.out / .err (daemon 本体のログは ~/.codex/app-server-daemon/)
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.rysk.codex-app-server-daemon</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/codex</string>
+        <string>app-server</string>
+        <string>daemon</string>
+        <string>start</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/rysk/.local/share/mise/shims:/opt/homebrew/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+    <key>AbandonProcessGroup</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.rysk.codex-app-server-daemon.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.rysk.codex-app-server-daemon.err</string>
+</dict>
+</plist>

@@ -26,7 +26,7 @@ MacOS用の初期セットアップを行います。
 │   ├── quick.config.toml             # 高速レビュープロファイル（codex --profile quick）
 │   ├── important.config.toml         # 重要レビュープロファイル（codex --profile important）
 │   ├── app-server-daemon/            # codex app-server daemon設定
-│   │   └── settings.json             # 自動更新の無効化（初回コピーで配置）
+│   │   └── settings.json             # 自動更新の無効化（リモート実行ホストのみ初回コピーで配置）
 │   └── skills/                       # Codex用スキル（auto-commit / suggest-branch は独立実装、cloudwatch-logs は Claude側 symlink に依存）
 │       ├── auto-commit/              # コミットメッセージ自動生成
 │       ├── suggest-branch/           # ブランチ名提案
@@ -114,6 +114,7 @@ MacOS用の初期セットアップを行います。
 ├── macos/                            # macOS設定
 │   └── dock-apps.txt                 # Dockに並べるアプリ（mise run setup-dock で適用）
 ├── launchd/                          # LaunchAgent定義
+│   ├── com.rysk.codex-app-server-daemon.plist # Codex app-server daemonをログイン時に起動（リモート実行ホストのみ）
 │   ├── com.rysk.gc-docker.plist      # Dockerの古いイメージ等を週次でprune
 │   ├── com.rysk.gc-rust-targets.plist # 休眠Rustプロジェクトのtargetを週次で削除
 │   ├── com.rysk.gc-uv-cache.plist    # uvキャッシュを日次でprune
@@ -186,7 +187,7 @@ MacOS用の初期セットアップを行います。
     ディレクトリの作成
 
     ```bash
-    mkdir -p ~/.codex/app-server-daemon
+    mkdir -p ~/.codex
     mkdir -p ~/.gemini/config
     mkdir -p ~/.claude
     mkdir -p ~/.config/ccmanager
@@ -205,9 +206,6 @@ MacOS用の初期セットアップを行います。
     # codex の config.toml は symlink にしない（統合版 ChatGPT アプリが機械状態を書き込むため）
     # 初回のみコピーで seed し、以後の意図的な変更は repo と ~/.codex/config.toml の両方に反映する
     cp -n ~/Repositories/rysk/dotfiles/.codex/config.toml ~/.codex/config.toml
-    # app-server daemon の設定も同様（daemon が tmp 書き込み + rename で保存し symlink を実ファイルに置き換えるため）
-    # 自動更新は無効化し、brew の codex と daemon のバージョンを手動で揃える
-    cp -n ~/Repositories/rysk/dotfiles/.codex/app-server-daemon/settings.json ~/.codex/app-server-daemon/settings.json
     ln -sf ~/Repositories/rysk/dotfiles/.codex/lite.config.toml ~/.codex/lite.config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.codex/quick.config.toml ~/.codex/quick.config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.codex/important.config.toml ~/.codex/important.config.toml
@@ -457,6 +455,31 @@ MacOS用の初期セットアップを行います。
     - `op signin`で1Passwordに認証済み
 
     Claude Code用のWakaTimeプラグインの導入手順は [docs/claude-code.md](./docs/claude-code.md) を参照してください。Zed用のWakaTimeプラグインは、Zed内の Extensions パネルから「wakatime」を検索してインストールします。
+
+7. Codex のリモート実行ホスト（任意）
+
+    別の Mac から `codex --remote` で接続される側のホストだけで実施します。接続する側の端末では不要です。
+
+    `codex app-server daemon` を常駐させ、Unix ソケットで待ち受けます。daemon の設定ファイルは、daemon が tmp 書き込み + rename で保存して symlink を実ファイルに置き換えるため、symlink にせず初回だけコピーします。自動更新は無効化しているため、brew の codex と daemon のバージョンは手動で揃えます。
+
+    daemon は再起動を跨いで常駐しないため、LaunchAgent でログイン時に起動します。SSH 接続から起動した daemon が動いている場合は、先に止めてから登録します。
+
+    ```bash
+    mkdir -p ~/.codex/app-server-daemon
+    cp -n ~/Repositories/rysk/dotfiles/.codex/app-server-daemon/settings.json ~/.codex/app-server-daemon/settings.json
+    codex app-server daemon stop
+    ln -sf ~/Repositories/rysk/dotfiles/launchd/com.rysk.codex-app-server-daemon.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.codex-app-server-daemon.plist
+    ```
+
+    接続する側の端末では、ソケットを SSH で転送してから接続します。`<host>` には SSH の接続先を入れます。
+
+    ```bash
+    ssh -N -o StreamLocalBindUnlink=yes -L $HOME/.codex/<host>.sock:/Users/rysk/.codex/app-server-control/app-server-control.sock <host>
+    codex --remote unix://$HOME/.codex/<host>.sock
+    ```
+
+    codex を更新するときは、両方の端末で `brew upgrade --cask codex` を実行してから、ホスト側で `codex app-server daemon update` を実行します。
 
 ### プロジェクト用セットアップ
 
