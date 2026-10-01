@@ -17,11 +17,12 @@
 ```json
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": ["config:recommended", "group:allNonMajor", "helpers:pinGitHubActionDigests"],
   "enabledManagers": ["github-actions", "mise", "pre-commit", "custom.regex"],
   "labels": ["dependencies"],
   "timezone": "Asia/Tokyo",
   "schedule": ["before 9am on saturday"],
+  "minimumReleaseAge": "3 days",
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch"],
@@ -36,6 +37,16 @@
       "matchManagers": ["mise"],
       "matchDepNames": ["npm:ccusage", "npm:@ccusage/codex"],
       "groupName": "ccusage"
+    },
+    {
+      "matchManagers": ["mise"],
+      "matchDepNames": ["eza"],
+      "allowedVersions": "<=0.23.4",
+      "description": "eza 0.23.5 is not published to crates.io yet, so the asdf plugin (cargo-quickinstall) cannot install it. Remove this cap once crates.io catches up."
+    },
+    {
+      "matchDepNames": ["rysk-tanaka/workflows"],
+      "enabled": false
     }
   ],
   "customManagers": [
@@ -52,7 +63,7 @@
 
 各フィールドの説明。
 
-- `extends` - `config:recommended` で推奨プリセットを適用（range更新なし等）。`group:allNonMajor` で minor / patch / digest 更新を 1 PR に集約し、major のみ個別 PR とする（`prHourlyLimit` のデフォルト 2 件/時に小粒な更新が詰まって後回しになるのを防ぐ）
+- `extends` - `config:recommended` で推奨プリセットを適用（range更新なし等）。`prHourlyLimit` のデフォルト 2 件/時に小粒な更新が詰まって後回しにならないよう、`group:allNonMajor` で minor / patch 更新を 1 PR に集約し、major と digest は個別 PR とする。`helpers:pinGitHubActionDigests` で GitHub Actions をコミット SHA にピン留めする
 - `enabledManagers` - 有効にするマネージャを限定。対応しているマネージャは以下の4つ
   - `github-actions` - `.github/workflows/` 内のアクションバージョン
   - `mise` - `.config/mise/config.toml` のツールバージョン
@@ -60,16 +71,19 @@
   - `custom.regex` - 正規表現ベースのカスタムマネージャ（後述の customManagers セクション参照）
 - `labels` - 作成されるPRに付与するラベル
 - `timezone` / `schedule` - 更新チェックのスケジュール
+- `minimumReleaseAge` - 公開直後に取り下げられたバージョンや侵害されたパッケージを避けるため、リリースから 3 日経過するまで更新 PR を作成しない
 
 ### packageRules
 
 `packageRules` でマネージャ・パッケージごとの挙動をカスタマイズできます。
 
-上記の設定例では以下の3ルールを定義しています。
+上記の設定例では以下の5ルールを定義しています。
 
-- マイナー・パッチ更新を自動マージ。メジャー更新（破壊的変更の可能性）のみ手動レビュー対象となる。Renovate はデフォルトで GitHub の Auto-merge 機能（`platformAutomerge`）を使用するため、リポジトリ設定で「Allow auto-merge」が有効になっている必要がある
+- マイナー・パッチ更新を自動マージ。破壊的変更の可能性があるメジャー更新と digest 更新は手動レビュー対象となる。SHA にピン留めした GitHub Actions もタグが上がる更新は通常どおり major / minor / patch として判定され、digest 更新になるのは `# v2` のようなタグ参照のまま参照先のコミットが変わった場合のみ。Renovate はデフォルトで GitHub の Auto-merge 機能（`platformAutomerge`）を使用するため、リポジトリ設定で「Allow auto-merge」が有効になっている必要がある
 - Python のバージョンを `~3.12`（3.12.x の範囲）に制限。3.13 以降への自動更新PRが作成されなくなる
 - `ccusage` と `@ccusage/codex` を `groupName` でグループ化。同一モノレポから公開されるパッケージのため、1つのPRにまとめる
+- `eza` を `0.23.4` 以下に制限。0.23.5 が crates.io 未公開で、asdf プラグイン（cargo-quickinstall）がインストールできないため。crates.io に公開されたら制限を外す
+- `rysk-tanaka/workflows` の更新を無効化。自前の reusable workflow は `@main` 参照で常に最新を使うため、digest のピン留め・更新 PR の対象から外す
 
 ### automerge と CI 検証
 
