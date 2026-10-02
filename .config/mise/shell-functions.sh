@@ -384,8 +384,9 @@ codex_remote() {
     return 1
   fi
   # Expand now: the locals are gone by the time the trap fires
+  # HUP: closing the terminal tab kills the shell, but the ssh -f master is detached and would outlive it
   # shellcheck disable=SC2064
-  trap "_codex_remote_close '$host' '$control' '$local_sock'" INT TERM
+  trap "_codex_remote_close '$host' '$control' '$local_sock'" INT TERM HUP
 
   # Without -C the session starts in the daemon's working directory, so default to
   # this directory when the host has the same path
@@ -407,7 +408,7 @@ codex_remote() {
   codex --remote "unix://$local_sock" "${cd_args[@]}" "$@"
   local exit_code=$?
 
-  trap - INT TERM
+  trap - INT TERM HUP
   _codex_remote_close "$host" "$control" "$local_sock"
   return $exit_code
 }
