@@ -472,6 +472,13 @@ MacOS用の初期セットアップを行います。
     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.codex-app-server-daemon.plist
     ```
 
+    ホストではコミットに署名しないため、`~/.gitconfig.local` に以下を追記します。署名すると、エージェントがコミットするたびに 1Password の承認がホストのデスクトップに出て、作業が止まります。main には PR の squash merge で取り込み、GitHub の署名を付けます。手動で署名したいときは `git commit -S` を使います。
+
+    ```ini
+    [commit]
+        gpgsign = false
+    ```
+
     接続する側の端末では `codex_remote` で接続します。詳細は「カスタムシェル関数」の [codex_remote](#codex_remote) を参照してください。
 
     ```bash

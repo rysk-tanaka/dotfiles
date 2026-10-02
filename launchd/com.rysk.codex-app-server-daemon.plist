@@ -8,9 +8,6 @@
   daemon start は daemon を切り離した直後に終了する。launchd はジョブ終了時にプロセスグループの
   残存プロセスを kill するため、AbandonProcessGroup で daemon を巻き込まないようにする。
 
-  daemon は起動時の環境を引き継ぐ。ここから起動すると GUI セッションの環境になり、daemon 内の
-  git commit は op-ssh-sign で署名するため、1Password の承認はこのホストのデスクトップに出る。
-
   導入 (symlink の作成手順は README.md を参照):
     codex app-server daemon stop
     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.rysk.codex-app-server-daemon.plist
