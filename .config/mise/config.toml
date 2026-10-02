@@ -75,6 +75,7 @@ DOTFILES_PATH = "/Users/rysk/Repositories/rysk/dotfiles"
 # LM_API_TOKEN_COMMAND is the token convention of rysk-tanaka/skills, because
 # - LM_API_TOKEN is rejected by the LM Studio SDK unless it is a raw sk-lm- token
 # - resolving the token here would run `op` on every shell
+# Overridden on the LM Studio host by the untracked config.local.toml (see README)
 LM_API_URL = "http://m6m:1234"
 LM_API_TOKEN_COMMAND = "op read 'op://work/LM Studio m6m/credential'"
 

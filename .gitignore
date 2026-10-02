@@ -6,6 +6,9 @@
 # Claude Code local settings
 .claude/settings.local.json
 
+# Per-host mise overrides (~/.config/mise is a symlink to .config/mise)
+.config/mise/config.local.toml
+
 # Skills under .claude/skills/ default to ignored. Publishable skills live in
 # rysk-tanaka/skills and are placed as symlinks by `mise run setup-skills`.
 # External skills (catalog.json source = owner/repo) are restored by the same

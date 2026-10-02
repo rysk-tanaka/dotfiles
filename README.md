@@ -487,6 +487,25 @@ MacOS用の初期セットアップを行います。
 
     codex を更新するときは、両方の端末で `brew upgrade --cask codex` を実行してから、ホスト側で `codex app-server daemon update` を実行します。
 
+8. LM Studio のトークン（LM Studio を動かすホストのみ）
+
+    skills は LM Studio のトークンを `LM_API_TOKEN_COMMAND` で取得し、`.config/mise/config.toml` では `op read` を使います。LM Studio を動かすホストで SSH 経由や無人で使うと、`op` のロック解除がホストのデスクトップに出て止まるため、このホストだけトークンをファイルから読みます。
+
+    切り替えはファイルの有無ではなく、git 管理外の `config.local.toml` で行います。他の端末にトークンのファイルが置かれても、ロック解除なしでは読めないようにするためです。
+
+    トークンのファイルは、接続する側の端末から1回だけ送ります。承認はその端末に出ます。
+
+    ```bash
+    op read 'op://work/LM Studio m6m/credential' | ssh <host> 'umask 077; mkdir -p ~/.config/lm-studio && cat > ~/.config/lm-studio/token'
+    ```
+
+    ホストで `~/.config/mise/config.local.toml` を作成します。
+
+    ```toml
+    [env]
+    LM_API_TOKEN_COMMAND = "cat ~/.config/lm-studio/token"
+    ```
+
 ### プロジェクト用セットアップ
 
 各プロジェクトリポジトリ内で以下のコマンドを実行すると、コーディング規約とGitHub設定をリンクします：
