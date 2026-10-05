@@ -31,8 +31,7 @@
       "matchManagers": ["mise"],
       "matchDepNames": ["1password-cli"],
       "overrideDatasource": "custom.1password-cli",
-      "minimumReleaseAgeBehaviour": "timestamp-optional",
-      "description": "Renovate maps aqua:1password/cli to github-tags, but the aqua package is http-type and the GitHub repo does not exist. Use 1Password's update endpoint instead; it has no release timestamp, so minimumReleaseAge would block it forever."
+      "description": "Renovate maps aqua:1password/cli to github-tags, but the aqua package is http-type and the GitHub repo does not exist. Scrape 1Password's release history page instead, which also carries the release dates minimumReleaseAge needs."
     },
     {
       "matchDepNames": ["rysk-tanaka/workflows"],
@@ -41,8 +40,11 @@
   ],
   "customDatasources": {
     "1password-cli": {
-      "defaultRegistryUrlTemplate": "https://app-updates.agilebits.com/check/1/0/CLI2/en/2.0.0/N",
-      "transformTemplates": ["{\"releases\": [{\"version\": version, \"changelogUrl\": relnotes}]}"]
+      "defaultRegistryUrlTemplate": "https://app-updates.agilebits.com/product_history/CLI2",
+      "format": "plain",
+      "transformTemplates": [
+        "{\"releases\": [$map(releases.version, function($v, $i, $a) {$match($v, /^\\d+\\.\\d+\\.\\d+$/) ? {\"version\": $v, \"releaseTimestamp\": $match($join($a[[$i + 1 .. $i + 4]], \" \"), /released (\\d{4}-\\d{2}-\\d{2})/).groups[0]}})]}"
+      ]
     }
   },
   "customManagers": [
