@@ -28,10 +28,23 @@
       "description": "eza 0.23.5 is not published to crates.io yet, so the asdf plugin (cargo-quickinstall) cannot install it. Remove this cap once crates.io catches up."
     },
     {
+      "matchManagers": ["mise"],
+      "matchDepNames": ["1password-cli"],
+      "overrideDatasource": "custom.1password-cli",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "description": "Renovate maps aqua:1password/cli to github-tags, but the aqua package is http-type and the GitHub repo does not exist. Use 1Password's update endpoint instead; it has no release timestamp, so minimumReleaseAge would block it forever."
+    },
+    {
       "matchDepNames": ["rysk-tanaka/workflows"],
       "enabled": false
     }
   ],
+  "customDatasources": {
+    "1password-cli": {
+      "defaultRegistryUrlTemplate": "https://app-updates.agilebits.com/check/1/0/CLI2/en/2.0.0/N",
+      "transformTemplates": ["{\"releases\": [{\"version\": version, \"changelogUrl\": relnotes}]}"]
+    }
+  },
   "customManagers": [
     {
       "customType": "regex",
