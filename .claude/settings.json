@@ -143,7 +143,8 @@
     "pyright-lsp@claude-plugins-official": false,
     "rust-analyzer-lsp@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true,
-    "codex@openai-codex": true
+    "codex@openai-codex": true,
+    "cc-plugin-you-should-know@builtin": true
   },
   "extraKnownMarketplaces": {
     "openai-codex": {
@@ -166,6 +167,7 @@
     }
   },
   "tui": "fullscreen",
+  "skipWorkflowUsageWarning": true,
   "theme": "dark",
   "editorMode": "vim",
   "verbose": true,
@@ -194,6 +196,5 @@
   },
   "feedbackSurveyState": {
     "lastShownTime": 1754042613598
-  },
-  "skipWorkflowUsageWarning": true
+  }
 }
