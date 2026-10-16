@@ -290,7 +290,7 @@ jobs:
 `{{VERSION_SOURCE}}` はプロジェクトタイプから決定する。
 
 - Node.js → `package_json`
-- Python → `pyproject_toml`
+- Python → `pyproject`
 - Rust → `cargo_toml`
 
 `{{PATHS_TRIGGER}}` はプロジェクトタイプから決定する。
