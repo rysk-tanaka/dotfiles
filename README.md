@@ -187,6 +187,7 @@ MacOS用の初期セットアップを行います。
     ディレクトリの作成
 
     ```bash
+    mkdir -p ~/.agents
     mkdir -p ~/.codex
     mkdir -p ~/.gemini/config
     mkdir -p ~/.claude
@@ -210,6 +211,7 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.codex/quick.config.toml ~/.codex/quick.config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.codex/important.config.toml ~/.codex/important.config.toml
     ln -sf ~/Repositories/rysk/dotfiles/.codex/skills ~/.codex/skills
+    ln -sf ~/Repositories/rysk/dotfiles/.agents/skills ~/.agents/skills
     ln -sf ~/.claude/CLAUDE.md ~/.codex/AGENTS.md
     ln -sf ~/Repositories/rysk/dotfiles/.gemini/config/mcp_config.json ~/.gemini/config/mcp_config.json
     ln -sf ~/Repositories/rysk/dotfiles/.claude/settings.json ~/.claude/settings.json
@@ -237,7 +239,7 @@ MacOS用の初期セットアップを行います。
     ln -sf ~/Repositories/rysk/dotfiles/.zprofile ~/.zprofile
     ```
 
-    `~/.config/mise` と `~/.claude/skills` はディレクトリ単位の symlink のため、リンク先に実ディレクトリが既に存在すると、その中に入れ子の symlink が作られます。事前に存在しないことを確認してください。
+    `~/.config/mise`、`~/.claude/skills`、`~/.agents/skills` はディレクトリ単位の symlink のため、リンク先に実ディレクトリが既に存在すると、その中に入れ子の symlink が作られます。事前に存在しないことを確認してください。
 
     定期GCのLaunchAgent
 
