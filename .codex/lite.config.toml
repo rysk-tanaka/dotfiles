@@ -2,3 +2,4 @@
 # `codex --profile lite` で base config に上書き
 model = "gpt-6-luna"
 model_reasoning_effort = "low"
+service_tier = "priority"  # Fast。Luna は単価が低く 2.5x でも消費が小さいため
