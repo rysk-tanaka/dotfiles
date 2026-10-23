@@ -6,15 +6,14 @@ autoload -Uz colors && colors
 
 # zsh-completions
 # zsh-autosuggestionsource
-# zsh-git-prompt
 if type brew &>/dev/null; then
   FPATH=/opt/homebrew/share/zsh-completions:$FPATH
   source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-  source /opt/homebrew/opt/zsh-git-prompt/zshrc.sh
 
   autoload -Uz compinit
   compinit
-  PROMPT="%F{034}%n%f:%F{033}%~%f $(git_super_status)"$'\n'"%(#.#.$) "
+  # Fallback when starship is unavailable; starship overrides PROMPT below
+  PROMPT="%F{034}%n%f:%F{033}%~%f"$'\n'"%(#.#.$) "
 fi
 
 # mise
@@ -110,4 +109,3 @@ git() {
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/rysk/.lmstudio/bin"
 # End of LM Studio CLI section
-

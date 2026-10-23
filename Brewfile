@@ -19,7 +19,6 @@ cask "codex"
 # Shell plugins (required by .zshrc)
 brew "zsh-autosuggestions"
 brew "zsh-completions"
-brew "zsh-git-prompt"
 
 # Terminal
 brew "tmux"
