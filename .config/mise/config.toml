@@ -3,7 +3,7 @@
 1password-cli = "2.41.0"
 actionlint = "1.7.12"
 aws-sam-cli = "1.169.0"
-awscli = "2.38.2"                         # requires rosetta 2
+awscli = "2.38.3"                         # requires rosetta 2
 bat = "0.26.1"
 bun = "1.4.4"
 delta = "0.20.1"
@@ -30,7 +30,7 @@ zoxide = "0.10.0"
 # aqua: tools
 "aqua:99designs/aws-vault" = "7.2.0"       # mise registry maps to incorrect aqua:ByteNess/aws-vault
 "aqua:anthropics/claude-code" = "2.1.309"
-"aqua:cli/cli" = "2.102.0"                  # gh: bare registry entry not tracked by Renovate
+"aqua:cli/cli" = "2.102.1"                  # gh: bare registry entry not tracked by Renovate
 "aqua:ducaale/xh" = "0.26.2"
 "aqua:google-antigravity/antigravity-cli" = "1.4.3"
 "aqua:google/osv-scanner" = "2.7.0"
@@ -63,7 +63,7 @@ zoxide = "0.10.0"
 "npm:ccusage" = "20.0.30"                     # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
 "npm:@ccusage/codex" = "19.0.0"              # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
 "npm:claude-code-templates" = "1.30.0"
-"npm:@github/copilot" = "1.0.100"
+"npm:@github/copilot" = "1.0.101"
 "npm:markdownlint-cli2" = "0.23.3"
 "npm:md-mermaid-lint" = "1.0.1"
 "npm:opencommit" = "3.3.11"
