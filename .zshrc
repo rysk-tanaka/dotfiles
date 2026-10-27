@@ -33,9 +33,17 @@ fi
 # starship
 # init embeds the absolute binary path (installs/starship/<version>/starship) into PROMPT,
 # so pruning that version breaks prompts in open shells. Rewrite it to the bare command name
-# so each prompt resolves the current version via PATH (mise activate, with shims as fallback).
+# so each prompt resolves the current version via PATH, which mise activate keeps up to date
+# and the mise shims back up. Match the install layout rather than `command -v starship`,
+# because init embeds the real binary path even when PATH resolves starship to a shim.
 if type starship &>/dev/null; then
-  eval "$(starship init zsh --print-full-init | sed "s|$(command -v starship)|starship|g")"
+  starship_init="$(starship init zsh --print-full-init \
+    | sed -E "s#[^'\"( ]*/installs/starship/[^/'\" ]+/starship#starship#g")"
+  if [[ $starship_init == */installs/starship/* ]]; then
+    print -u2 ".zshrc: starship init still embeds a versioned path; prompts will break after pruning it"
+  fi
+  eval "$starship_init"
+  unset starship_init
 fi
 
 # yazi

@@ -20,6 +20,9 @@ prunable=$(mise ls --prunable 2>/dev/null || true)
 # It holds the pre-prune list; a version reused meanwhile is kept by mise prune and only
 # yields a harmless extra notice, since the suggested venv re-creation is idempotent.
 pruned=""
+prune_failed=false
+# Exit status of the whole task; a prune failure is reported here after the remaining steps run
+exit_status=0
 if [ -z "$prunable" ]; then
     echo "  (none)"
 else
@@ -38,6 +41,8 @@ else
             # 途中で失敗しても一部は削除済みのため、set -e で止めずに後続の正規化と注意表示まで進める
             if ! mise prune -y; then
                 echo "  ⚠ mise prune failed partway — some versions may already be removed"
+                prune_failed=true
+                exit_status=1
             fi
             ;;
         *) echo "スキップしました" ;;
@@ -67,9 +72,15 @@ fi
 if [ -n "$pruned" ]; then
     echo ""
     echo "==> Post-prune notices:"
-    # prune は全 tracked-configs 横断なので、他リポジトリのバックエンド付き表記（core:python 等）も拾う
-    if grep -qE '^([a-z-]+:)?python[[:space:]]' <<< "$pruned"; then
-        echo "  ⚠ python の旧版を削除しました — 旧版で作成した .venv や uv tool の環境は再作成が必要です（uv sync / uv tool install --reinstall 等）"
+    # prune は全 tracked-configs 横断なので、他リポジトリのバックエンド付き表記
+    # （core:python, asdf:mise-plugins/mise-python 等）も拾う
+    if grep -qE '^([^[:space:]]+[:/-])?python[[:space:]]' <<< "$pruned"; then
+        if [ "$prune_failed" = "true" ]; then
+            echo "  ⚠ python の旧版が削除された可能性があります — 壊れた環境があれば再作成してください"
+        else
+            echo "  ⚠ python の旧版を削除しました — 旧版で作成した環境は再作成が必要です"
+        fi
+        echo "    .venv: uv sync / uv tool: uv tool install --reinstall / mise の pipx: ツール: mise install -f"
     else
         echo "  ✓ no action needed"
     fi
@@ -80,7 +91,7 @@ echo ""
 echo "==> Codex health:"
 if ! command -v codex &>/dev/null; then
     echo "  - skipped (codex not installed)"
-    exit 0
+    exit "$exit_status"
 fi
 
 # 5a. CLI version lag (brew のキャッシュ状態を参照)
@@ -99,7 +110,7 @@ fi
 conf_model=$(python3 -c "import tomllib,sys; print(tomllib.load(open(sys.argv[1],'rb')).get('model',''))" "${DOTFILES_PATH}/.codex/config.toml" 2>/dev/null || true)
 if [ -z "$conf_model" ]; then
     echo "  - model check skipped (config に model 指定なし)"
-    exit 0
+    exit "$exit_status"
 fi
 
 # codex debug models をリポジトリ内で実行すると config.toml に trust ブロックが追記される副作用があるため、
@@ -127,3 +138,5 @@ except (json.JSONDecodeError, ValueError):
 else
     echo "  - model check skipped (codex auth/network unavailable)"
 fi
+
+exit "$exit_status"
