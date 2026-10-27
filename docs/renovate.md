@@ -154,7 +154,7 @@ Renovate PRをマージした後、ローカル環境を同期するには `git 
 mise run sync-tools
 ```
 
-`sync-tools` タスクは `mise install`（新バージョン導入）→ 不要バージョンの一覧表示と `y/N` 確認付き削除 → Codex CLI の健全性チェック（バージョン遅れ・設定モデルの撤去検知）をまとめて実行します。確認をスキップしたい場合は `mise run sync-tools --yes` を使います。
+`sync-tools` タスクは `mise install`（新バージョン導入）→ 不要バージョンの一覧表示と `y/N` 確認付き削除 → 削除後の注意表示（starship 削除時は `exec zsh`、python 削除時は `.venv` 再作成）→ Codex CLI の健全性チェック（バージョン遅れ・設定モデルの撤去検知）をまとめて実行します。確認をスキップしたい場合は `mise run sync-tools --yes` を使います。
 
 以下は `sync-tools` が内部で行う処理を手動で実行する場合の手順です。
 

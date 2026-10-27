@@ -16,6 +16,8 @@ echo ""
 echo "==> Prunable versions:"
 # mise prune は全 tracked-configs 横断のグローバル操作（登録済み全リポジトリで未使用のものを削除）
 prunable=$(mise ls --prunable 2>/dev/null || true)
+# Only set when prune actually ran, so post-prune notices are not shown on skip
+pruned=""
 if [ -z "$prunable" ]; then
     echo "  (none)"
 else
@@ -24,11 +26,12 @@ else
     echo "Note: mise prune は登録済み全リポジトリで未使用のバージョンを削除します（グローバル操作）"
     if [ "${usage_yes:-false}" = "true" ]; then
         mise prune -y
+        pruned="$prunable"
     else
         printf "削除しますか？ [y/N]: "
         read -r answer || answer=""
         case "$answer" in
-            [yY]) mise prune -y ;;
+            [yY]) mise prune -y; pruned="$prunable" ;;
             *) echo "スキップしました" ;;
         esac
     fi
@@ -50,7 +53,29 @@ else
     done <<< "$broken_keys"
 fi
 
-# 4. Codex health checks (best-effort, non-fatal)
+# 4. post-prune notices
+# starship init は実体の絶対パスを init スクリプトに焼き込むため、旧版を prune すると
+# 開いているシェルのプロンプトが壊れる（gh の helper と違い外部から書き換えられないので再初期化を促す）。
+# python も venv が実体パスへの symlink を持つため、旧版で作った .venv が壊れる。
+# Codex のチェックは early exit するため、その前に置く。
+if [ -n "$pruned" ]; then
+    echo ""
+    echo "==> Post-prune notices:"
+    has_notice=false
+    if grep -q '^starship ' <<< "$pruned"; then
+        echo "  ⚠ starship の旧版を削除しました — 開いているシェルで exec zsh を実行してください"
+        has_notice=true
+    fi
+    if grep -q '^python ' <<< "$pruned"; then
+        echo "  ⚠ python の旧版を削除しました — 旧版で作成した .venv は再作成が必要です（uv sync 等）"
+        has_notice=true
+    fi
+    if [ "$has_notice" = "false" ]; then
+        echo "  ✓ no action needed"
+    fi
+fi
+
+# 5. Codex health checks (best-effort, non-fatal)
 echo ""
 echo "==> Codex health:"
 if ! command -v codex &>/dev/null; then
@@ -58,7 +83,7 @@ if ! command -v codex &>/dev/null; then
     exit 0
 fi
 
-# 4a. CLI version lag (brew のキャッシュ状態を参照)
+# 5a. CLI version lag (brew のキャッシュ状態を参照)
 if command -v brew &>/dev/null; then
     if brew outdated --cask codex 2>/dev/null | grep -q '^codex'; then
         echo "  ⚠ codex is outdated — run: brew upgrade --cask codex"
@@ -69,7 +94,7 @@ else
     echo "  - version check skipped (brew not available)"
 fi
 
-# 4b. configured model がカタログに在るか（撤去検知）
+# 5b. configured model がカタログに在るか（撤去検知）
 # config.toml を tomllib でパースして top-level model を取得（Python 3.11+ stdlib、引用符の差異を正しく処理）
 conf_model=$(python3 -c "import tomllib,sys; print(tomllib.load(open(sys.argv[1],'rb')).get('model',''))" "${DOTFILES_PATH}/.codex/config.toml" 2>/dev/null || true)
 if [ -z "$conf_model" ]; then
