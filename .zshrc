@@ -31,8 +31,22 @@ if [ -d "$GTR_PATH" ]; then
 fi
 
 # starship
+# init embeds the versioned binary path (e.g. installs/starship/<version>/starship) into
+# PROMPT, RPROMPT, PROMPT2 and its hook functions, so pruning that version breaks prompts in
+# open shells. Replace every occurrence with the bare command name so each prompt resolves the
+# current version via PATH, which mise activate keeps up to date and the mise shims back up.
+# `mise which` returns the real binary path that init embeds even when PATH resolves starship
+# to a shim, and a literal replacement works for any backend layout or spaces in the path.
 if type starship &>/dev/null; then
-  eval "$(starship init zsh)"
+  starship_init="$(starship init zsh --print-full-init)"
+  if starship_bin="$(mise which starship 2>/dev/null)"; then
+    starship_init=${starship_init//$starship_bin/starship}
+    if [[ $starship_init == *${MISE_DATA_DIR:-$HOME/.local/share/mise}/installs/* ]]; then
+      print -u2 ".zshrc: starship init still embeds a mise install path; check the starship rewrite in ~/.zshrc"
+    fi
+  fi
+  eval "$starship_init"
+  unset starship_init starship_bin
 fi
 
 # yazi

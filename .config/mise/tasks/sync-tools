@@ -16,6 +16,10 @@ echo ""
 echo "==> Prunable versions:"
 # mise prune は全 tracked-configs 横断のグローバル操作（登録済み全リポジトリで未使用のものを削除）
 prunable=$(mise ls --prunable 2>/dev/null || true)
+# Versions actually removed by prune; empty on skip, so post-prune notices are not shown
+pruned=""
+# Exit status of the whole task; a prune failure is reported here after the remaining steps run
+exit_status=0
 if [ -z "$prunable" ]; then
     echo "  (none)"
 else
@@ -23,15 +27,25 @@ else
     echo ""
     echo "Note: mise prune は登録済み全リポジトリで未使用のバージョンを削除します（グローバル操作）"
     if [ "${usage_yes:-false}" = "true" ]; then
-        mise prune -y
+        answer="y"
     else
         printf "削除しますか？ [y/N]: "
         read -r answer || answer=""
-        case "$answer" in
-            [yY]) mise prune -y ;;
-            *) echo "スキップしました" ;;
-        esac
     fi
+    case "$answer" in
+        [yY])
+            # 途中で失敗しても一部は削除済みのため、set -e で止めずに後続の正規化と注意表示まで進める
+            if ! mise prune -y; then
+                echo "  ⚠ mise prune failed partway — some versions may already be removed"
+                exit_status=1
+            fi
+            # mise prune は実行中のプロセスが使っている版を残し、途中で失敗することもあるため、
+            # prune 前後の一覧の差分を実際に削除された版とみなす
+            remaining=$(mise ls --prunable 2>/dev/null || true)
+            pruned=$(grep -vxF -f <(printf '%s\n' "$remaining") <<< "$prunable" || true)
+            ;;
+        *) echo "スキップしました" ;;
+    esac
 fi
 
 # 3. normalize gh credential helper (version-pinned path → PATH-resolved)
@@ -50,15 +64,33 @@ else
     done <<< "$broken_keys"
 fi
 
-# 4. Codex health checks (best-effort, non-fatal)
+# 4. post-prune notices
+# venv は python 実体への symlink を持つため、旧版を prune すると旧版で作った .venv や uv tool の環境が壊れる。
+# 環境はリポジトリごとに散在し外部から一括で直せないため、再作成を促す。
+# starship は .zshrc で init スクリプトの絶対パスを PATH 解決形に書き換えているため対象外。
+if [ -n "$pruned" ]; then
+    echo ""
+    echo "==> Post-prune notices:"
+    # prune は全 tracked-configs 横断なので、他リポジトリのバックエンド付き表記
+    # （core:python, asdf:mise-plugins/mise-python 等）も拾う。npm:foo-python のような
+    # 無関係なツールに一致しないよう、名前の前置きは既知のプラグイン接頭辞に限る
+    if grep -qE '^([^[:space:]]*[:/])?((mise|vfox|asdf)-)?python[[:space:]]' <<< "$pruned"; then
+        echo "  ⚠ python の旧版を削除しました — 旧版で作成した環境は再作成が必要です"
+        echo "    .venv: uv sync / uv tool: uv tool install --reinstall <pkg> / mise の pipx: ツール: mise install -f pipx:<tool>"
+    else
+        echo "  ✓ no action needed"
+    fi
+fi
+
+# 5. Codex health checks (best-effort, non-fatal)
 echo ""
 echo "==> Codex health:"
 if ! command -v codex &>/dev/null; then
     echo "  - skipped (codex not installed)"
-    exit 0
+    exit "$exit_status"
 fi
 
-# 4a. CLI version lag (brew のキャッシュ状態を参照)
+# 5a. CLI version lag (brew のキャッシュ状態を参照)
 if command -v brew &>/dev/null; then
     if brew outdated --cask codex 2>/dev/null | grep -q '^codex'; then
         echo "  ⚠ codex is outdated — run: brew upgrade --cask codex"
@@ -69,12 +101,12 @@ else
     echo "  - version check skipped (brew not available)"
 fi
 
-# 4b. configured model がカタログに在るか（撤去検知）
+# 5b. configured model がカタログに在るか（撤去検知）
 # config.toml を tomllib でパースして top-level model を取得（Python 3.11+ stdlib、引用符の差異を正しく処理）
 conf_model=$(python3 -c "import tomllib,sys; print(tomllib.load(open(sys.argv[1],'rb')).get('model',''))" "${DOTFILES_PATH}/.codex/config.toml" 2>/dev/null || true)
 if [ -z "$conf_model" ]; then
     echo "  - model check skipped (config に model 指定なし)"
-    exit 0
+    exit "$exit_status"
 fi
 
 # codex debug models をリポジトリ内で実行すると config.toml に trust ブロックが追記される副作用があるため、
@@ -102,3 +134,5 @@ except (json.JSONDecodeError, ValueError):
 else
     echo "  - model check skipped (codex auth/network unavailable)"
 fi
+
+exit "$exit_status"
