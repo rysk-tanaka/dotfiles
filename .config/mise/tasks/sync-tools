@@ -16,11 +16,8 @@ echo ""
 echo "==> Prunable versions:"
 # mise prune は全 tracked-configs 横断のグローバル操作（登録済み全リポジトリで未使用のものを削除）
 prunable=$(mise ls --prunable 2>/dev/null || true)
-# Only set when prune ran, so post-prune notices are not shown on skip.
-# It holds the pre-prune list; a version reused meanwhile is kept by mise prune and only
-# yields a harmless extra notice, since the suggested venv re-creation is idempotent.
+# Versions actually removed by prune; empty on skip, so post-prune notices are not shown
 pruned=""
-prune_failed=false
 # Exit status of the whole task; a prune failure is reported here after the remaining steps run
 exit_status=0
 if [ -z "$prunable" ]; then
@@ -37,13 +34,15 @@ else
     fi
     case "$answer" in
         [yY])
-            pruned="$prunable"
             # 途中で失敗しても一部は削除済みのため、set -e で止めずに後続の正規化と注意表示まで進める
             if ! mise prune -y; then
                 echo "  ⚠ mise prune failed partway — some versions may already be removed"
-                prune_failed=true
                 exit_status=1
             fi
+            # mise prune は実行中のプロセスが使っている版を残し、途中で失敗することもあるため、
+            # prune 前後の一覧の差分を実際に削除された版とみなす
+            remaining=$(mise ls --prunable 2>/dev/null || true)
+            pruned=$(grep -vxF -f <(printf '%s\n' "$remaining") <<< "$prunable" || true)
             ;;
         *) echo "スキップしました" ;;
     esac
@@ -73,14 +72,11 @@ if [ -n "$pruned" ]; then
     echo ""
     echo "==> Post-prune notices:"
     # prune は全 tracked-configs 横断なので、他リポジトリのバックエンド付き表記
-    # （core:python, asdf:mise-plugins/mise-python 等）も拾う
-    if grep -qE '^([^[:space:]]+[:/-])?python[[:space:]]' <<< "$pruned"; then
-        if [ "$prune_failed" = "true" ]; then
-            echo "  ⚠ python の旧版が削除された可能性があります — 壊れた環境があれば再作成してください"
-        else
-            echo "  ⚠ python の旧版を削除しました — 旧版で作成した環境は再作成が必要です"
-        fi
-        echo "    .venv: uv sync / uv tool: uv tool install --reinstall / mise の pipx: ツール: mise install -f"
+    # （core:python, asdf:mise-plugins/mise-python 等）も拾う。npm:foo-python のような
+    # 無関係なツールに一致しないよう、名前の前置きは既知のプラグイン接頭辞に限る
+    if grep -qE '^([^[:space:]]*[:/])?((mise|vfox|asdf)-)?python[[:space:]]' <<< "$pruned"; then
+        echo "  ⚠ python の旧版を削除しました — 旧版で作成した環境は再作成が必要です"
+        echo "    .venv: uv sync / uv tool: uv tool install --reinstall <pkg> / mise の pipx: ツール: mise install -f pipx:<tool>"
     else
         echo "  ✓ no action needed"
     fi

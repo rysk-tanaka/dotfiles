@@ -177,7 +177,7 @@ mise prune -y
 
 `mise prune` は `~/.local/state/mise/tracked-configs` に登録された全リポジトリの設定を参照し、いずれのリポジトリからも使われていないバージョンのみを削除します。
 
-python の旧バージョンを削除すると、そのバージョンで作成した `.venv` や uv tool、mise の `pipx:` ツールの環境は Python 実体への symlink が切れて動かなくなります。`uv sync`、`uv tool install --reinstall`、`mise install -f` で再作成してください。starship は `.zshrc` で init スクリプト内の絶対パスを PATH 解決形に書き換えているため、旧バージョンを削除してもプロンプトは壊れません。ただし、この書き換えより前の `.zshrc` で起動したシェルには絶対パスが残るので、一度 `exec zsh` で再初期化してください。
+python の旧バージョンを削除すると、そのバージョンで作成した `.venv` や uv tool、mise の `pipx:` ツールの環境は Python 実体への symlink が切れて動かなくなります。`uv sync`、`uv tool install --reinstall <pkg>`、`mise install -f pipx:<tool>` で再作成してください。starship は `.zshrc` で init スクリプト内の絶対パスを PATH 解決形に書き換えているため、旧バージョンを削除してもプロンプトは壊れません。ただし、この書き換えより前の `.zshrc` で起動したシェルには絶対パスが残るので、一度 `exec zsh` で再初期化してください。
 
 なお `mise upgrade` は `latest` のような動的バージョン指定の場合に旧バージョンの自動削除を行いますが、ピン留め運用（`uv = "0.10.6"` 等）では旧バージョンは削除されません。
 
