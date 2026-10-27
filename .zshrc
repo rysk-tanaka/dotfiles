@@ -31,8 +31,11 @@ if [ -d "$GTR_PATH" ]; then
 fi
 
 # starship
+# init embeds the absolute binary path (installs/starship/<version>/starship) into PROMPT,
+# so pruning that version breaks prompts in open shells. Rewrite it to the bare command name
+# so each prompt resolves the current version via PATH (mise activate, with shims as fallback).
 if type starship &>/dev/null; then
-  eval "$(starship init zsh)"
+  eval "$(starship init zsh --print-full-init | sed "s|$(command -v starship)|starship|g")"
 fi
 
 # yazi
