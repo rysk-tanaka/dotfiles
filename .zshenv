@@ -34,7 +34,7 @@ unset GH_TOKEN
 # GitHub tokens for MCP server and mise (gh auth token via OAuth, not PAT)
 # - Tool-specific vars (not GITHUB_TOKEN) to avoid interfering with gh CLI's own token resolution
 # - No --hostname flag: returns active account's token, respects `gh auth switch`
-# - MISE_GITHUB_TOKEN: aqua/ubi backends resolve versions via api.github.com; unauthenticated
+# - MISE_GITHUB_TOKEN: aqua/github backends resolve versions via api.github.com; unauthenticated
 #   requests share the per-IP 60 req/h quota and bulk runs (sync-tools) exhaust it
 if [ -z "$GH_MCP_TOKEN" ] && command -v gh >/dev/null 2>&1; then
   _gh_token="$(gh auth token 2>/dev/null)"
