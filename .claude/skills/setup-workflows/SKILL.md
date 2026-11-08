@@ -240,6 +240,8 @@ jobs:
     with:
       package_manager: {{PACKAGE_MANAGER}}
       {{SETUP_COMMAND_LINE}}
+      # Strip Claude's credentials from subprocesses, so build and install scripts cannot read them.
+      subprocess_env_scrub: true
       claude_args: '--max-turns 40 --model claude-opus-5-5 --allowed-tools "{{ALLOWED_TOOLS}},{{PM_TOOLS}}"'
       prompt: |
         Issue #${{ github.event.issue.number }} を実装し、PR を作成してください。
