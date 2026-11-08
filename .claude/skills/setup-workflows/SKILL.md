@@ -184,7 +184,7 @@ jobs:
 
 ### issue-implement.yml
 
-Note: `claude_args` 内のモデル名（`claude-opus-4-6`）は、Issue 実装が長時間・高精度タスクであるため意図的に高性能モデルを指定している。新しい Claude モデルがリリースされた場合、この SKILL.md 自体のモデル名を更新する必要がある。
+Note: `claude_args` 内のモデル名（`claude-opus-5-5`）は、Issue 実装が長時間・高精度タスクであるため意図的に高性能モデルを指定している。新しい Claude モデルがリリースされた場合、この SKILL.md 自体のモデル名を更新する必要がある。
 
 `{{PACKAGE_MANAGER}}` はステップ1で検出したパッケージマネージャー名に置換する（`pnpm`, `npm`, `yarn`, `none`）。Python/Rust の場合は `none` を使用する（reusable workflow 側で Node.js セットアップをスキップする）。
 
@@ -240,7 +240,7 @@ jobs:
     with:
       package_manager: {{PACKAGE_MANAGER}}
       {{SETUP_COMMAND_LINE}}
-      claude_args: '--max-turns 40 --model claude-opus-4-6 --allowed-tools "{{ALLOWED_TOOLS}},{{PM_TOOLS}}"'
+      claude_args: '--max-turns 40 --model claude-opus-5-5 --allowed-tools "{{ALLOWED_TOOLS}},{{PM_TOOLS}}"'
       prompt: |
         Issue #${{ github.event.issue.number }} を実装し、PR を作成してください。
 
