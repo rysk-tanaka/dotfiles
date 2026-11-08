@@ -199,7 +199,7 @@ Note: `claude_args` 内のモデル名（`claude-opus-5-5`）は、Issue 実装�
 共通部分（全プロジェクト共通）。
 
 ```text
-Read,Edit,Write,Glob,Grep,Bash(git fetch origin *),Bash(git add *),Bash(git commit *),Bash(git checkout *),Bash(git push origin implement-issue-*),Bash(git status),Bash(git status *),Bash(git diff),Bash(git diff *),Bash(git log *),Bash(gh issue view ${{ github.event.issue.number }}),Bash(gh pr create * --body-file *),Bash(gh pr edit * --add-label *)
+Read,Edit,Write,Glob,Grep,Bash(git fetch origin *),Bash(git add *),Bash(git commit *),Bash(git checkout *),Bash(git push origin implement-issue-*),Bash(git status),Bash(git status *),Bash(git diff),Bash(git diff *),Bash(git log *),Bash(gh issue view ${{ github.event.issue.number }}),Bash(gh pr create * --body-file *),Bash(gh pr edit * --add-label claude-review)
 ```
 
 `gh issue view` は実装する Issue の番号だけを許可する（`*` にすると、第三者のコメントや別の Issue を読めてしまうため）。
@@ -251,7 +251,7 @@ jobs:
         {{PROMPT_COMMANDS}}
         {{NEXT_STEP}}. 変更をコミットして `git push origin implement-issue-${{ github.event.issue.number }}` でプッシュする（`-u` フラグ不可）
         {{NEXT_STEP+1}}. PR 本文を `/tmp/pr-body.md` に Write ツールで書き出し（必ず `Closes #${{ github.event.issue.number }}` を含める）、`gh pr create --title "..." --body-file /tmp/pr-body.md` で PR を作成する（`--body` は使用しない）
-        {{NEXT_STEP+2}}. `gh pr edit --add-label claude-review` で PR に `claude-review` ラベルを付与する
+        {{NEXT_STEP+2}}. `gh pr create` が出力した URL の末尾にある PR 番号を使い、`gh pr edit <PR 番号> --add-label claude-review` で PR に `claude-review` ラベルを付与する
 
         要件:
         - 既存のコーディング規約に従う
