@@ -201,8 +201,10 @@ Note: `claude_args` 内のモデル名（`claude-opus-4-6`）は、Issue 実装�
 共通部分（全プロジェクト共通）。
 
 ```text
-Read,Edit,Write,Glob,Grep,Bash(git fetch origin *),Bash(git add *),Bash(git commit *),Bash(git checkout *),Bash(git push origin implement-issue-*),Bash(git status),Bash(git status *),Bash(git diff),Bash(git diff *),Bash(git log *),Bash(gh issue view *),Bash(gh pr create * --body-file *),Bash(gh pr edit * --add-label *)
+Read,Edit,Write,Glob,Grep,Bash(git fetch origin *),Bash(git add *),Bash(git commit *),Bash(git checkout *),Bash(git push origin implement-issue-*),Bash(git status),Bash(git status *),Bash(git diff),Bash(git diff *),Bash(git log *),Bash(gh issue view ${{ github.event.issue.number }}),Bash(gh pr create * --body-file *),Bash(gh pr edit * --add-label *)
 ```
+
+`gh issue view` は実装する Issue の番号だけを許可する（`*` にすると、第三者のコメントや別の Issue を読めてしまうため）。
 
 パッケージマネージャー部分（`{{PM_TOOLS}}`）— ステップ3で確認した各コマンド（テスト/lint/format）から生成する。
 
