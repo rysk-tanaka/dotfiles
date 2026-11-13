@@ -3,7 +3,7 @@
     "aws-docs": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["awslabs.aws-documentation-mcp-server@1.2.4"],
+      "args": ["awslabs.aws-documentation-mcp-server@1.2.5"],
       "env": {
         "FASTMCP_LOG_LEVEL": "ERROR"
       }
