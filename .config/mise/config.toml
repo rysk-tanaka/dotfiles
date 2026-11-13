@@ -3,17 +3,17 @@
 1password-cli = "2.42.0"
 actionlint = "1.7.12"
 aws-sam-cli = "1.171.0"
-awscli = "2.39.3"                         # requires rosetta 2
+awscli = "2.39.7"                         # requires rosetta 2
 bat = "0.26.1"
 bun = "1.4.4"
 delta = "0.20.1"
 duckdb = "2.0.0"
 eza = "0.23.4"
-fzf = "0.74.5"                             # required for zoxide interactive (cdi)
+fzf = "0.75.0"                             # required for zoxide interactive (cdi)
 gitu = "0.44.0"
 go = "1.27.3"
 jq = "1.8.2"
-jujutsu = "0.46.0"
+jujutsu = "0.47.1"
 node = "lts"
 pandoc = "3.13"
 pre-commit = "4.7.0"
@@ -32,11 +32,11 @@ zoxide = "0.10.0"
 "aqua:anthropics/claude-code" = "2.1.323"
 "aqua:cli/cli" = "2.103.3"                  # gh: bare registry entry not tracked by Renovate
 "aqua:ducaale/xh" = "0.26.3"
-"aqua:google-antigravity/antigravity-cli" = "1.4.12"
-"aqua:google/osv-scanner" = "2.7.0"
-"aqua:j178/prek" = "0.5.9"
+"aqua:google-antigravity/antigravity-cli" = "1.5.4"
+"aqua:google/osv-scanner" = "2.7.1"
+"aqua:j178/prek" = "0.5.10"
 "aqua:modem-dev/hunk" = "0.24.1"
-"aqua:pnpm/pnpm" = "12.17.0"                 # npm backend (bun) skips pnpm's postinstall, leaving a shebang-less shim that macOS posix_spawn rejects
+"aqua:pnpm/pnpm" = "12.19.0"                 # npm backend (bun) skips pnpm's postinstall, leaving a shebang-less shim that macOS posix_spawn rejects
 "aqua:suzuki-shunsuke/ghalint" = "1.6.0"
 "aqua:suzuki-shunsuke/pinact" = "5.0.2"
 "aqua:sxyazi/yazi" = "26.9.1"
@@ -47,21 +47,21 @@ zoxide = "0.10.0"
 "cargo:treemd" = "0.10.0"
 
 # github: tools
-"github:rysk-tanaka/csvr" = "0.2.0"
+"github:rysk-tanaka/csvr" = "0.3.0"
 # Apple Intelligence backend for auto-commit/suggest-branch; release ships arm64 macOS only,
 # so gate with os to keep `mise install` working on Intel macOS / Linux clones
 "github:rysk-tanaka/rintel" = { version = "0.3.0", os = ["macos/arm64"] }
 # global wakatime-cli stops claude-code-wakatime's unauthenticated GitHub API version polling
-"github:wakatime/wakatime-cli" = "2.28.0"
+"github:wakatime/wakatime-cli" = "2.28.4"
 
 # npm: tools
-"npm:aws-cdk" = "2.1147.0"
+"npm:aws-cdk" = "2.1148.0"
 "npm:cc-sdd" = "3.1.0"
 "npm:ccmanager" = "4.4.11"
 "npm:ccusage" = "20.0.48"                     # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
 "npm:@ccusage/codex" = "19.0.0"              # 18.0.6 has runtime: protocol dep (incompatible with npm/bun global install)
-"npm:claude-code-templates" = "1.32.0"
-"npm:@github/copilot" = "1.0.105"
+"npm:claude-code-templates" = "1.33.1"
+"npm:@github/copilot" = "1.0.108"
 "npm:markdownlint-cli2" = "0.24.0"
 "npm:md-mermaid-lint" = "1.0.1"
 "npm:opencommit" = "3.3.11"
