@@ -3,6 +3,7 @@ brew "container"
 brew "coreutils"
 brew "dockutil"
 brew "fastfetch"
+brew "git" # newer than Apple Git bundled with Xcode CLT
 brew "gnu-sed"
 brew "gnupg"
 brew "hey"
